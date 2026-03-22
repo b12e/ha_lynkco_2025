@@ -30,6 +30,14 @@ SIGNATURE_BASE_URLS = [
 ]
 
 # Polling
+# Model code → human-readable name
+MODEL_NAMES = {
+    "CX11_A1": "Lynk & Co 01",
+    "CX11_A3": "Lynk & Co 01 (2025)",
+    "E335": "Lynk & Co 02",
+    "DX11": "Lynk & Co 08",
+}
+
 DEFAULT_SCAN_INTERVAL = 900  # 15 minutes
 
 # Config keys

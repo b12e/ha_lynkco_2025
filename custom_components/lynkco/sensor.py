@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, MANUFACTURER
+from .const import DOMAIN, MANUFACTURER, MODEL_NAMES
 from .coordinator import LynkCoCoordinator
 
 
@@ -202,9 +202,9 @@ class LynkCoSensor(CoordinatorEntity, SensorEntity):
     def device_info(self):
         return {
             "identifiers": {(DOMAIN, self.coordinator.vin)},
-            "name": f"Lynk & Co {self.coordinator.model}",
+            "name": MODEL_NAMES.get(self.coordinator.model, f"Lynk & Co {self.coordinator.model}"),
             "manufacturer": MANUFACTURER,
-            "model": self.coordinator.model,
+            "model": MODEL_NAMES.get(self.coordinator.model, self.coordinator.model),
             "serial_number": self.coordinator.vin,
         }
 
