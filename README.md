@@ -48,8 +48,10 @@ The integration uses Azure AD B2C authentication with MFA. Setup requires a one-
 2. A login URL is generated — open it in your browser
 3. Log in with your Lynk & Co email + password + SMS MFA code
 4. After MFA, the browser will fail to open `msauth://...`
-5. Open DevTools (F12) → Network tab → find the 302 request → copy the `Location` header value
+5. Open DevTools (F12) → Network tab → find the last request → copy the `Location` header value (note: Firefox dev tools don't show the entire header. Right click on the request and copy the response headers instead, and then get the `msauth://` header from there)
 6. Paste the full `msauth://...` URL back in Home Assistant
+
+This process should be similar to the HACS integration for pre-2025 Lynk&Co cars such as the [Donkie](https://github.com/Donkie/Hass-Lynk-Co) one. 
 
 Tokens are automatically refreshed. You should only need to re-authenticate if the refresh token expires.
 
@@ -61,8 +63,8 @@ Vehicle data is polled every 15 minutes by default.
 
 Tested with the 2025 platform used by:
 - Lynk & Co 01 (PHEV) - confirmed working
-- Lynk & Co 02 (BEV) - unconfirmed
-- Lynk & Co 08 - uncomfirmed
+- Lynk & Co 02 (BEV) - not tested
+- Lynk & Co 08 - not tested
 
 > **Note**: Pre-2025 Lynk & Co 01 models use a different platform and are NOT supported.
 
