@@ -1,0 +1,108 @@
+flash_lights:
+  name: Flash lights
+  description: Flash the vehicle's lights.
+  fields:
+    vin:
+      name: VIN
+      description: Vehicle Identification Number
+      required: true
+      selector:
+        text:
+
+honk_horn:
+  name: Honk horn
+  description: Honk the vehicle's horn.
+  fields:
+    vin:
+      name: VIN
+      description: Vehicle Identification Number
+      required: true
+      selector:
+        text:
+
+open_sunroof:
+  name: Open sunroof
+  description: Open the vehicle's sunroof.
+  fields:
+    vin:
+      name: VIN
+      description: Vehicle Identification Number
+      required: true
+      selector:
+        text:
+
+close_sunroof:
+  name: Close sunroof
+  description: Close the vehicle's sunroof.
+  fields:
+    vin:
+      name: VIN
+      description: Vehicle Identification Number
+      required: true
+      selector:
+        text:
+
+set_charge_limit:
+  name: Set charge limit
+  description: Set the battery charge limit percentage.
+  fields:
+    vin:
+      name: VIN
+      description: Vehicle Identification Number
+      required: true
+      selector:
+        text:
+    percent:
+      name: Percent
+      description: Charge limit (50-100%)
+      required: true
+      selector:
+        number:
+          min: 50
+          max: 100
+          step: 5
+          unit_of_measurement: "%"
+
+start_ventilate:
+  name: Start ventilation
+  description: Start the vehicle's ventilation.
+  fields:
+    vin:
+      name: VIN
+      description: Vehicle Identification Number
+      required: true
+      selector:
+        text:
+
+stop_ventilate:
+  name: Stop ventilation
+  description: Stop the vehicle's ventilation.
+  fields:
+    vin:
+      name: VIN
+      description: Vehicle Identification Number
+      required: true
+      selector:
+        text:
+
+start_heaters:
+  name: Start heaters
+  description: Start the vehicle's seat/steering heaters.
+  fields:
+    vin:
+      name: VIN
+      description: Vehicle Identification Number
+      required: true
+      selector:
+        text:
+
+stop_heaters:
+  name: Stop heaters
+  description: Stop the vehicle's seat/steering heaters.
+  fields:
+    vin:
+      name: VIN
+      description: Vehicle Identification Number
+      required: true
+      selector:
+        text:

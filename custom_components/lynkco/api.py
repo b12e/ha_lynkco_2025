@@ -210,6 +210,52 @@ class LynkCoAPI:
             "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/door_unlock"
         )
 
+    async def flash_lights(self, vin: str) -> dict:
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/flash_lights"
+        )
+
+    async def honk_horn(self, vin: str) -> dict:
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/honk_horn"
+        )
+
+    async def open_sunroof(self, vin: str) -> dict:
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/sun_roof_open"
+        )
+
+    async def close_sunroof(self, vin: str) -> dict:
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/sun_roof_close"
+        )
+
+    async def set_charge_limit(self, vin: str, percent: int) -> dict:
+        url = f"{COMMAND_BASE}/vehicle/{vin}/command/set_charge_limit"
+        return await self._request("POST", url, params={"percent": percent})
+
+    async def start_ventilate(self, vin: str) -> dict:
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/ventilate_start"
+        )
+
+    async def stop_ventilate(self, vin: str) -> dict:
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/ventilate_stop"
+        )
+
+    async def start_heaters(self, vin: str) -> dict:
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/start_heaters",
+            json=[],
+        )
+
+    async def stop_heaters(self, vin: str) -> dict:
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/stop_heaters",
+            json=[],
+        )
+
     # --- Static helpers for the config flow auth ---
 
     @staticmethod
