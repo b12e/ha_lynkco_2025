@@ -27,22 +27,21 @@ It was tested with the 2025 Lynk&Co 01.
 
 ### Actions (Services)
 Actions are available in v0.2.0 and above. As of right now, they are untested. 
-| Service | Description |
-|---|---|
-| `lynkco.refresh` | Force-refresh all sensors now |
-| `lynkco.flash_lights` | Flash the vehicle's lights |
-| `lynkco.honk_horn` | Honk the horn |
-| `lynkco.open_sunroof` | Open the sunroof |
-| `lynkco.close_sunroof` | Close the sunroof |
-| `lynkco.set_charge_limit` | Set charge limit (50-100%) |
-| `lynkco.start_conditioning` | Start air conditioning (16-28°C) |
-| `lynkco.stop_conditioning` | Stop air conditioning |
-| `lynkco.start_ventilate` | Start ventilation |
-| `lynkco.stop_ventilate` | Stop ventilation |
-| `lynkco.start_heaters` | Start seat/steering heaters |
-| `lynkco.stop_heaters` | Stop heaters |
-
-All services require a `vin` parameter. `set_charge_limit` also requires `percent`, and `start_conditioning` requires `temp`.
+| Service | Description | Required parameters | Confirmed working*
+|---|---|---|---|
+| `lynkco.refresh` | Force-refresh all sensors now | none | ✅ 
+| `lynkco.flash_lights` | Flash the vehicle's lights | `vin`
+| `lynkco.honk_horn` | Honk the horn | `vin`
+| `lynkco.open_sunroof` | Open the sunroof | `vin` | ✅
+| `lynkco.close_sunroof` | Close the sunroof | `vin` | ✅
+| `lynkco.set_charge_limit` | Set charge limit | `vin`, <br> `percent` (between 50 and 100) |
+| `lynkco.start_conditioning` | Start air conditioning | `vin`<br /> `temp` (number between 16 and 28) |
+| `lynkco.stop_conditioning` | Stop air conditioning | `vin` |
+| `lynkco.start_ventilate` | Start ventilation | `vin` |
+| `lynkco.stop_ventilate` | Stop ventilation | `vin` |
+| `lynkco.start_heaters` | Start seat/steering heaters | `vin` |
+| `lynkco.stop_heaters` | Stop heaters | `vin` |
+<sup><sub>Confirmed on a Lynk&Co 01, 2025 model</sup></sub>
 
 ### Screenshot
 
