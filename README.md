@@ -2,6 +2,10 @@
 
 Custom [Home Assistant](https://www.home-assistant.io/) integration for 2025 Lynk & Co vehicles (01, 02, 08) via [HACS](https://hacs.xyz/).
 
+This HACS plugin was entirely reverse engineered and vibe-coded. It should work for the European Lynk&Co vehicles on the new platform (facelift 01, 02, 08).
+
+It was tested with the 2025 Lynk&Co 01.
+
 ## Features
 
 ### Sensors
@@ -56,9 +60,9 @@ Vehicle data is polled every 15 minutes by default.
 ## Supported Models
 
 Tested with the 2025 platform used by:
-- Lynk & Co 01 (PHEV)
-- Lynk & Co 02 (BEV)
-- Lynk & Co 08
+- Lynk & Co 01 (PHEV) - confirmed working
+- Lynk & Co 02 (BEV) - unconfirmed
+- Lynk & Co 08 - uncomfirmed
 
 > **Note**: Pre-2025 Lynk & Co 01 models use a different platform and are NOT supported.
 
