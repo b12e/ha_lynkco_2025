@@ -30,7 +30,7 @@ Actions are available in v0.2.0 and above. As of right now, they are untested.
 | Service | Description | Required parameters | Confirmed working*
 |---|---|---|---|
 | `lynkco.refresh` | Force-refresh all sensors now | none | ✅ 
-| `lynkco.flash_lights` | Flash the vehicle's lights | `vin`
+| `lynkco.flash_lights` | Flash the vehicle's lights | `vin` | ✅ 
 | `lynkco.honk_horn` | Honk the horn | `vin`
 | `lynkco.open_sunroof` | Open the sunroof | `vin` | ✅
 | `lynkco.close_sunroof` | Close the sunroof | `vin` | ✅
