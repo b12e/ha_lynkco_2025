@@ -1,0 +1,12 @@
+{
+  "domain": "lynkco",
+  "name": "Lynk & Co",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/your-repo/lynkco-ha",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/your-repo/lynkco-ha/issues",
+  "requirements": ["aiohttp>=3.8.0", "pkce>=1.0.3"],
+  "version": "0.1.0"
+}

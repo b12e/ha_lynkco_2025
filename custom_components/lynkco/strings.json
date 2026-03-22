@@ -1,0 +1,31 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Lynk & Co Login",
+        "description": "Click Next to generate the login URL."
+      },
+      "auth_url": {
+        "title": "Open Login URL",
+        "description": "1. Open your browser DevTools (F12) > Network tab > enable Persist Logs\n2. Open this URL in your browser:\n\n{auth_url}\n\n3. Log in with your Lynk & Co email, password, and SMS MFA code\n4. After MFA, the browser will fail on msauth://\n5. In DevTools Network tab, find the 302 request > Response Headers > Location\n6. Copy the full msauth://... URL\n\nClick Next when ready to paste the URL."
+      },
+      "paste_redirect": {
+        "title": "Paste Redirect URL",
+        "description": "Paste the full msauth://... URL from the browser DevTools Location header.",
+        "data": {
+          "redirect_url": "Redirect URL"
+        }
+      }
+    },
+    "error": {
+      "no_code": "No authorization code found in the URL",
+      "exchange_failed": "Failed to exchange code for tokens. Code may have expired — try again.",
+      "no_token": "No access token received",
+      "session_failed": "Session validation failed",
+      "no_vehicles": "No vehicles found on this account"
+    },
+    "abort": {
+      "already_configured": "This account is already configured"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+# APK and decompiled code
+*.xapk
+*.apk
+extracted/
+decompiled/
+decompiled_bad/
+smali_out/
+
+# Test scripts and local files
+test_*.py
+lynkco_auth.py
+redirect.txt
+login.html
+tokens.json
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
