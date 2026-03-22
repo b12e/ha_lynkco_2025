@@ -54,25 +54,24 @@ It was tested with the 2025 Lynk&Co 01.
 ### Actions (Services)
 
 All services (except `lynkco.refresh`) accept an optional `vin` parameter. When only one vehicle is configured, the VIN is auto-detected and can be omitted.
+| Service | Description | Parameters | 01 (facelift) | 02 | 08 |
+|---|---|---|---|---|---|
+| `lynkco.refresh` | Force-refresh all sensors now | | ✅ | | |
+| `lynkco.lock_door` | Lock the vehicle's doors | | ✅ | | |
+| `lynkco.unlock_door` | Unlock the vehicle's doors | | ✅ | | |
+| `lynkco.flash_lights` | Flash the vehicle's lights | | ✅ | | |
+| `lynkco.honk_horn` | Honk the horn | | t.b.c. | | |
+| `lynkco.open_sunroof` | Open the sunroof | | ✅ | | |
+| `lynkco.close_sunroof` | Close the sunroof | | ✅ | | |
+| `lynkco.set_charge_limit` | Set charge limit | `percent` (50-100) | t.b.c. | | |
+| `lynkco.start_conditioning` | Start air conditioning | `temp` (16-28°C) | t.b.c. | | |
+| `lynkco.stop_conditioning` | Stop air conditioning | | t.b.c. | | |
+| `lynkco.start_ventilate` | Start ventilation | | t.b.c. | | |
+| `lynkco.stop_ventilate` | Stop ventilation | | t.b.c. | | |
+| `lynkco.start_heaters` | Start seat/steering heaters | | t.b.c. | | |
+| `lynkco.stop_heaters` | Stop heaters | | t.b.c. | | |
 
-| Service | Description | Parameters | Confirmed working* |
-|---|---|---|---|
-| `lynkco.refresh` | Force-refresh all sensors now | | ✅ |
-| `lynkco.lock_door` | Lock the vehicle's doors | | ✅ |
-| `lynkco.unlock_door` | Unlock the vehicle's doors | | ✅ |
-| `lynkco.flash_lights` | Flash the vehicle's lights | | ✅ |
-| `lynkco.honk_horn` | Honk the horn | | t.b.c. |
-| `lynkco.open_sunroof` | Open the sunroof | | ✅ |
-| `lynkco.close_sunroof` | Close the sunroof | | ✅ |
-| `lynkco.set_charge_limit` | Set charge limit | `percent` (50-100) | t.b.c. |
-| `lynkco.start_conditioning` | Start air conditioning | `temp` (16-28°C) | t.b.c. |
-| `lynkco.stop_conditioning` | Stop air conditioning | | t.b.c. |
-| `lynkco.start_ventilate` | Start ventilation | | t.b.c. |
-| `lynkco.stop_ventilate` | Stop ventilation | | t.b.c. |
-| `lynkco.start_heaters` | Start seat/steering heaters | | t.b.c. |
-| `lynkco.stop_heaters` | Stop heaters | | t.b.c. |
-
-<sup><sub>* Confirmed on a Lynk&Co 01, 2025 model</sub></sup>
+✅ = confirmed working on that model
 
 ### Screenshot
 
