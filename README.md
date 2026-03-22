@@ -26,6 +26,7 @@ It was tested with the 2025 Lynk&Co 01.
 - Door lock / unlock
 
 ### Actions (Services)
+Actions are available in v0.2.0 and above. As of right now, they are untested. 
 | Service | Description |
 |---|---|
 | `lynkco.refresh` | Force-refresh all sensors now |
