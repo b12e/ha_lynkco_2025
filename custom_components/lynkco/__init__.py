@@ -28,11 +28,19 @@ SERVICE_START_VENTILATE = "start_ventilate"
 SERVICE_STOP_VENTILATE = "stop_ventilate"
 SERVICE_START_HEATERS = "start_heaters"
 SERVICE_STOP_HEATERS = "stop_heaters"
+SERVICE_START_CONDITIONING = "start_conditioning"
+SERVICE_STOP_CONDITIONING = "stop_conditioning"
+
+ATTR_TEMP = "temp"
 
 VIN_SCHEMA = vol.Schema({vol.Required(ATTR_VIN): cv.string})
 CHARGE_LIMIT_SCHEMA = vol.Schema({
     vol.Required(ATTR_VIN): cv.string,
     vol.Required(ATTR_PERCENT): vol.All(vol.Coerce(int), vol.Range(min=50, max=100)),
+})
+CONDITIONING_SCHEMA = vol.Schema({
+    vol.Required(ATTR_VIN): cv.string,
+    vol.Required(ATTR_TEMP): vol.All(vol.Coerce(int), vol.Range(min=16, max=28)),
 })
 
 
@@ -118,6 +126,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             api = _get_api(hass, call.data[ATTR_VIN])
             await api.stop_heaters(call.data[ATTR_VIN])
 
+        async def handle_start_conditioning(call: ServiceCall) -> None:
+            api = _get_api(hass, call.data[ATTR_VIN])
+            await api.start_conditioning(call.data[ATTR_VIN], call.data[ATTR_TEMP])
+
+        async def handle_stop_conditioning(call: ServiceCall) -> None:
+            api = _get_api(hass, call.data[ATTR_VIN])
+            await api.stop_conditioning(call.data[ATTR_VIN])
+
         hass.services.async_register(DOMAIN, SERVICE_FLASH_LIGHTS, handle_flash_lights, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_HONK_HORN, handle_honk_horn, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_OPEN_SUNROOF, handle_open_sunroof, VIN_SCHEMA)
@@ -127,6 +143,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.services.async_register(DOMAIN, SERVICE_STOP_VENTILATE, handle_stop_ventilate, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_START_HEATERS, handle_start_heaters, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_STOP_HEATERS, handle_stop_heaters, VIN_SCHEMA)
+        hass.services.async_register(DOMAIN, SERVICE_START_CONDITIONING, handle_start_conditioning, CONDITIONING_SCHEMA)
+        hass.services.async_register(DOMAIN, SERVICE_STOP_CONDITIONING, handle_stop_conditioning, VIN_SCHEMA)
 
     return True
 
@@ -144,6 +162,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 SERVICE_SET_CHARGE_LIMIT,
                 SERVICE_START_VENTILATE, SERVICE_STOP_VENTILATE,
                 SERVICE_START_HEATERS, SERVICE_STOP_HEATERS,
+                SERVICE_START_CONDITIONING, SERVICE_STOP_CONDITIONING,
             ]:
                 hass.services.async_remove(DOMAIN, service)
     return unload_ok

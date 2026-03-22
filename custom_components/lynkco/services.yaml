@@ -106,3 +106,35 @@ stop_heaters:
       required: true
       selector:
         text:
+
+start_conditioning:
+  name: Start air conditioning
+  description: Start the vehicle's air conditioning at a target temperature.
+  fields:
+    vin:
+      name: VIN
+      description: Vehicle Identification Number
+      required: true
+      selector:
+        text:
+    temp:
+      name: Temperature
+      description: Target temperature (16-28°C)
+      required: true
+      selector:
+        number:
+          min: 16
+          max: 28
+          step: 1
+          unit_of_measurement: "°C"
+
+stop_conditioning:
+  name: Stop air conditioning
+  description: Stop the vehicle's air conditioning.
+  fields:
+    vin:
+      name: VIN
+      description: Vehicle Identification Number
+      required: true
+      selector:
+        text:

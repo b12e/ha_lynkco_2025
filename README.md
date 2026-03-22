@@ -25,6 +25,23 @@ It was tested with the 2025 Lynk&Co 01.
 ### Lock
 - Door lock / unlock
 
+### Actions (Services)
+| Service | Description |
+|---|---|
+| `lynkco.flash_lights` | Flash the vehicle's lights |
+| `lynkco.honk_horn` | Honk the horn |
+| `lynkco.open_sunroof` | Open the sunroof |
+| `lynkco.close_sunroof` | Close the sunroof |
+| `lynkco.set_charge_limit` | Set charge limit (50-100%) |
+| `lynkco.start_conditioning` | Start air conditioning (16-28°C) |
+| `lynkco.stop_conditioning` | Stop air conditioning |
+| `lynkco.start_ventilate` | Start ventilation |
+| `lynkco.stop_ventilate` | Stop ventilation |
+| `lynkco.start_heaters` | Start seat/steering heaters |
+| `lynkco.stop_heaters` | Stop heaters |
+
+All services require a `vin` parameter. `set_charge_limit` also requires `percent`, and `start_conditioning` requires `temp`.
+
 ### Screenshot
 
 ![screenshot](screenshot.png)
