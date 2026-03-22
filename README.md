@@ -42,7 +42,7 @@ Actions are available in v0.2.0 and above. As of right now, they are untested.
 | `lynkco.start_heaters` | Start seat/steering heaters | `vin` |
 | `lynkco.stop_heaters` | Stop heaters | `vin` |
 
-<sup><sub>Confirmed on a Lynk&Co 01, 2025 model</sup></sub>
+<sup><sub>\* Confirmed on a Lynk&Co 01, 2025 model</sup></sub>
 
 ### Screenshot
 
