@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "custom_components/lynkco/**/*.py"
+      - "custom_components/lynkco/manifest.json"
   workflow_dispatch:
 
 jobs:
@@ -45,9 +46,9 @@ jobs:
         run: |
           last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           if [ -z "$last_tag" ]; then
-            log=$(git log --pretty=format:"- %s (%h)" -- "custom_components/lynkco/**/*.py")
+            log=$(git log --pretty=format:"- %s (%h)" -- "custom_components/lynkco/")
           else
-            log=$(git log "${last_tag}..HEAD" --pretty=format:"- %s (%h)" -- "custom_components/lynkco/**/*.py")
+            log=$(git log "${last_tag}..HEAD" --pretty=format:"- %s (%h)" -- "custom_components/lynkco/")
           fi
           if [ -z "$log" ]; then
             log="- Minor changes"
