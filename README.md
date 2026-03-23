@@ -4,7 +4,7 @@ Custom [Home Assistant](https://www.home-assistant.io/) integration for 2025 Lyn
 
 This HACS plugin was vibe-coded by decompiling the Lynk&Co Android app and letting Claude Code have a run at the code to figure out endpoints and authentication. Claude then wrote the python - although I'm not a stranger to python, it was just easier this way :) 
 
-It should work for the European Lynk&Co vehicles on the new platform (facelift 01, 02, 08). I've tested myself with the 2025 Lynk&Co 01.
+It works for the European Lynk&Co vehicles on the new platform (facelift 01, 02 and probably the 08). I've tested myself with the 2025 Lynk&Co 01 and have had confirmation it works for the Lynk&Co 02 BEV.
 
 ## Features
 
@@ -56,7 +56,7 @@ It should work for the European Lynk&Co vehicles on the new platform (facelift 0
 All services (except `lynkco.refresh`) accept an optional `vin` parameter. When only one vehicle is configured, the VIN is auto-detected and can be omitted.
 | Service | Description | Parameters | 01 (facelift) | 02 | 08 |
 |---|---|---|---|---|---|
-| `lynkco.refresh` | Force-refresh all sensors now | | ✅ | | |
+| `lynkco.refresh` | Force-refresh all sensors now | | ✅ | ✅ | |
 | `lynkco.lock_door` | Lock the vehicle's doors | | ✅ | | |
 | `lynkco.unlock_door` | Unlock the vehicle's doors | | ✅ | | |
 | `lynkco.flash_lights` | Flash the vehicle's lights | | ✅ | | |
@@ -113,7 +113,7 @@ Data is also refreshed by default after any other action is called.
 
 Tested with the 2025 platform used by:
 - Lynk & Co 01 (PHEV) - confirmed working
-- Lynk & Co 02 (BEV) - not tested
+- Lynk & Co 02 (BEV) - confirmed working
 - Lynk & Co 08 (PHEV) - not tested
 
 > **Note**: Pre-2025 Lynk & Co 01 models use a different platform and are NOT supported. You can try your luck with [this](https://github.com/Donkie/Hass-Lynk-Co) repo. 
