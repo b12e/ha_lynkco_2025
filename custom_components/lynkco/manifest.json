@@ -1,7 +1,7 @@
 {
   "domain": "lynkco",
   "name": "Lynk & Co",
-  "codeowners": [],
+  "codeowners": ["@b12e"],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/b12e/hacs_lynkco_2025/",
