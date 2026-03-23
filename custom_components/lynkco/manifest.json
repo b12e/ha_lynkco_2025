@@ -6,9 +6,9 @@
   ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/b12e/hacs_lynkco_2025/",
+  "documentation": "https://github.com/b12e/ha_lynkco_2025/",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/b12e/hacs_lynkco_2025",
+  "issue_tracker": "https://github.com/b12e/ha_lynkco_2025",
   "requirements": [
     "aiohttp>=3.8.0",
     "pkce>=1.0.3"

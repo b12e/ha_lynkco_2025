@@ -6,7 +6,7 @@ This HACS plugin was vibe-coded by decompiling the Lynk&Co Android app and letti
 
 It works for the European Lynk&Co vehicles on the new platform (facelift 01, 02 and probably the 08). I've tested myself with the 2025 Lynk&Co 01 and have had confirmation it works for the Lynk&Co 02 BEV.
 
-Issues and Pull Requests are disabled. For feedback, you are welcome in [Discussions](https://github.com/b12e/hacs_lynkco_2025/discussions). You're also open to fork and redistribute.
+Pull Requests are disabled until further notice.
 
 ## Features
 
