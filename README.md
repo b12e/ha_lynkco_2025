@@ -59,8 +59,8 @@ All services (except `lynkco.refresh`) accept an optional `vin` parameter. When 
 | Service | Description | Parameters | 01 (facelift) | 02 | 08 |
 |---|---|---|---|---|---|
 | `lynkco.refresh` | Force-refresh all sensors now | | ✅ | ✅ | |
-| `lynkco.lock_door` | Lock the vehicle's doors | | ✅ | | |
-| `lynkco.unlock_door` | Unlock the vehicle's doors | | ✅ | | |
+| `lynkco.lock_door` | Lock the vehicle's doors | | ✅ | ✅ | |
+| `lynkco.unlock_door` | Unlock the vehicle's doors | | ✅ | ✅ | |
 | `lynkco.flash_lights` | Flash the vehicle's lights | | ✅ | | |
 | `lynkco.honk_horn` | Honk the horn | | t.b.c. | | |
 | `lynkco.open_sunroof` | Open the sunroof | | ✅ | | |
