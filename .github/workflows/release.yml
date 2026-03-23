@@ -5,7 +5,8 @@ on:
     branches: [main]
     paths:
       - "custom_components/lynkco/**/*.py"
-
+  workflow_dispatch:
+    
 jobs:
   release:
     runs-on: ubuntu-latest
