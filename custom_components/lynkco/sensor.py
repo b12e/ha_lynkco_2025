@@ -123,6 +123,7 @@ SENSOR_TYPES: list[dict] = [
         "unit": PERCENTAGE,
         "state_class": SensorStateClass.MEASUREMENT,
         "value_fn": lambda d: _pct(d.get("fuel", {}).get("fuelState", {}).get("percentageOfRemainingFuel")),
+        "fuel_only": True,
     },
     {
         "key": "fuel_range",
@@ -132,6 +133,7 @@ SENSOR_TYPES: list[dict] = [
         "unit": UnitOfLength.KILOMETERS,
         "state_class": SensorStateClass.MEASUREMENT,
         "value_fn": lambda d: d.get("fuel", {}).get("fuelState", {}).get("remainingRange"),
+        "fuel_only": True,
     },
     {
         "key": "fuel_consumption",
@@ -141,6 +143,7 @@ SENSOR_TYPES: list[dict] = [
         "unit": "L/100km",
         "state_class": SensorStateClass.MEASUREMENT,
         "value_fn": lambda d: d.get("fuel", {}).get("fuelState", {}).get("averageConsumption"),
+        "fuel_only": True,
     },
     {
         "key": "fuel_type",
@@ -150,6 +153,7 @@ SENSOR_TYPES: list[dict] = [
         "unit": None,
         "state_class": None,
         "value_fn": lambda d: _lower(d.get("fuel", {}).get("fuelInfo", {}).get("fuelType")),
+        "fuel_only": True,
     },
     {
         "key": "odometer",
@@ -210,7 +214,10 @@ async def async_setup_entry(
     data = hass.data[DOMAIN][entry.entry_id]
     entities = []
     for vin, coordinator in data["coordinators"].items():
+        is_bev = coordinator.propulsion == "BEV"
         for sensor_type in SENSOR_TYPES:
+            if sensor_type.get("fuel_only") and is_bev:
+                continue
             entities.append(LynkCoSensor(coordinator, sensor_type))
     async_add_entities(entities)
 

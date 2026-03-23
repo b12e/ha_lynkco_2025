@@ -33,6 +33,7 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         self.api = api
         self.vin = vin
         self.model = model
+        self.propulsion: str | None = None  # Set after first fetch (e.g. "PHEV", "BEV")
         self.entry = entry
 
     async def _async_update_data(self) -> dict:
@@ -42,7 +43,7 @@ class LynkCoCoordinator(DataUpdateCoordinator):
             charge = await self.api.get_charge_state(self.vin)
             climate = await self.api.get_climate_state(self.vin)
             doors = await self.api.get_doors_windows(self.vin)
-            fuel = await self.api.get_fuel_state(self.vin)
+            fuel = await self.api.get_fuel_state(self.vin) if self.propulsion != "BEV" else {}
             metadata = await self.api.get_vehicle_metadata(self.vin)
         except Exception as err:
             # Try refreshing tokens once
@@ -62,12 +63,17 @@ class LynkCoCoordinator(DataUpdateCoordinator):
                     charge = await self.api.get_charge_state(self.vin)
                     climate = await self.api.get_climate_state(self.vin)
                     doors = await self.api.get_doors_windows(self.vin)
-                    fuel = await self.api.get_fuel_state(self.vin)
+                    fuel = await self.api.get_fuel_state(self.vin) if self.propulsion != "BEV" else {}
                     metadata = await self.api.get_vehicle_metadata(self.vin)
                 except Exception as retry_err:
                     raise UpdateFailed(f"API error after refresh: {retry_err}") from retry_err
             else:
                 raise UpdateFailed(f"API error: {err}") from err
+
+        # Store propulsion type for entity filtering
+        propulsion = metadata.get("vehicle", {}).get("propulsionType")
+        if propulsion:
+            self.propulsion = propulsion
 
         return {
             "vehicle_data": vehicle_data,
