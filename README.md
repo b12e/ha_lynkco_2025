@@ -73,10 +73,10 @@ All services (except `lynkco.refresh`) accept an optional `vin` parameter. When 
 | `lynkco.start_heaters` | Start seat/steering heaters | | t.b.c. | | |
 | `lynkco.stop_heaters` | Stop heaters | | t.b.c. | | |
 
-Notes:
-✅ = confirmed working on that model
-Sunroof actions aren't available on the Lynk&Co 02 as it doesn't have a sunroof that can open.
-`temp` is in ºC.
+#### Notes:
+- ✅ = confirmed working on that model<br />
+- Sunroof actions aren't available on the Lynk&Co 02 as it doesn't have a sunroof that can open.<br />
+- `temp` is in ºC.
 
 
 ### Screenshot
