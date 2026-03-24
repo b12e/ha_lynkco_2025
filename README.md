@@ -61,15 +61,15 @@ All services (except `lynkco.refresh`) accept an optional `vin` parameter. When 
 | `lynkco.refresh` | Force-refresh all sensors now | | ✅ | ✅ | |
 | `lynkco.lock_door` | Lock the vehicle's doors | | ✅ | ✅ | |
 | `lynkco.unlock_door` | Unlock the vehicle's doors | | ✅ | ✅ | |
-| `lynkco.flash_lights` | Flash the vehicle's lights | | ✅ | | |
-| `lynkco.honk_horn` | Honk the horn | | t.b.c. | | |
-| `lynkco.open_sunroof` | Open the sunroof | | ✅ | | |
-| `lynkco.close_sunroof` | Close the sunroof | | ✅ | | |
-| `lynkco.set_charge_limit` | Set charge limit | `percent` (50-100) | t.b.c. | | |
-| `lynkco.start_conditioning` | Start air conditioning | `temp` (16-28) | t.b.c. | | |
-| `lynkco.stop_conditioning` | Stop air conditioning | | t.b.c. | | |
-| `lynkco.start_ventilate` | Start ventilation | | t.b.c. | | |
-| `lynkco.stop_ventilate` | Stop ventilation | | t.b.c. | | |
+| `lynkco.flash_lights` | Flash the vehicle's lights | | ✅ | ✅ | |
+| `lynkco.honk_horn` | Honk the horn | | t.b.c. | | | ✅ | |
+| `lynkco.open_sunroof` | Open the sunroof | | ✅ | | | ❌ |
+| `lynkco.close_sunroof` | Close the sunroof | | ✅ | | | ❌ |
+| `lynkco.set_charge_limit` | Set charge limit | `percent` (50-100) | t.b.c. | | | ✅ |
+| `lynkco.start_conditioning` | Start air conditioning | `temp` (16-28) | t.b.c. | | | ✅ |
+| `lynkco.stop_conditioning` | Stop air conditioning | | t.b.c. | | | ✅ |
+| `lynkco.start_ventilate` | Start ventilation | | t.b.c. | | |✅||
+| `lynkco.stop_ventilate` | Stop ventilation | | t.b.c. | | | ✅
 | `lynkco.start_heaters` | Start seat/steering heaters | | t.b.c. | | |
 | `lynkco.stop_heaters` | Stop heaters | | t.b.c. | | |
 
