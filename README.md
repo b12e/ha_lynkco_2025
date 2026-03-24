@@ -66,14 +66,17 @@ All services (except `lynkco.refresh`) accept an optional `vin` parameter. When 
 | `lynkco.open_sunroof` | Open the sunroof | | ✅ | | |
 | `lynkco.close_sunroof` | Close the sunroof | | ✅ | | |
 | `lynkco.set_charge_limit` | Set charge limit | `percent` (50-100) | t.b.c. | | |
-| `lynkco.start_conditioning` | Start air conditioning | `temp` (16-28°C) | t.b.c. | | |
+| `lynkco.start_conditioning` | Start air conditioning | `temp` (16-28) | t.b.c. | | |
 | `lynkco.stop_conditioning` | Stop air conditioning | | t.b.c. | | |
 | `lynkco.start_ventilate` | Start ventilation | | t.b.c. | | |
 | `lynkco.stop_ventilate` | Stop ventilation | | t.b.c. | | |
 | `lynkco.start_heaters` | Start seat/steering heaters | | t.b.c. | | |
 | `lynkco.stop_heaters` | Stop heaters | | t.b.c. | | |
 
+Notes:
 ✅ = confirmed working on that model
+`temp` is in ºC.
+
 
 ### Screenshot
 
