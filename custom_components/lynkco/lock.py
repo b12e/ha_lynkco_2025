@@ -27,7 +27,7 @@ async def async_setup_entry(
 
 class LynkCoLock(CoordinatorEntity, LockEntity):
     _attr_has_entity_name = True
-    _attr_name = "Door lock"
+    _attr_translation_key = "door_lock"
 
     def __init__(self, coordinator: LynkCoCoordinator, api) -> None:
         super().__init__(coordinator)

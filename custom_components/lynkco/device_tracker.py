@@ -23,7 +23,7 @@ async def async_setup_entry(
 
 class LynkCoDeviceTracker(CoordinatorEntity, TrackerEntity):
     _attr_has_entity_name = True
-    _attr_name = "Location"
+    _attr_translation_key = "location"
     _attr_icon = "mdi:car"
 
     def __init__(self, coordinator: LynkCoCoordinator) -> None:

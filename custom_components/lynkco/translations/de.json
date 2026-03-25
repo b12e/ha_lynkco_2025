@@ -1,0 +1,222 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Lynk & Co Anmeldung",
+        "description": "Klicken Sie auf Weiter, um die Anmelde-URL zu generieren."
+      },
+      "auth_url": {
+        "title": "Anmelde-URL öffnen",
+        "description": "1. Öffnen Sie die DevTools Ihres Browsers (F12) > Registerkarte Netzwerk > aktivieren Sie Protokoll beibehalten\n2. Öffnen Sie diese URL in Ihrem Browser:\n\n{auth_url}\n\n3. Melden Sie sich mit Ihrer Lynk & Co E-Mail, Ihrem Passwort und dem SMS-MFA-Code an\n4. Nach der MFA wird der Browser bei msauth:// fehlschlagen\n5. Suchen Sie in der Registerkarte Netzwerk der DevTools die 302-Anfrage > Antwortheader > Standort\n6. Kopieren Sie die vollständige msauth://... URL\n\nKlicken Sie auf Weiter, wenn Sie bereit sind, die URL einzufügen."
+      },
+      "paste_redirect": {
+        "title": "Umleitungs-URL einfügen",
+        "description": "Fügen Sie die vollständige msauth://... URL aus dem Standort-Header der Browser-DevTools ein.",
+        "data": {
+          "redirect_url": "Umleitungs-URL"
+        }
+      }
+    },
+    "error": {
+      "no_code": "Kein Autorisierungscode in der URL gefunden",
+      "exchange_failed": "Austausch des Codes gegen Token fehlgeschlagen. Der Code ist möglicherweise abgelaufen — versuchen Sie es erneut.",
+      "no_token": "Kein Zugriffstoken empfangen",
+      "session_failed": "Sitzungsvalidierung fehlgeschlagen",
+      "no_vehicles": "Keine Fahrzeuge auf diesem Konto gefunden"
+    },
+    "abort": {
+      "already_configured": "Dieses Konto ist bereits konfiguriert"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery_level": { "name": "Batteriestand" },
+      "battery_range": { "name": "Elektrische Reichweite" },
+      "charging_status": { "name": "Ladestatus" },
+      "charging_speed": { "name": "Ladegeschwindigkeit" },
+      "charging_time_remaining": { "name": "Verbleibende Ladezeit" },
+      "charge_limit": { "name": "Ladelimit" },
+      "interior_temperature": { "name": "Innentemperatur" },
+      "target_temperature": { "name": "Zieltemperatur" },
+      "climate_status": { "name": "Klimastatus" },
+      "lock_status": { "name": "Zentralverriegelung" },
+      "address": { "name": "Adresse" },
+      "fuel_level": { "name": "Kraftstoffstand" },
+      "fuel_range": { "name": "Kraftstoffreichweite" },
+      "fuel_consumption": { "name": "Durchschnittsverbrauch" },
+      "fuel_type": { "name": "Kraftstoffart" },
+      "odometer": { "name": "Kilometerstand" },
+      "battery_capacity": { "name": "Batteriekapazität" },
+      "battery_energy": { "name": "Batterieenergie" }
+    },
+    "binary_sensor": {
+      "door_front_left": { "name": "Tür vorne links" },
+      "door_front_right": { "name": "Tür vorne rechts" },
+      "door_rear_left": { "name": "Tür hinten links" },
+      "door_rear_right": { "name": "Tür hinten rechts" },
+      "window_front_left": { "name": "Fenster vorne links" },
+      "window_front_right": { "name": "Fenster vorne rechts" },
+      "window_rear_left": { "name": "Fenster hinten links" },
+      "window_rear_right": { "name": "Fenster hinten rechts" },
+      "sunroof": { "name": "Schiebedach" },
+      "hood": { "name": "Motorhaube" },
+      "trunk": { "name": "Kofferraum" }
+    },
+    "lock": {
+      "door_lock": { "name": "Türschloss" }
+    },
+    "device_tracker": {
+      "location": { "name": "Standort" }
+    }
+  },
+  "services": {
+    "refresh": {
+      "name": "Sensoren aktualisieren",
+      "description": "Erzwingt eine sofortige Aktualisierung aller Fahrzeugsensoren.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    },
+    "flash_lights": {
+      "name": "Lichter blinken",
+      "description": "Die Lichter des Fahrzeugs blinken lassen.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    },
+    "honk_horn": {
+      "name": "Hupe betätigen",
+      "description": "Die Hupe des Fahrzeugs betätigen.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    },
+    "open_sunroof": {
+      "name": "Schiebedach öffnen",
+      "description": "Das Schiebedach des Fahrzeugs öffnen.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    },
+    "close_sunroof": {
+      "name": "Schiebedach schließen",
+      "description": "Das Schiebedach des Fahrzeugs schließen.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    },
+    "set_charge_limit": {
+      "name": "Ladelimit einstellen",
+      "description": "Das Ladelimit der Batterie in Prozent einstellen.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        },
+        "percent": {
+          "name": "Prozent",
+          "description": "Ladelimit (50-100%)"
+        }
+      }
+    },
+    "start_ventilate": {
+      "name": "Belüftung starten",
+      "description": "Die Belüftung des Fahrzeugs starten.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    },
+    "stop_ventilate": {
+      "name": "Belüftung stoppen",
+      "description": "Die Belüftung des Fahrzeugs stoppen.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    },
+    "start_heaters": {
+      "name": "Heizung starten",
+      "description": "Die Sitz-/Lenkradheizung des Fahrzeugs starten.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    },
+    "stop_heaters": {
+      "name": "Heizung stoppen",
+      "description": "Die Sitz-/Lenkradheizung des Fahrzeugs stoppen.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    },
+    "start_conditioning": {
+      "name": "Klimaanlage starten",
+      "description": "Die Klimaanlage des Fahrzeugs bei einer Zieltemperatur starten.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        },
+        "temp": {
+          "name": "Temperatur",
+          "description": "Zieltemperatur (16-28°C)"
+        }
+      }
+    },
+    "stop_conditioning": {
+      "name": "Klimaanlage stoppen",
+      "description": "Die Klimaanlage des Fahrzeugs stoppen.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    },
+    "lock_door": {
+      "name": "Türen verriegeln",
+      "description": "Die Türen des Fahrzeugs verriegeln.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    },
+    "unlock_door": {
+      "name": "Türen entriegeln",
+      "description": "Die Türen des Fahrzeugs entriegeln.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    }
+  }
+}

@@ -1,65 +1,39 @@
 refresh:
-  name: Refresh sensors
-  description: Force an immediate refresh of all vehicle sensors.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
 
 flash_lights:
-  name: Flash lights
-  description: Flash the vehicle's lights.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
 
 honk_horn:
-  name: Honk horn
-  description: Honk the vehicle's horn.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
 
 open_sunroof:
-  name: Open sunroof
-  description: Open the vehicle's sunroof.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
 
 close_sunroof:
-  name: Close sunroof
-  description: Close the vehicle's sunroof.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
 
 set_charge_limit:
-  name: Set charge limit
-  description: Set the battery charge limit percentage.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
     percent:
-      name: Percent
-      description: Charge limit (50-100%)
       required: true
       selector:
         number:
@@ -69,57 +43,35 @@ set_charge_limit:
           unit_of_measurement: "%"
 
 start_ventilate:
-  name: Start ventilation
-  description: Start the vehicle's ventilation.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
 
 stop_ventilate:
-  name: Stop ventilation
-  description: Stop the vehicle's ventilation.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
 
 start_heaters:
-  name: Start heaters
-  description: Start the vehicle's seat/steering heaters.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
 
 stop_heaters:
-  name: Stop heaters
-  description: Stop the vehicle's seat/steering heaters.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
 
 start_conditioning:
-  name: Start air conditioning
-  description: Start the vehicle's air conditioning at a target temperature.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
     temp:
-      name: Temperature
-      description: Target temperature (16-28°C)
       required: true
       selector:
         number:
@@ -129,31 +81,19 @@ start_conditioning:
           unit_of_measurement: "°C"
 
 stop_conditioning:
-  name: Stop air conditioning
-  description: Stop the vehicle's air conditioning.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
 
 lock_door:
-  name: Lock doors
-  description: Lock the vehicle's doors.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:
 
 unlock_door:
-  name: Unlock doors
-  description: Unlock the vehicle's doors.
   fields:
     vin:
-      name: VIN
-      description: Vehicle Identification Number (optional if only one vehicle)
       selector:
         text:

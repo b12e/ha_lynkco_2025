@@ -1,0 +1,222 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Lynk & Co Inloggen",
+        "description": "Klik op Volgende om de inlog-URL te genereren."
+      },
+      "auth_url": {
+        "title": "Open inlog-URL",
+        "description": "1. Open de DevTools van je browser (F12) > tabblad Netwerk > schakel Logboek bewaren in\n2. Open deze URL in je browser:\n\n{auth_url}\n\n3. Log in met je Lynk & Co e-mailadres, wachtwoord en SMS MFA-code\n4. Na MFA zal de browser falen op msauth://\n5. Zoek in het tabblad Netwerk van DevTools het 302-verzoek > Antwoordheaders > Locatie\n6. Kopieer de volledige msauth://... URL\n\nKlik op Volgende wanneer je klaar bent om de URL te plakken."
+      },
+      "paste_redirect": {
+        "title": "Plak omleidings-URL",
+        "description": "Plak de volledige msauth://... URL uit de Locatie-header van de browser DevTools.",
+        "data": {
+          "redirect_url": "Omleidings-URL"
+        }
+      }
+    },
+    "error": {
+      "no_code": "Geen autorisatiecode gevonden in de URL",
+      "exchange_failed": "Uitwisseling van code voor tokens mislukt. Code is mogelijk verlopen — probeer het opnieuw.",
+      "no_token": "Geen toegangstoken ontvangen",
+      "session_failed": "Sessievalidatie mislukt",
+      "no_vehicles": "Geen voertuigen gevonden op dit account"
+    },
+    "abort": {
+      "already_configured": "Dit account is al geconfigureerd"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery_level": { "name": "Batterijniveau" },
+      "battery_range": { "name": "Elektrisch bereik" },
+      "charging_status": { "name": "Oplaadstatus" },
+      "charging_speed": { "name": "Oplaadsnelheid" },
+      "charging_time_remaining": { "name": "Resterende oplaadtijd" },
+      "charge_limit": { "name": "Oplaadlimiet" },
+      "interior_temperature": { "name": "Interieurtemperatuur" },
+      "target_temperature": { "name": "Doeltemperatuur" },
+      "climate_status": { "name": "Klimaatstatus" },
+      "lock_status": { "name": "Centraal slot" },
+      "address": { "name": "Adres" },
+      "fuel_level": { "name": "Brandstofniveau" },
+      "fuel_range": { "name": "Brandstofbereik" },
+      "fuel_consumption": { "name": "Gemiddeld brandstofverbruik" },
+      "fuel_type": { "name": "Brandstoftype" },
+      "odometer": { "name": "Kilometerteller" },
+      "battery_capacity": { "name": "Batterijcapaciteit" },
+      "battery_energy": { "name": "Batterijenergie" }
+    },
+    "binary_sensor": {
+      "door_front_left": { "name": "Deur linksvoor" },
+      "door_front_right": { "name": "Deur rechtsvoor" },
+      "door_rear_left": { "name": "Deur linksachter" },
+      "door_rear_right": { "name": "Deur rechtsachter" },
+      "window_front_left": { "name": "Raam linksvoor" },
+      "window_front_right": { "name": "Raam rechtsvoor" },
+      "window_rear_left": { "name": "Raam linksachter" },
+      "window_rear_right": { "name": "Raam rechtsachter" },
+      "sunroof": { "name": "Schuifdak" },
+      "hood": { "name": "Motorkap" },
+      "trunk": { "name": "Kofferbak" }
+    },
+    "lock": {
+      "door_lock": { "name": "Deurslot" }
+    },
+    "device_tracker": {
+      "location": { "name": "Locatie" }
+    }
+  },
+  "services": {
+    "refresh": {
+      "name": "Sensoren vernieuwen",
+      "description": "Forceer een directe vernieuwing van alle voertuigsensoren.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "flash_lights": {
+      "name": "Lichten knipperen",
+      "description": "Laat de lichten van het voertuig knipperen.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "honk_horn": {
+      "name": "Claxonneren",
+      "description": "Laat de claxon van het voertuig klinken.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "open_sunroof": {
+      "name": "Schuifdak openen",
+      "description": "Open het schuifdak van het voertuig.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "close_sunroof": {
+      "name": "Schuifdak sluiten",
+      "description": "Sluit het schuifdak van het voertuig.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "set_charge_limit": {
+      "name": "Oplaadlimiet instellen",
+      "description": "Stel het oplaadlimietpercentage van de batterij in.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        },
+        "percent": {
+          "name": "Percentage",
+          "description": "Oplaadlimiet (50-100%)"
+        }
+      }
+    },
+    "start_ventilate": {
+      "name": "Ventilatie starten",
+      "description": "Start de ventilatie van het voertuig.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "stop_ventilate": {
+      "name": "Ventilatie stoppen",
+      "description": "Stop de ventilatie van het voertuig.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "start_heaters": {
+      "name": "Verwarming starten",
+      "description": "Start de stoel-/stuurverwarming van het voertuig.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "stop_heaters": {
+      "name": "Verwarming stoppen",
+      "description": "Stop de stoel-/stuurverwarming van het voertuig.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "start_conditioning": {
+      "name": "Airconditioning starten",
+      "description": "Start de airconditioning van het voertuig op een doeltemperatuur.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        },
+        "temp": {
+          "name": "Temperatuur",
+          "description": "Doeltemperatuur (16-28°C)"
+        }
+      }
+    },
+    "stop_conditioning": {
+      "name": "Airconditioning stoppen",
+      "description": "Stop de airconditioning van het voertuig.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "lock_door": {
+      "name": "Deuren vergrendelen",
+      "description": "Vergrendel de deuren van het voertuig.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "unlock_door": {
+      "name": "Deuren ontgrendelen",
+      "description": "Ontgrendel de deuren van het voertuig.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    }
+  }
+}

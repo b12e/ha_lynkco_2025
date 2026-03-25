@@ -47,7 +47,7 @@ class LynkCoBinarySensor(CoordinatorEntity, BinarySensorEntity):
         super().__init__(coordinator)
         self._sensor_type = sensor_type
         self._attr_unique_id = f"{coordinator.vin}_{sensor_type['key']}"
-        self._attr_name = sensor_type["name"]
+        self._attr_translation_key = sensor_type["key"]
         self._attr_device_class = sensor_type["device_class"]
 
     @property
