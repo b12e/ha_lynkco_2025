@@ -13,13 +13,13 @@ Tested on the following vehicles:
 
 Other models are currently not available on the EU market, although it is likely when they do become available they are on the same platform and will work. The documentation will be updated accordingly as soon as this happens.
 
+> **Note**: Pre-2025 Lynk & Co 01 models use a different platform and are NOT supported. You can try your luck with [this](https://github.com/Donkie/Hass-Lynk-Co) repo.
+
 ## Polling
 
 Vehicle data is polled every 15 minutes by default. If you want to poll more frequently, you can do so using Home Assistant automations by calling the update action, although I don't recommend to update more often clock-round.
 
 Data is also refreshed by default 15 seconds after any action is called.
-
-> **Note**: Pre-2025 Lynk & Co 01 models use a different platform and are NOT supported. You can try your luck with [this](https://github.com/Donkie/Hass-Lynk-Co) repo.
 
 ## ⚠️ Limitations
 
