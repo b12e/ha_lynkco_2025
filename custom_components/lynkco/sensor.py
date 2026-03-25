@@ -229,7 +229,7 @@ class LynkCoSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self._sensor_type = sensor_type
         self._attr_unique_id = f"{coordinator.vin}_{sensor_type['key']}"
-        self._attr_name = sensor_type["name"]
+        self._attr_translation_key = sensor_type["key"]
         self._attr_icon = sensor_type["icon"]
         self._attr_device_class = sensor_type.get("device_class")
         self._attr_native_unit_of_measurement = sensor_type.get("unit")

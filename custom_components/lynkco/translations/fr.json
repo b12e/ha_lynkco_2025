@@ -1,0 +1,222 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connexion Lynk & Co",
+        "description": "Cliquez sur Suivant pour générer l'URL de connexion."
+      },
+      "auth_url": {
+        "title": "Ouvrir l'URL de connexion",
+        "description": "1. Ouvrez les DevTools de votre navigateur (F12) > onglet Réseau > activez Conserver le journal\n2. Ouvrez cette URL dans votre navigateur :\n\n{auth_url}\n\n3. Connectez-vous avec votre e-mail, mot de passe et code MFA SMS Lynk & Co\n4. Après le MFA, le navigateur échouera sur msauth://\n5. Dans l'onglet Réseau des DevTools, trouvez la requête 302 > En-têtes de réponse > Emplacement\n6. Copiez l'URL complète msauth://...\n\nCliquez sur Suivant lorsque vous êtes prêt à coller l'URL."
+      },
+      "paste_redirect": {
+        "title": "Coller l'URL de redirection",
+        "description": "Collez l'URL complète msauth://... depuis l'en-tête Emplacement des DevTools du navigateur.",
+        "data": {
+          "redirect_url": "URL de redirection"
+        }
+      }
+    },
+    "error": {
+      "no_code": "Aucun code d'autorisation trouvé dans l'URL",
+      "exchange_failed": "Échec de l'échange du code contre des jetons. Le code a peut-être expiré — réessayez.",
+      "no_token": "Aucun jeton d'accès reçu",
+      "session_failed": "Échec de la validation de session",
+      "no_vehicles": "Aucun véhicule trouvé sur ce compte"
+    },
+    "abort": {
+      "already_configured": "Ce compte est déjà configuré"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery_level": { "name": "Niveau de batterie" },
+      "battery_range": { "name": "Autonomie électrique" },
+      "charging_status": { "name": "État de charge" },
+      "charging_speed": { "name": "Vitesse de charge" },
+      "charging_time_remaining": { "name": "Temps de charge restant" },
+      "charge_limit": { "name": "Limite de charge" },
+      "interior_temperature": { "name": "Température intérieure" },
+      "target_temperature": { "name": "Température cible" },
+      "climate_status": { "name": "État de la climatisation" },
+      "lock_status": { "name": "Verrouillage central" },
+      "address": { "name": "Adresse" },
+      "fuel_level": { "name": "Niveau de carburant" },
+      "fuel_range": { "name": "Autonomie carburant" },
+      "fuel_consumption": { "name": "Consommation moyenne" },
+      "fuel_type": { "name": "Type de carburant" },
+      "odometer": { "name": "Compteur kilométrique" },
+      "battery_capacity": { "name": "Capacité de la batterie" },
+      "battery_energy": { "name": "Énergie de la batterie" }
+    },
+    "binary_sensor": {
+      "door_front_left": { "name": "Porte avant gauche" },
+      "door_front_right": { "name": "Porte avant droite" },
+      "door_rear_left": { "name": "Porte arrière gauche" },
+      "door_rear_right": { "name": "Porte arrière droite" },
+      "window_front_left": { "name": "Vitre avant gauche" },
+      "window_front_right": { "name": "Vitre avant droite" },
+      "window_rear_left": { "name": "Vitre arrière gauche" },
+      "window_rear_right": { "name": "Vitre arrière droite" },
+      "sunroof": { "name": "Toit ouvrant" },
+      "hood": { "name": "Capot" },
+      "trunk": { "name": "Coffre" }
+    },
+    "lock": {
+      "door_lock": { "name": "Verrouillage des portes" }
+    },
+    "device_tracker": {
+      "location": { "name": "Position" }
+    }
+  },
+  "services": {
+    "refresh": {
+      "name": "Actualiser les capteurs",
+      "description": "Forcer une actualisation immédiate de tous les capteurs du véhicule.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        }
+      }
+    },
+    "flash_lights": {
+      "name": "Clignoter les phares",
+      "description": "Faire clignoter les phares du véhicule.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        }
+      }
+    },
+    "honk_horn": {
+      "name": "Klaxonner",
+      "description": "Klaxonner le véhicule.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        }
+      }
+    },
+    "open_sunroof": {
+      "name": "Ouvrir le toit ouvrant",
+      "description": "Ouvrir le toit ouvrant du véhicule.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        }
+      }
+    },
+    "close_sunroof": {
+      "name": "Fermer le toit ouvrant",
+      "description": "Fermer le toit ouvrant du véhicule.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        }
+      }
+    },
+    "set_charge_limit": {
+      "name": "Définir la limite de charge",
+      "description": "Définir le pourcentage de limite de charge de la batterie.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        },
+        "percent": {
+          "name": "Pourcentage",
+          "description": "Limite de charge (50-100%)"
+        }
+      }
+    },
+    "start_ventilate": {
+      "name": "Démarrer la ventilation",
+      "description": "Démarrer la ventilation du véhicule.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        }
+      }
+    },
+    "stop_ventilate": {
+      "name": "Arrêter la ventilation",
+      "description": "Arrêter la ventilation du véhicule.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        }
+      }
+    },
+    "start_heaters": {
+      "name": "Démarrer le chauffage",
+      "description": "Démarrer le chauffage des sièges/volant du véhicule.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        }
+      }
+    },
+    "stop_heaters": {
+      "name": "Arrêter le chauffage",
+      "description": "Arrêter le chauffage des sièges/volant du véhicule.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        }
+      }
+    },
+    "start_conditioning": {
+      "name": "Démarrer la climatisation",
+      "description": "Démarrer la climatisation du véhicule à une température cible.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        },
+        "temp": {
+          "name": "Température",
+          "description": "Température cible (16-28°C)"
+        }
+      }
+    },
+    "stop_conditioning": {
+      "name": "Arrêter la climatisation",
+      "description": "Arrêter la climatisation du véhicule.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        }
+      }
+    },
+    "lock_door": {
+      "name": "Verrouiller les portes",
+      "description": "Verrouiller les portes du véhicule.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        }
+      }
+    },
+    "unlock_door": {
+      "name": "Déverrouiller les portes",
+      "description": "Déverrouiller les portes du véhicule.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        }
+      }
+    }
+  }
+}

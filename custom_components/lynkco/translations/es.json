@@ -1,0 +1,222 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Inicio de sesión Lynk & Co",
+        "description": "Haz clic en Siguiente para generar la URL de inicio de sesión."
+      },
+      "auth_url": {
+        "title": "Abrir URL de inicio de sesión",
+        "description": "1. Abre las DevTools del navegador (F12) > pestaña Red > activa Conservar registro\n2. Abre esta URL en tu navegador:\n\n{auth_url}\n\n3. Inicia sesión con tu correo electrónico, contraseña y código MFA por SMS de Lynk & Co\n4. Después del MFA, el navegador fallará en msauth://\n5. En la pestaña Red de DevTools, busca la solicitud 302 > Encabezados de respuesta > Ubicación\n6. Copia la URL completa msauth://...\n\nHaz clic en Siguiente cuando estés listo para pegar la URL."
+      },
+      "paste_redirect": {
+        "title": "Pegar URL de redirección",
+        "description": "Pega la URL completa msauth://... del encabezado Ubicación de las DevTools del navegador.",
+        "data": {
+          "redirect_url": "URL de redirección"
+        }
+      }
+    },
+    "error": {
+      "no_code": "No se encontró código de autorización en la URL",
+      "exchange_failed": "Error al intercambiar el código por tokens. El código puede haber expirado — inténtalo de nuevo.",
+      "no_token": "No se recibió token de acceso",
+      "session_failed": "Error en la validación de sesión",
+      "no_vehicles": "No se encontraron vehículos en esta cuenta"
+    },
+    "abort": {
+      "already_configured": "Esta cuenta ya está configurada"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery_level": { "name": "Nivel de batería" },
+      "battery_range": { "name": "Autonomía eléctrica" },
+      "charging_status": { "name": "Estado de carga" },
+      "charging_speed": { "name": "Velocidad de carga" },
+      "charging_time_remaining": { "name": "Tiempo de carga restante" },
+      "charge_limit": { "name": "Límite de carga" },
+      "interior_temperature": { "name": "Temperatura interior" },
+      "target_temperature": { "name": "Temperatura objetivo" },
+      "climate_status": { "name": "Estado de la climatización" },
+      "lock_status": { "name": "Cierre centralizado" },
+      "address": { "name": "Dirección" },
+      "fuel_level": { "name": "Nivel de combustible" },
+      "fuel_range": { "name": "Autonomía de combustible" },
+      "fuel_consumption": { "name": "Consumo medio de combustible" },
+      "fuel_type": { "name": "Tipo de combustible" },
+      "odometer": { "name": "Cuentakilómetros" },
+      "battery_capacity": { "name": "Capacidad de la batería" },
+      "battery_energy": { "name": "Energía de la batería" }
+    },
+    "binary_sensor": {
+      "door_front_left": { "name": "Puerta delantera izquierda" },
+      "door_front_right": { "name": "Puerta delantera derecha" },
+      "door_rear_left": { "name": "Puerta trasera izquierda" },
+      "door_rear_right": { "name": "Puerta trasera derecha" },
+      "window_front_left": { "name": "Ventanilla delantera izquierda" },
+      "window_front_right": { "name": "Ventanilla delantera derecha" },
+      "window_rear_left": { "name": "Ventanilla trasera izquierda" },
+      "window_rear_right": { "name": "Ventanilla trasera derecha" },
+      "sunroof": { "name": "Techo solar" },
+      "hood": { "name": "Capó" },
+      "trunk": { "name": "Maletero" }
+    },
+    "lock": {
+      "door_lock": { "name": "Cerradura de puertas" }
+    },
+    "device_tracker": {
+      "location": { "name": "Ubicación" }
+    }
+  },
+  "services": {
+    "refresh": {
+      "name": "Actualizar sensores",
+      "description": "Forzar una actualización inmediata de todos los sensores del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "flash_lights": {
+      "name": "Parpadear luces",
+      "description": "Hacer parpadear las luces del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "honk_horn": {
+      "name": "Tocar el claxon",
+      "description": "Tocar el claxon del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "open_sunroof": {
+      "name": "Abrir techo solar",
+      "description": "Abrir el techo solar del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "close_sunroof": {
+      "name": "Cerrar techo solar",
+      "description": "Cerrar el techo solar del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "set_charge_limit": {
+      "name": "Establecer límite de carga",
+      "description": "Establecer el porcentaje de límite de carga de la batería.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        },
+        "percent": {
+          "name": "Porcentaje",
+          "description": "Límite de carga (50-100%)"
+        }
+      }
+    },
+    "start_ventilate": {
+      "name": "Iniciar ventilación",
+      "description": "Iniciar la ventilación del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "stop_ventilate": {
+      "name": "Detener ventilación",
+      "description": "Detener la ventilación del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "start_heaters": {
+      "name": "Iniciar calefacción",
+      "description": "Iniciar la calefacción de asientos/volante del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "stop_heaters": {
+      "name": "Detener calefacción",
+      "description": "Detener la calefacción de asientos/volante del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "start_conditioning": {
+      "name": "Iniciar aire acondicionado",
+      "description": "Iniciar el aire acondicionado del vehículo a una temperatura objetivo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        },
+        "temp": {
+          "name": "Temperatura",
+          "description": "Temperatura objetivo (16-28°C)"
+        }
+      }
+    },
+    "stop_conditioning": {
+      "name": "Detener aire acondicionado",
+      "description": "Detener el aire acondicionado del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "lock_door": {
+      "name": "Bloquear puertas",
+      "description": "Bloquear las puertas del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "unlock_door": {
+      "name": "Desbloquear puertas",
+      "description": "Desbloquear las puertas del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    }
+  }
+}
