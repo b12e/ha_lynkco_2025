@@ -100,10 +100,11 @@ The integration uses Azure AD B2C authentication with MFA. Setup requires a one-
 
 1. Add the integration in Home Assistant
 2. A login URL is generated - open it in your browser
-3. Log in with your Lynk & Co email + password + SMS MFA code
-4. After MFA, the browser will fail to open `msauth://...`
-5. Open DevTools (F12) → Network tab → find the last request → copy the `Location` header value (note: Firefox dev tools don't show the entire header. Right click on the request and copy the response headers instead, and then get the `msauth://` header from there)
-6. Paste the full `msauth://...` URL back in Home Assistant
+3. Open DevTools (F12) → Network tab
+4. Log in with your Lynk & Co email + password + SMS MFA code
+5. After MFA, the browser will fail to open `msauth://...`
+6. In the network tab of your developer tools, find the last request → copy the `Location` header value (note: Firefox dev tools don't show the entire header. Right click on the request and copy the response headers instead, and then get the `msauth://` header from there)
+7. Paste the full `msauth://...` URL back in Home Assistant
 
 This process should be similar to the HACS integration for pre-2025 Lynk&Co cars such as the [Donkie](https://github.com/Donkie/Hass-Lynk-Co) one. 
 
