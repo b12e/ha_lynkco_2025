@@ -2,11 +2,28 @@
 
 Custom [Home Assistant](https://www.home-assistant.io/) integration for 2025 Lynk & Co vehicles (01, 02, 08) via [HACS](https://hacs.xyz/).
 
-This HACS plugin was vibe-coded by decompiling the Lynk&Co Android app and letting Claude Code have a run at the code to figure out endpoints and authentication. Claude then wrote the python - although I'm not a stranger to python, it was just easier this way :) 
-
-It works for the European Lynk&Co vehicles on the new platform (2025 and newer). I've tested myself with the 2025 Lynk&Co 01 and have had confirmation it works for the Lynk&Co 02 BEV and Lynk&Co 08 PHEV.
-
 Pull Requests are disabled until further notice.
+
+## Supported Models
+
+Tested on the following vehicles:
+- 2025 (New) Lynk & Co 01 (PHEV)
+- 2025 Lynk & Co 02 (BEV)
+- 2025 Lynk & Co 08 (PHEV)
+
+Other models are currently not available on the EU market, although it is likely when they do become available they are on the same platform and will work. The documentation will be updated accordingly as soon as this happens.
+
+## Polling
+
+Vehicle data is polled every 15 minutes by default. If you want to poll more frequently, you can do so using Home Assistant automations by calling the update action, although I don't recommend to update more often clock-round.
+
+Data is also refreshed by default 15 seconds after any action is called.
+
+> **Note**: Pre-2025 Lynk & Co 01 models use a different platform and are NOT supported. You can try your luck with [this](https://github.com/Donkie/Hass-Lynk-Co) repo.
+
+## ⚠️ Limitations
+
+- Lynk&Co only allows 1 device to be logged in to the app at all times. This sadly also means that, when you log in to Home Assistant, your mobile app will automatically be logged out and vice versa. The workaround is to create a Home Assistant dashboard that replaces the Lynk&Co mobile app.
 
 ## Features
 
@@ -55,7 +72,8 @@ Pull Requests are disabled until further notice.
 
 ### Actions (Services)
 
-All services (except `lynkco.refresh`) accept an optional `vin` parameter. When only one vehicle is configured, the VIN is auto-detected and can be omitted.
+All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When only one vehicle is configured, the VIN is auto-detected and can be omitted.
+
 | Service | Description | Parameters | 01 (facelift) | 02 | 08 |
 |---|---|---|---|---|---|
 | `lynkco.refresh` | Force-refresh all sensors now | | ✅ | ✅ | ✅ |
@@ -83,20 +101,20 @@ All services (except `lynkco.refresh`) accept an optional `vin` parameter. When 
 
 ![screenshot](screenshot.png)
 
-## Installation
+# Installation
 
-### HACS (recommended)
+## HACS (recommended)
 1. Add this repository as a custom repository in HACS
 2. Install "Lynk & Co"
 3. Restart Home Assistant
 4. Go to Settings → Integrations → Add → Lynk & Co
 
-### Manual
+## Manual
 Copy `custom_components/lynkco/` to your Home Assistant `custom_components` directory.
 
-## Setup
+# Setup
 
-The integration uses Azure AD B2C authentication with MFA. Setup requires a one-time browser login:
+The integration uses Azure AD B2C authentication with MFA in the same way the mobile app uses it. Setup requires a one-time browser login:
 
 1. Add the integration in Home Assistant
 2. A login URL is generated - open it in your browser
@@ -108,26 +126,9 @@ The integration uses Azure AD B2C authentication with MFA. Setup requires a one-
 
 This process should be similar to the HACS integration for pre-2025 Lynk&Co cars such as the [Donkie](https://github.com/Donkie/Hass-Lynk-Co) one. 
 
-Tokens are automatically refreshed. You should only need to re-authenticate if the refresh token expires.
+Tokens are automatically refreshed. You should only need to re-authenticate if the refresh token expires (e.g. if your Home Assistant instance has been offline for an extended period of time, or when you log in on the mobile app).
 
-## Polling
-
-Vehicle data is polled every 15 minutes by default. If you want to poll more frequently, you can do so using Home Assistant automations by calling the update action, although I don't recommend to update more often 24/7. 
-
-Data is also refreshed by default after any other action is called.
-
-## Supported Models
-
-Tested on the following vehicles:
-- 2025 (New) Lynk & Co 01 (PHEV)
-- 2025 Lynk & Co 02 (BEV)
-- 2025 Lynk & Co 08 (PHEV)
-
-Other models are currently not available on the EU market, although it is likely when they do become available they are on the same platform and will work. The documentation will be updated accordingly as soon as this happens.
-
-> **Note**: Pre-2025 Lynk & Co 01 models use a different platform and are NOT supported. You can try your luck with [this](https://github.com/Donkie/Hass-Lynk-Co) repo. 
-
-## Credits
+# Credits
 
 API reverse-engineered from the Lynk & Co Android app v2.55.0.
 
