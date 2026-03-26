@@ -85,22 +85,22 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 | `lynkco.refresh` | Force-refresh all sensors now | | ✅ | ✅ | ✅ |
 | `lynkco.lock_door` | Lock the vehicle's doors | | ✅ | ✅ | ✅ |
 | `lynkco.unlock_door` | Unlock the vehicle's doors | | ✅ | ✅ | ✅ |
-| `lynkco.flash_lights` | Flash the vehicle's lights | | ✅ | ✅ | |
-| `lynkco.honk_horn` | Honk the horn | | t.b.c. | ✅ | |
-| `lynkco.open_sunroof` | Open the sunroof | | ✅ | ❌ |
-| `lynkco.close_sunroof` | Close the sunroof | | ✅ | ❌ |
-| `lynkco.set_charge_limit` | Set charge limit | `percent` (50-100) | t.b.c. | ✅ |
-| `lynkco.start_conditioning` | Start air conditioning | `temp` (16-28) | t.b.c. | ✅ |
-| `lynkco.stop_conditioning` | Stop air conditioning | | t.b.c. | ✅ |
-| `lynkco.start_ventilate` | Start ventilation | | t.b.c. |✅||
-| `lynkco.stop_ventilate` | Stop ventilation | | t.b.c. | ✅
-| `lynkco.start_heaters` | Start heaters | `heaters` (list) | ✅ | | |
-| `lynkco.stop_heaters` | Stop heaters | `heaters` (list) | ✅ | | |
+| `lynkco.flash_lights` | Flash the vehicle's lights | | ✅ | ✅ | t.b.c. |
+| `lynkco.honk_horn` | Honk the horn | | t.b.c. | ✅ | t.b.c. |
+| `lynkco.open_sunroof` | Open the sunroof | | ✅ | ❌ | t.b.c.
+| `lynkco.close_sunroof` | Close the sunroof | | ✅ | ❌ | t.b.c.
+| `lynkco.set_charge_limit` | Set charge limit | `percent` (50-100) | ✅ | ✅ | t.b.c.
+| `lynkco.start_conditioning` | Start air conditioning | `temp` (16-28) |✅ | ✅ | t.b.c.
+| `lynkco.stop_conditioning` | Stop air conditioning | | ✅ | ✅ | t.b.c
+| `lynkco.start_ventilate` | Start ventilation | | t.b.c. |✅| t.b.c.
+| `lynkco.stop_ventilate` | Stop ventilation | | t.b.c. | ✅ |  t.b.c.
+| `lynkco.start_heaters` | Start heaters | `heaters` (list) | ✅ |  t.b.c.| t.b.c. |
+| `lynkco.stop_heaters` | Stop heaters | `heaters` (list) | ✅ | t.b.c. | t.b.c. |
 
 #### Notes:
 - ✅ = confirmed working on that model<br />
 - Sunroof actions aren't available on the Lynk&Co 02 as it doesn't have a sunroof that can open.<br />
-- A lot of actions are only available when the doors are locked and the key is not in the vehicle.
+- A lot of the actions are only available when the doors are locked and the key is not in the vehicle.
 - `temp` is in ºC.
 - `heaters` accepts a list of zones (see table below)
 
