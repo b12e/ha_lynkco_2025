@@ -95,7 +95,18 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 - ✅ = confirmed working on that model<br />
 - Sunroof actions aren't available on the Lynk&Co 02 as it doesn't have a sunroof that can open.<br />
 - `temp` is in ºC.
-- `heaters` accepts a list of: `front_left_seat`, `front_right_seat`, `rear_left_seat`, `rear_right_seat`, `steering_wheel`, `defrost`
+- `heaters` accepts a list of zones (see table below)
+
+#### Heater zones
+
+| Zone | 01 | 02 | 08 |
+|---|---|---|---|
+| `front_left_seat` | ✅ | ✅ | ✅ |
+| `front_right_seat` | ✅ | ✅ | ✅ |
+| `rear_left_seat` | | | ✅ (More only) |
+| `rear_right_seat` | | | ✅ (More only) |
+| `steering_wheel` | ✅ (More only) | ✅ (More only) | ✅ (More only) |
+| `defrost` | ✅ | ✅ | ✅ |
 
 #### Example: start heaters
 ```yaml
