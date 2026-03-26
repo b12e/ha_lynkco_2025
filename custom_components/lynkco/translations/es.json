@@ -217,6 +217,28 @@
           "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
         }
       }
+    },
+    "set_navigation": {
+      "name": "Establecer navegación",
+      "description": "Enviar un destino al sistema de navegación del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        },
+        "name": {
+          "name": "Nombre del destino",
+          "description": "Nombre del destino"
+        },
+        "latitude": {
+          "name": "Latitud",
+          "description": "Latitud del destino"
+        },
+        "longitude": {
+          "name": "Longitud",
+          "description": "Longitud del destino"
+        }
+      }
     }
   }
 }

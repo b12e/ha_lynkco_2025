@@ -217,6 +217,28 @@
           "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
         }
       }
+    },
+    "set_navigation": {
+      "name": "Navigation einstellen",
+      "description": "Ein Ziel an das Navigationssystem des Fahrzeugs senden.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        },
+        "name": {
+          "name": "Zielname",
+          "description": "Name des Ziels"
+        },
+        "latitude": {
+          "name": "Breitengrad",
+          "description": "Breitengrad des Ziels"
+        },
+        "longitude": {
+          "name": "Längengrad",
+          "description": "Längengrad des Ziels"
+        }
+      }
     }
   }
 }

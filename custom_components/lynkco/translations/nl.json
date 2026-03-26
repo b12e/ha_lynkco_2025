@@ -217,6 +217,28 @@
           "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
         }
       }
+    },
+    "set_navigation": {
+      "name": "Navigatie instellen",
+      "description": "Stuur een bestemming naar het navigatiesysteem van het voertuig.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        },
+        "name": {
+          "name": "Bestemmingsnaam",
+          "description": "Naam van de bestemming"
+        },
+        "latitude": {
+          "name": "Breedtegraad",
+          "description": "Breedtegraad van de bestemming"
+        },
+        "longitude": {
+          "name": "Lengtegraad",
+          "description": "Lengtegraad van de bestemming"
+        }
+      }
     }
   }
 }
