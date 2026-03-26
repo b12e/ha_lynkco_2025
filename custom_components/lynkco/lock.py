@@ -76,7 +76,6 @@ class LynkCoLock(CoordinatorEntity, LockEntity):
 class LynkCoGloveboxLock(CoordinatorEntity, LockEntity):
     _attr_has_entity_name = True
     _attr_translation_key = "glovebox_lock"
-    _attr_code_format = r"^\d{4}$"
 
     def __init__(self, coordinator: LynkCoCoordinator, api) -> None:
         super().__init__(coordinator)
@@ -92,6 +91,12 @@ class LynkCoGloveboxLock(CoordinatorEntity, LockEntity):
             "model": MODEL_NAMES.get(self.coordinator.model, self.coordinator.model),
             "serial_number": self.coordinator.vin,
         }
+
+    @property
+    def code_format(self) -> str | None:
+        if self.is_locked:
+            return None
+        return r"^\d{4}$"
 
     @property
     def is_locked(self) -> bool | None:
