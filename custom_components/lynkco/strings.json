@@ -73,7 +73,8 @@
       "window_rear_right": { "name": "Rear right window" },
       "sunroof": { "name": "Sunroof" },
       "hood": { "name": "Hood" },
-      "trunk": { "name": "Trunk" }
+      "trunk": { "name": "Trunk" },
+      "car_running": { "name": "Car running" }
     },
     "lock": {
       "door_lock": { "name": "Door lock" }

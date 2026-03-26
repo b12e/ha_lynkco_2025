@@ -130,11 +130,19 @@ async def _delayed_refresh(hass: HomeAssistant, vin: str) -> None:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Lynk & Co from a config entry."""
     session = async_get_clientsession(hass)
+
+    def _persist_tokens(access_token: str, refresh_token: str) -> None:
+        hass.config_entries.async_update_entry(
+            entry,
+            data={**entry.data, CONF_ACCESS_TOKEN: access_token, CONF_REFRESH_TOKEN: refresh_token},
+        )
+
     api = LynkCoAPI(
         session,
         entry.data[CONF_ACCESS_TOKEN],
         entry.data[CONF_REFRESH_TOKEN],
         entry.data[CONF_DEVICE_ID],
+        on_token_refresh=_persist_tokens,
     )
 
     await api.validate_session()

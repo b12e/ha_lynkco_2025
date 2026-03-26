@@ -73,7 +73,8 @@
       "window_rear_right": { "name": "Ventanilla trasera derecha" },
       "sunroof": { "name": "Techo solar" },
       "hood": { "name": "Capó" },
-      "trunk": { "name": "Maletero" }
+      "trunk": { "name": "Maletero" },
+      "car_running": { "name": "Coche en marcha" }
     },
     "lock": {
       "door_lock": { "name": "Cerradura de puertas" }

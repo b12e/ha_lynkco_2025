@@ -26,6 +26,10 @@ BINARY_SENSOR_TYPES: list[dict] = [
     {"key": "trunk", "name": "Trunk", "field": "trunkStatus", "device_class": BinarySensorDeviceClass.DOOR},
 ]
 
+VEHICLE_DATA_BINARY_SENSORS: list[dict] = [
+    {"key": "car_running", "name": "Car running", "field": "driveModeEnabled", "device_class": BinarySensorDeviceClass.RUNNING, "icon": "mdi:car"},
+]
+
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
@@ -37,6 +41,8 @@ async def async_setup_entry(
             if coordinator.model in sensor_type.get("exclude_models", []):
                 continue
             entities.append(LynkCoBinarySensor(coordinator, sensor_type))
+        for sensor_type in VEHICLE_DATA_BINARY_SENSORS:
+            entities.append(LynkCoVehicleDataBinarySensor(coordinator, sensor_type))
     async_add_entities(entities)
 
 
@@ -69,3 +75,32 @@ class LynkCoBinarySensor(CoordinatorEntity, BinarySensorEntity):
         if value is None:
             return None
         return value != "CLOSED"
+
+
+class LynkCoVehicleDataBinarySensor(CoordinatorEntity, BinarySensorEntity):
+    _attr_has_entity_name = True
+
+    def __init__(self, coordinator: LynkCoCoordinator, sensor_type: dict) -> None:
+        super().__init__(coordinator)
+        self._sensor_type = sensor_type
+        self._attr_unique_id = f"{coordinator.vin}_{sensor_type['key']}"
+        self._attr_translation_key = sensor_type["key"]
+        self._attr_device_class = sensor_type["device_class"]
+        if "icon" in sensor_type:
+            self._attr_icon = sensor_type["icon"]
+
+    @property
+    def device_info(self):
+        return {
+            "identifiers": {(DOMAIN, self.coordinator.vin)},
+            "name": MODEL_NAMES.get(self.coordinator.model, f"Lynk & Co {self.coordinator.model}"),
+            "manufacturer": MANUFACTURER,
+            "model": MODEL_NAMES.get(self.coordinator.model, self.coordinator.model),
+            "serial_number": self.coordinator.vin,
+        }
+
+    @property
+    def is_on(self) -> bool | None:
+        if self.coordinator.data is None:
+            return None
+        return self.coordinator.data.get("vehicle_data", {}).get(self._sensor_type["field"])

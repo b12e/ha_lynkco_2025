@@ -73,7 +73,8 @@
       "window_rear_right": { "name": "Fenster hinten rechts" },
       "sunroof": { "name": "Schiebedach" },
       "hood": { "name": "Motorhaube" },
-      "trunk": { "name": "Kofferraum" }
+      "trunk": { "name": "Kofferraum" },
+      "car_running": { "name": "Auto aktiv" }
     },
     "lock": {
       "door_lock": { "name": "Türschloss" }

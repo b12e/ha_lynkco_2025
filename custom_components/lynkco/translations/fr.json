@@ -73,7 +73,8 @@
       "window_rear_right": { "name": "Vitre arrière droite" },
       "sunroof": { "name": "Toit ouvrant" },
       "hood": { "name": "Capot" },
-      "trunk": { "name": "Coffre" }
+      "trunk": { "name": "Coffre" },
+      "car_running": { "name": "Voiture en marche" }
     },
     "lock": {
       "door_lock": { "name": "Verrouillage des portes" }

@@ -73,7 +73,8 @@
       "window_rear_right": { "name": "Raam rechtsachter" },
       "sunroof": { "name": "Schuifdak" },
       "hood": { "name": "Motorkap" },
-      "trunk": { "name": "Kofferbak" }
+      "trunk": { "name": "Kofferbak" },
+      "car_running": { "name": "Auto actief" }
     },
     "lock": {
       "door_lock": { "name": "Deurslot" }
