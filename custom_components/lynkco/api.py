@@ -83,6 +83,12 @@ class LynkCoAPI:
         return self._claims.get("email", "")
 
     @property
+    def user_full_name(self) -> str:
+        given = self._claims.get("given_name", "")
+        family = self._claims.get("family_name", "")
+        return f"{given} {family}".strip()
+
+    @property
     def access_token(self) -> str:
         return self._access_token
 
@@ -282,7 +288,7 @@ class LynkCoAPI:
                 "longitude": lon,
                 "initiatedAt": now_ms,
                 "expiresAt": expire_ms,
-                "senderName": self.user_email or "Home Assistant",
+                "senderName": self.user_full_name or self.user_email or "Home Assistant",
             }
         )
 
