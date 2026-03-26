@@ -126,7 +126,7 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 - ✅ = confirmed working on that model<br />
 - Sunroof actions aren't available on the Lynk&Co 02 as it doesn't have a sunroof that can open.<br />
 - A lot of the actions are only available when the doors are locked and the key is not in the vehicle.
-- The gloveblox locking/unlocking appears to be only possible while the vehicle is unlocked (needs confirmation). From basic testing, it appears the vehicle locks itself when the glovebox is unlocked remotely and the key isn't in the car (needs confirmation)
+- The gloveblox locking/unlocking appears to be only possible while the vehicle is unlocked (needs confirmation). The Lynk&Co accepts the action when the vehicle is locked, but the glovebox doesn't appear to be locking/unlocking when it is.
 - `temp` is in ºC.
 - `heaters` accepts a list of zones (see table below)
 
