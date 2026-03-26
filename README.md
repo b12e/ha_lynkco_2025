@@ -100,31 +100,24 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 #### Notes:
 - ✅ = confirmed working on that model<br />
 - Sunroof actions aren't available on the Lynk&Co 02 as it doesn't have a sunroof that can open.<br />
+- A lot of actions are only available when the doors are locked and the key is not in the vehicle.
 - `temp` is in ºC.
 - `heaters` accepts a list of zones (see table below)
 
-**Note:** Seat and steering wheel heaters require the climate system to be active first (use `start_conditioning` before `start_heaters`).
 
 #### Heater zones
+**Note:** Heaters require the climate system to be active first (use `start_conditioning` before `start_heaters`).
 
 | Zone | 01 | 02 | 08 |
 |---|---|---|---|
 | `front_left_seat` | ✅ | ✅ | ✅ |
 | `front_right_seat` | ✅ | ✅ | ✅ |
-| `rear_left_seat` | ❌ | ❌ | ✅ (More only) |
-| `rear_right_seat` | ❌ | ❌ | ✅ (More only) |
-| `steering_wheel` | ✅ (More only) | ✅ (More only) | ✅ (More only) |
+| `rear_left_seat` | ❌ | ❌ | ✅ * |
+| `rear_right_seat` | ❌ | ❌ | ✅ * |
+| `steering_wheel` | ✅ * | ✅ *| ✅ * |
 | `defrost` | ✅ | ✅ | ✅ |
 
-#### Example: start heaters
-```yaml
-service: lynkco.start_heaters
-data:
-  heaters:
-    - front_left_seat
-    - steering_wheel
-```
-
+\* This is only available on the More-models. The Core models are not equipped with this heating location.
 
 ### Screenshot
 
