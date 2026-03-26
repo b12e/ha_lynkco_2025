@@ -19,7 +19,7 @@ Other models are currently not available on the EU market, although it is likely
 
 Vehicle data is polled every 15 minutes by default. If you want to poll more frequently, you can do so using Home Assistant automations by calling the update action, although I don't recommend to update more often clock-round.
 
-Data is also refreshed by default 15 seconds after any action is called.
+Data is also refreshed by default 10 seconds after any action is called.
 
 ## ⚠️ Limitations
 

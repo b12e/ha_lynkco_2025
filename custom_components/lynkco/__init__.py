@@ -88,7 +88,7 @@ GLOVEBOX_LOCK_SCHEMA = vol.Schema({
     vol.Required(ATTR_PIN): vol.All(cv.string, vol.Match(r"^\d{4}$")),
 })
 
-ACTION_REFRESH_DELAY = 15  # seconds to wait before refreshing after an action
+ACTION_REFRESH_DELAY = 10  # seconds to wait before refreshing after an action
 
 
 def _all_vins(hass: HomeAssistant) -> list[str]:
