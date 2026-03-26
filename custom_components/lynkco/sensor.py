@@ -141,6 +141,7 @@ SENSOR_TYPES: list[dict] = [
         "unit": None,
         "state_class": None,
         "value_fn": lambda d: _heater_status(d, "rearLeftSeat"),
+        "heater_key": "rearLeftSeat",
     },
     {
         "key": "heater_rear_center_seat",
@@ -150,6 +151,7 @@ SENSOR_TYPES: list[dict] = [
         "unit": None,
         "state_class": None,
         "value_fn": lambda d: _heater_status(d, "rearCenterSeat"),
+        "heater_key": "rearCenterSeat",
     },
     {
         "key": "heater_rear_right_seat",
@@ -159,6 +161,7 @@ SENSOR_TYPES: list[dict] = [
         "unit": None,
         "state_class": None,
         "value_fn": lambda d: _heater_status(d, "rearRightSeat"),
+        "heater_key": "rearRightSeat",
     },
     {
         "key": "lock_status",
@@ -285,8 +288,12 @@ async def async_setup_entry(
     entities = []
     for vin, coordinator in data["coordinators"].items():
         is_bev = coordinator.propulsion == "BEV"
+        heaters = (coordinator.data or {}).get("climate", {}).get("heaters") or {}
         for sensor_type in SENSOR_TYPES:
             if sensor_type.get("fuel_only") and is_bev:
+                continue
+            heater_key = sensor_type.get("heater_key")
+            if heater_key and heaters.get(heater_key) is None:
                 continue
             entities.append(LynkCoSensor(coordinator, sensor_type))
     async_add_entities(entities)
