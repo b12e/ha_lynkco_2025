@@ -77,7 +77,8 @@
       "car_running": { "name": "Voiture en marche" }
     },
     "lock": {
-      "door_lock": { "name": "Verrouillage des portes" }
+      "door_lock": { "name": "Verrouillage des portes" },
+      "glovebox_lock": { "name": "Boîte à gants" }
     },
     "device_tracker": {
       "location": { "name": "Position" }

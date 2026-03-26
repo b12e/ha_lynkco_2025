@@ -77,7 +77,8 @@
       "car_running": { "name": "Auto actief" }
     },
     "lock": {
-      "door_lock": { "name": "Deurslot" }
+      "door_lock": { "name": "Deurslot" },
+      "glovebox_lock": { "name": "Handschoenenvak" }
     },
     "device_tracker": {
       "location": { "name": "Locatie" }

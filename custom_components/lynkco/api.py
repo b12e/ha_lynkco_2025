@@ -274,6 +274,17 @@ class LynkCoAPI:
             json=heaters,
         )
 
+    async def lock_glovebox(self, vin: str, password: str) -> dict:
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/glovebox_set_password",
+            json={"password": password},
+        )
+
+    async def unlock_glovebox(self, vin: str) -> dict:
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/glovebox_unlock"
+        )
+
     # --- Static helpers for the config flow auth ---
 
     @staticmethod

@@ -97,6 +97,7 @@ Data is also refreshed by default 15 seconds after any action is called.
 
 ### Lock
 - Door lock / unlock
+- Glovebox lock (requires PIN) / unlock
 
 ### Actions (Services)
 

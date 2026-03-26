@@ -77,7 +77,8 @@
       "car_running": { "name": "Coche en marcha" }
     },
     "lock": {
-      "door_lock": { "name": "Cerradura de puertas" }
+      "door_lock": { "name": "Cerradura de puertas" },
+      "glovebox_lock": { "name": "Guantera" }
     },
     "device_tracker": {
       "location": { "name": "Ubicación" }
