@@ -76,6 +76,7 @@ Data is also refreshed by default 15 seconds after any action is called.
 | Sunroof | window | 01 / 08
 | Hood | door | All
 | Trunk | door | All
+| Car running | running | All
 
 ### Device Tracker
 - GPS location with coordinates
