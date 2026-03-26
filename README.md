@@ -28,39 +28,53 @@ Data is also refreshed by default 15 seconds after any action is called.
 ## Features
 
 ### Sensors
-| Entity | Description | Unit | Model Availability
+
+#### Battery
+| Entity | Description | Unit | Model Availability |
 |---|---|---|---|
-| Battery level | State of charge | % | All
-| Electric range | Remaining electric range | km | All
-| Charging status | Current charging state (charging, fully_charged, etc.) | - | All
-| Charging speed | Current charging power | kW | All
-| Charging time remaining | Time until fully charged | min | All
-| Charge limit | Configured charge limit | % | All
-| Battery capacity | Total battery capacity | kWh | All
-| Battery energy | Current energy in battery (capacity x SoC) | kWh | All
-| Fuel level | Remaining fuel | % | 01 / 08
-| Fuel range | Remaining fuel range | km | 01 / 08
-| Average fuel consumption | Average fuel consumption | L/100km | 01 / 08
-| Fuel type | Fuel type | - | 01 / 08
-| Interior temperature | Current cabin temperature | °C | All
-| Target temperature | HVAC target temperature | °C | All
-| Climate status | HVAC state | - | All
-| Steering wheel heater | Heater status (active/inactive/disabled) | - | 01 More / 02 More / 08 More
-| Windshield heater | Heater status | - | All
-| Front left seat heater | Heater status | - | All
-| Front right seat heater | Heater status | - | All
-| Rear left seat heater | Heater status | - | 08 More
-| Rear center seat heater | Heater status | - | 08 More
-| Rear right seat heater | Heater status | - | 08 More
-| Central lock | Lock state (locked/unlocked) | - | All
-| Address | Last known address | - | All
-| Odometer | Total distance driven | km | All
-| Tank capacity | Fuel tank capacity | L | 01 / 08
-| Fuel level (liters) | Remaining fuel in liters (capacity × percentage) | L | 01 / 08
-| Last updated | Timestamp of last API data fetch | - | All (disabled by default)
-| Last updated (fuel) | Timestamp of last fuel state update from vehicle | - | 01 / 08 (disabled by default)
-| Last updated (location) | Timestamp of last location update from vehicle | - | All (disabled by default)
-| Last updated (climate) | Timestamp of last climate state update from vehicle | - | All (disabled by default)
+| Battery capacity | Total battery capacity | kWh | All |
+| Battery energy | Current energy in battery (capacity × SoC) | kWh | All |
+| Battery level | State of charge | % | All |
+| Charge limit | Configured charge limit | % | All |
+| Charging speed | Current charging power | kW | All |
+| Charging status | Current charging state (charging, fully_charged, etc.) | - | All |
+| Charging time remaining | Time until fully charged | min | All |
+| Electric range | Remaining electric range | km | All |
+
+#### Fuel
+| Entity | Description | Unit | Model Availability |
+|---|---|---|---|
+| Average fuel consumption | Average fuel consumption | L/100km | 01 / 08 |
+| Fuel level | Remaining fuel | % | 01 / 08 |
+| Fuel level (liters) | Remaining fuel in liters (capacity × percentage) | L | 01 / 08 |
+| Fuel range | Remaining fuel range | km | 01 / 08 |
+| Fuel type | Fuel type | - | 01 / 08 |
+| Tank capacity | Fuel tank capacity | L | 01 / 08 |
+
+#### Climate
+| Entity | Description | Unit | Model Availability |
+|---|---|---|---|
+| Climate status | HVAC state | - | All |
+| Front left seat heater | Heater status (active/inactive/disabled) | - | All |
+| Front right seat heater | Heater status | - | All |
+| Interior temperature | Current cabin temperature | °C | All |
+| Rear center seat heater | Heater status | - | 08 More |
+| Rear left seat heater | Heater status | - | 08 More |
+| Rear right seat heater | Heater status | - | 08 More |
+| Steering wheel heater | Heater status | - | 01 More / 02 More / 08 More |
+| Target temperature | HVAC target temperature | °C | All |
+| Windshield heater | Heater status | - | All |
+
+#### Other
+| Entity | Description | Unit | Model Availability |
+|---|---|---|---|
+| Address | Last known address | - | All |
+| Central lock | Lock state (locked/unlocked) | - | All |
+| Last updated | Timestamp of last API data fetch | - | All (disabled by default) |
+| Last updated (climate) | Timestamp of last climate state update from vehicle | - | All (disabled by default) |
+| Last updated (fuel) | Timestamp of last fuel state update from vehicle | - | 01 / 08 (disabled by default) |
+| Last updated (location) | Timestamp of last location update from vehicle | - | All (disabled by default) |
+| Odometer | Total distance driven | km | All |
 
 ### Binary Sensors
 | Entity | Device class | Model Availability
