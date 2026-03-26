@@ -88,8 +88,8 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 | `lynkco.stop_conditioning` | Stop air conditioning | | t.b.c. | ✅ |
 | `lynkco.start_ventilate` | Start ventilation | | t.b.c. |✅||
 | `lynkco.stop_ventilate` | Stop ventilation | | t.b.c. | ✅
-| `lynkco.start_heaters` | Start heaters | `heaters` (list) | t.b.c. | | |
-| `lynkco.stop_heaters` | Stop heaters | `heaters` (list) | t.b.c. | | |
+| `lynkco.start_heaters` | Start heaters | `heaters` (list) | ✅ | | |
+| `lynkco.stop_heaters` | Stop heaters | `heaters` (list) | ✅ | | |
 
 #### Notes:
 - ✅ = confirmed working on that model<br />
@@ -97,7 +97,7 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 - `temp` is in ºC.
 - `heaters` accepts a list of zones (see table below)
 
-**Note:** Seat and steering wheel heaters require the climate system to be active first (use `start_conditioning` or `start_heaters` with `defrost`). The `defrost` zone can be started independently.
+**Note:** Seat and steering wheel heaters require the climate system to be active first (use `start_conditioning` before `start_heaters`).
 
 #### Heater zones
 
