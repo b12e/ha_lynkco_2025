@@ -3,6 +3,8 @@
 import logging
 from datetime import timedelta
 
+from homeassistant.util import dt as dt_util
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -83,4 +85,5 @@ class LynkCoCoordinator(DataUpdateCoordinator):
             "doors": doors,
             "fuel": fuel,
             "metadata": metadata,
+            "last_updated": dt_util.now(),
         }

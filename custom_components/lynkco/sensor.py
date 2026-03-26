@@ -1,15 +1,18 @@
 """Sensor platform for Lynk & Co integration."""
 
+from datetime import datetime
+
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfLength, UnitOfPower, UnitOfTemperature, UnitOfTime
+from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfLength, UnitOfPower, UnitOfTemperature, UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, MANUFACTURER, MODEL_NAMES
 from .coordinator import LynkCoCoordinator
@@ -249,6 +252,67 @@ SENSOR_TYPES: list[dict] = [
         "state_class": SensorStateClass.MEASUREMENT,
         "value_fn": lambda d: _battery_kwh(d),
     },
+    {
+        "key": "tank_capacity",
+        "name": "Tank capacity",
+        "icon": "mdi:gas-station",
+        "device_class": None,
+        "unit": UnitOfVolume.LITERS,
+        "state_class": SensorStateClass.MEASUREMENT,
+        "value_fn": lambda d: d.get("metadata", {}).get("fuelInfo", {}).get("tankCapacity"),
+        "fuel_only": True,
+    },
+    {
+        "key": "fuel_level_liters",
+        "name": "Fuel level",
+        "icon": "mdi:gas-station",
+        "device_class": None,
+        "unit": UnitOfVolume.LITERS,
+        "state_class": SensorStateClass.MEASUREMENT,
+        "value_fn": lambda d: _fuel_liters(d),
+        "fuel_only": True,
+    },
+    {
+        "key": "last_updated",
+        "name": "Last updated",
+        "icon": "mdi:clock-outline",
+        "device_class": SensorDeviceClass.TIMESTAMP,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: d.get("last_updated"),
+        "entity_registry_enabled_default": False,
+    },
+    {
+        "key": "last_updated_fuel",
+        "name": "Last updated (fuel)",
+        "icon": "mdi:clock-outline",
+        "device_class": SensorDeviceClass.TIMESTAMP,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _parse_ts(d.get("fuel", {}).get("fuelState", {}).get("updatedAt")),
+        "fuel_only": True,
+        "entity_registry_enabled_default": False,
+    },
+    {
+        "key": "last_updated_location",
+        "name": "Last updated (location)",
+        "icon": "mdi:clock-outline",
+        "device_class": SensorDeviceClass.TIMESTAMP,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _parse_ts((d.get("location", {}).get("vehicleLocation") or {}).get("updatedAt")),
+        "entity_registry_enabled_default": False,
+    },
+    {
+        "key": "last_updated_climate",
+        "name": "Last updated (climate)",
+        "icon": "mdi:clock-outline",
+        "device_class": SensorDeviceClass.TIMESTAMP,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _parse_ts(d.get("climate", {}).get("updatedAt")),
+        "entity_registry_enabled_default": False,
+    },
 ]
 
 
@@ -279,6 +343,23 @@ def _battery_kwh(d):
     soc = d.get("charge", {}).get("batteryState", {}).get("stateOfCharge")
     if capacity is not None and soc is not None:
         return round(capacity * soc, 1)
+    return None
+
+def _parse_ts(val):
+    if val is None:
+        return None
+    if isinstance(val, datetime):
+        return val
+    try:
+        return dt_util.parse_datetime(val)
+    except (ValueError, TypeError):
+        return None
+
+def _fuel_liters(d):
+    capacity = d.get("metadata", {}).get("fuelInfo", {}).get("tankCapacity")
+    pct = d.get("fuel", {}).get("fuelState", {}).get("percentageOfRemainingFuel")
+    if capacity is not None and pct is not None:
+        return round(capacity * pct, 1)
     return None
 
 
@@ -312,6 +393,8 @@ class LynkCoSensor(CoordinatorEntity, SensorEntity):
         self._attr_device_class = sensor_type.get("device_class")
         self._attr_native_unit_of_measurement = sensor_type.get("unit")
         self._attr_state_class = sensor_type.get("state_class")
+        if "entity_registry_enabled_default" in sensor_type:
+            self._attr_entity_registry_enabled_default = sensor_type["entity_registry_enabled_default"]
 
     @property
     def device_info(self):

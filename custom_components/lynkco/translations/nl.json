@@ -54,7 +54,13 @@
       "fuel_type": { "name": "Brandstoftype" },
       "odometer": { "name": "Kilometerteller" },
       "battery_capacity": { "name": "Batterijcapaciteit" },
-      "battery_energy": { "name": "Batterijenergie" }
+      "battery_energy": { "name": "Batterijenergie" },
+      "tank_capacity": { "name": "Tankinhoud" },
+      "fuel_level_liters": { "name": "Brandstofniveau" },
+      "last_updated": { "name": "Laatst bijgewerkt" },
+      "last_updated_fuel": { "name": "Laatst bijgewerkt (brandstof)" },
+      "last_updated_location": { "name": "Laatst bijgewerkt (locatie)" },
+      "last_updated_climate": { "name": "Laatst bijgewerkt (klimaat)" }
     },
     "binary_sensor": {
       "door_front_left": { "name": "Deur linksvoor" },

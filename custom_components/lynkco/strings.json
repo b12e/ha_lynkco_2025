@@ -54,7 +54,13 @@
       "fuel_type": { "name": "Fuel type" },
       "odometer": { "name": "Odometer" },
       "battery_capacity": { "name": "Battery capacity" },
-      "battery_energy": { "name": "Battery energy" }
+      "battery_energy": { "name": "Battery energy" },
+      "tank_capacity": { "name": "Tank capacity" },
+      "fuel_level_liters": { "name": "Fuel level" },
+      "last_updated": { "name": "Last updated" },
+      "last_updated_fuel": { "name": "Last updated (fuel)" },
+      "last_updated_location": { "name": "Last updated (location)" },
+      "last_updated_climate": { "name": "Last updated (climate)" }
     },
     "binary_sensor": {
       "door_front_left": { "name": "Front left door" },

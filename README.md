@@ -47,7 +47,13 @@ Data is also refreshed by default 15 seconds after any action is called.
 | Climate status | HVAC state | - | All
 | Central lock | Lock state (locked/unlocked) | - | All
 | Address | Last known address | - | All
-| Odometer | Total distance driven | km | All 
+| Odometer | Total distance driven | km | All
+| Tank capacity | Fuel tank capacity | L | 01 / 08
+| Fuel level (liters) | Remaining fuel in liters (capacity × percentage) | L | 01 / 08
+| Last updated | Timestamp of last API data fetch | - | All (disabled by default)
+| Last updated (fuel) | Timestamp of last fuel state update from vehicle | - | 01 / 08 (disabled by default)
+| Last updated (location) | Timestamp of last location update from vehicle | - | All (disabled by default)
+| Last updated (climate) | Timestamp of last climate state update from vehicle | - | All (disabled by default)
 
 ### Binary Sensors
 | Entity | Device class | Model Availability
