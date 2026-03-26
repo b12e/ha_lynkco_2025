@@ -55,11 +55,13 @@ class LynkCoAPI:
         access_token: str,
         refresh_token: str,
         device_id: str,
+        on_token_refresh: callable | None = None,
     ) -> None:
         self._session = session
         self._access_token = access_token
         self._refresh_token = refresh_token
         self._device_id = device_id
+        self._on_token_refresh = on_token_refresh
         self._claims: dict = {}
         self._update_claims()
 
@@ -166,6 +168,8 @@ class LynkCoAPI:
             self._refresh_token = data.get("refresh_token", self._refresh_token)
             self._update_claims()
             _LOGGER.debug("Tokens refreshed successfully")
+            if self._on_token_refresh:
+                self._on_token_refresh(self._access_token, self._refresh_token)
             return True
 
     async def validate_session(self) -> bool:

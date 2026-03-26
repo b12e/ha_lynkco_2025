@@ -48,15 +48,6 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         except Exception as err:
             # Try refreshing tokens once
             if await self.api.refresh_tokens():
-                # Update stored tokens
-                self.hass.config_entries.async_update_entry(
-                    self.entry,
-                    data={
-                        **self.entry.data,
-                        "access_token": self.api.access_token,
-                        "refresh_token": self.api.refresh_token,
-                    },
-                )
                 try:
                     vehicle_data = await self.api.get_vehicle_data(self.vin)
                     location = await self.api.get_location(self.vin)
