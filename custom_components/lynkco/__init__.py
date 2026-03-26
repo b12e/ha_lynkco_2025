@@ -31,6 +31,8 @@ VALID_HEATERS = [
     "defrost",
 ]
 
+REAR_HEATERS = {"rear_left_seat", "rear_right_seat"}
+
 SERVICE_FLASH_LIGHTS = "flash_lights"
 SERVICE_HONK_HORN = "honk_horn"
 SERVICE_OPEN_SUNROOF = "open_sunroof"
@@ -194,15 +196,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             await _get_api(hass, vin).stop_ventilate(vin)
             hass.async_create_task(_delayed_refresh(hass, vin))
 
+        def _validate_heaters(hass: HomeAssistant, vin: str, heaters: list[str]) -> list[str]:
+            coordinator = _get_coordinator(hass, vin)
+            if coordinator and coordinator.data:
+                available = (coordinator.data.get("climate", {}).get("heaters") or {})
+                for h in heaters:
+                    if h in REAR_HEATERS:
+                        api_key = {"rear_left_seat": "rearLeftSeat", "rear_right_seat": "rearRightSeat"}[h]
+                        if available.get(api_key) is None:
+                            raise vol.Invalid(f"Heater zone '{h}' is not available on this vehicle")
+            return [h.upper() for h in heaters]
+
         async def handle_start_heaters(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
-            heaters = [h.upper() for h in call.data[ATTR_HEATERS]]
+            heaters = _validate_heaters(hass, vin, call.data[ATTR_HEATERS])
             await _get_api(hass, vin).start_heaters(vin, heaters)
             hass.async_create_task(_delayed_refresh(hass, vin))
 
         async def handle_stop_heaters(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
-            heaters = [h.upper() for h in call.data[ATTR_HEATERS]]
+            heaters = _validate_heaters(hass, vin, call.data[ATTR_HEATERS])
             await _get_api(hass, vin).stop_heaters(vin, heaters)
             hass.async_create_task(_delayed_refresh(hass, vin))
 
