@@ -1,17 +1,16 @@
 name: Release
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "custom_components/lynkco/**/*.py"
-      - "custom_components/lynkco/manifest.json"
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g. 0.3.0)"
+        required: true
+        type: string
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: "!startsWith(github.event.head_commit.message, 'Bump version to')"
     permissions:
       contents: write
 
@@ -22,22 +21,16 @@ jobs:
           ref: main
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Get current version from manifest
-        id: current
+      - name: Validate version format
         run: |
-          version=$(jq -r .version custom_components/lynkco/manifest.json)
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-
-      - name: Bump patch version
-        id: bump
-        run: |
-          IFS='.' read -r major minor patch <<< "${{ steps.current.outputs.version }}"
-          new_version="${major}.${minor}.$((patch + 1))"
-          echo "version=$new_version" >> "$GITHUB_OUTPUT"
+          if ! echo "${{ inputs.version }}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Error: Version must be in format X.Y.Z"
+            exit 1
+          fi
 
       - name: Update manifest.json
         run: |
-          jq --arg v "${{ steps.bump.outputs.version }}" '.version = $v' \
+          jq --arg v "${{ inputs.version }}" '.version = $v' \
             custom_components/lynkco/manifest.json > manifest.tmp \
             && mv manifest.tmp custom_components/lynkco/manifest.json
 
@@ -62,14 +55,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add custom_components/lynkco/manifest.json
-          git commit -m "Bump version to ${{ steps.bump.outputs.version }}"
+          git commit -m "Bump version to ${{ inputs.version }}"
           git push origin main
 
       - name: Create tag and release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="v${{ steps.bump.outputs.version }}"
+          tag="v${{ inputs.version }}"
           gh release create "$tag" \
             --title "$tag" \
             --notes "${{ steps.changelog.outputs.log }}" \
