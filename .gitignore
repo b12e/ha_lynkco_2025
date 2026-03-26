@@ -32,3 +32,4 @@ __pycache__/
 .metals/
 .vscode/
 dashboard.yaml
+api_dump.json

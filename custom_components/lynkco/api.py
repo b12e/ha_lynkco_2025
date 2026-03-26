@@ -258,16 +258,16 @@ class LynkCoAPI:
             "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/ventilate_stop"
         )
 
-    async def start_heaters(self, vin: str) -> dict:
+    async def start_heaters(self, vin: str, heaters: list[str]) -> dict:
         return await self._request(
             "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/start_heaters",
-            json=[],
+            json=heaters,
         )
 
-    async def stop_heaters(self, vin: str) -> dict:
+    async def stop_heaters(self, vin: str, heaters: list[str]) -> dict:
         return await self._request(
             "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/stop_heaters",
-            json=[],
+            json=heaters,
         )
 
     # --- Static helpers for the config flow auth ---

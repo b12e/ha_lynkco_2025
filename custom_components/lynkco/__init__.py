@@ -20,6 +20,22 @@ PLATFORMS = ["sensor", "binary_sensor", "device_tracker", "lock"]
 ATTR_VIN = "vin"
 ATTR_PERCENT = "percent"
 ATTR_TEMP = "temp"
+ATTR_HEATERS = "heaters"
+
+VALID_HEATERS = [
+    "front_left_seat",
+    "front_right_seat",
+    "rear_left_seat",
+    "rear_right_seat",
+    "steering_wheel",
+    "defrost",
+]
+
+OPTIONAL_HEATERS = {
+    "rear_left_seat": "rearLeftSeat",
+    "rear_right_seat": "rearRightSeat",
+    "steering_wheel": "steeringWheel",
+}
 
 SERVICE_FLASH_LIGHTS = "flash_lights"
 SERVICE_HONK_HORN = "honk_horn"
@@ -55,6 +71,12 @@ CHARGE_LIMIT_SCHEMA = vol.Schema({
 CONDITIONING_SCHEMA = vol.Schema({
     vol.Optional(ATTR_VIN): cv.string,
     vol.Required(ATTR_TEMP): vol.All(vol.Coerce(int), vol.Range(min=16, max=28)),
+})
+HEATERS_SCHEMA = vol.Schema({
+    vol.Optional(ATTR_VIN): cv.string,
+    vol.Required(ATTR_HEATERS): vol.All(
+        cv.ensure_list, [vol.In(VALID_HEATERS)],
+    ),
 })
 
 ACTION_REFRESH_DELAY = 15  # seconds to wait before refreshing after an action
@@ -178,14 +200,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             await _get_api(hass, vin).stop_ventilate(vin)
             hass.async_create_task(_delayed_refresh(hass, vin))
 
+        def _validate_heaters(hass: HomeAssistant, vin: str, heaters: list[str]) -> list[str]:
+            coordinator = _get_coordinator(hass, vin)
+            if coordinator and coordinator.data:
+                available = (coordinator.data.get("climate", {}).get("heaters") or {})
+                for h in heaters:
+                    api_key = OPTIONAL_HEATERS.get(h)
+                    if api_key and available.get(api_key) is None:
+                        raise vol.Invalid(f"Heater zone '{h}' is not available on this vehicle")
+            return [h.upper() for h in heaters]
+
         async def handle_start_heaters(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
-            await _get_api(hass, vin).start_heaters(vin)
+            heaters = _validate_heaters(hass, vin, call.data[ATTR_HEATERS])
+            await _get_api(hass, vin).start_heaters(vin, heaters)
             hass.async_create_task(_delayed_refresh(hass, vin))
 
         async def handle_stop_heaters(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
-            await _get_api(hass, vin).stop_heaters(vin)
+            heaters = _validate_heaters(hass, vin, call.data[ATTR_HEATERS])
+            await _get_api(hass, vin).stop_heaters(vin, heaters)
             hass.async_create_task(_delayed_refresh(hass, vin))
 
         async def handle_start_conditioning(call: ServiceCall) -> None:
@@ -223,8 +257,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.services.async_register(DOMAIN, SERVICE_SET_CHARGE_LIMIT, handle_set_charge_limit, CHARGE_LIMIT_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_START_VENTILATE, handle_start_ventilate, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_STOP_VENTILATE, handle_stop_ventilate, VIN_SCHEMA)
-        hass.services.async_register(DOMAIN, SERVICE_START_HEATERS, handle_start_heaters, VIN_SCHEMA)
-        hass.services.async_register(DOMAIN, SERVICE_STOP_HEATERS, handle_stop_heaters, VIN_SCHEMA)
+        hass.services.async_register(DOMAIN, SERVICE_START_HEATERS, handle_start_heaters, HEATERS_SCHEMA)
+        hass.services.async_register(DOMAIN, SERVICE_STOP_HEATERS, handle_stop_heaters, HEATERS_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_START_CONDITIONING, handle_start_conditioning, CONDITIONING_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_STOP_CONDITIONING, handle_stop_conditioning, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_LOCK_DOOR, handle_lock_door, VIN_SCHEMA)

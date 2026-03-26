@@ -39,6 +39,13 @@
       "interior_temperature": { "name": "Interieurtemperatuur" },
       "target_temperature": { "name": "Doeltemperatuur" },
       "climate_status": { "name": "Klimaatstatus" },
+      "heater_steering_wheel": { "name": "Stuurverwarming" },
+      "heater_windshield": { "name": "Voorruitverwarming" },
+      "heater_front_left_seat": { "name": "Stoelverwarming linksvoor" },
+      "heater_front_right_seat": { "name": "Stoelverwarming rechtsvoor" },
+      "heater_rear_left_seat": { "name": "Stoelverwarming linksachter" },
+      "heater_rear_center_seat": { "name": "Stoelverwarming midden achter" },
+      "heater_rear_right_seat": { "name": "Stoelverwarming rechtsachter" },
       "lock_status": { "name": "Centraal slot" },
       "address": { "name": "Adres" },
       "fuel_level": { "name": "Brandstofniveau" },
@@ -161,6 +168,10 @@
         "vin": {
           "name": "VIN",
           "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        },
+        "heaters": {
+          "name": "Verwarmingen",
+          "description": "Te activeren verwarmingen"
         }
       }
     },
@@ -171,6 +182,10 @@
         "vin": {
           "name": "VIN",
           "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        },
+        "heaters": {
+          "name": "Verwarmingen",
+          "description": "Te deactiveren verwarmingen"
         }
       }
     },

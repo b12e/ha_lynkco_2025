@@ -88,13 +88,36 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 | `lynkco.stop_conditioning` | Stop air conditioning | | t.b.c. | ✅ |
 | `lynkco.start_ventilate` | Start ventilation | | t.b.c. |✅||
 | `lynkco.stop_ventilate` | Stop ventilation | | t.b.c. | ✅
-| `lynkco.start_heaters` | Start seat/steering heaters | | t.b.c. | | |
-| `lynkco.stop_heaters` | Stop heaters | | t.b.c. | | |
+| `lynkco.start_heaters` | Start heaters | `heaters` (list) | ✅ | | |
+| `lynkco.stop_heaters` | Stop heaters | `heaters` (list) | ✅ | | |
 
 #### Notes:
 - ✅ = confirmed working on that model<br />
 - Sunroof actions aren't available on the Lynk&Co 02 as it doesn't have a sunroof that can open.<br />
 - `temp` is in ºC.
+- `heaters` accepts a list of zones (see table below)
+
+**Note:** Seat and steering wheel heaters require the climate system to be active first (use `start_conditioning` before `start_heaters`).
+
+#### Heater zones
+
+| Zone | 01 | 02 | 08 |
+|---|---|---|---|
+| `front_left_seat` | ✅ | ✅ | ✅ |
+| `front_right_seat` | ✅ | ✅ | ✅ |
+| `rear_left_seat` | ❌ | ❌ | ✅ (More only) |
+| `rear_right_seat` | ❌ | ❌ | ✅ (More only) |
+| `steering_wheel` | ✅ (More only) | ✅ (More only) | ✅ (More only) |
+| `defrost` | ✅ | ✅ | ✅ |
+
+#### Example: start heaters
+```yaml
+service: lynkco.start_heaters
+data:
+  heaters:
+    - front_left_seat
+    - steering_wheel
+```
 
 
 ### Screenshot

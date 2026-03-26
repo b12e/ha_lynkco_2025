@@ -39,6 +39,13 @@
       "interior_temperature": { "name": "Température intérieure" },
       "target_temperature": { "name": "Température cible" },
       "climate_status": { "name": "État de la climatisation" },
+      "heater_steering_wheel": { "name": "Chauffage du volant" },
+      "heater_windshield": { "name": "Chauffage du pare-brise" },
+      "heater_front_left_seat": { "name": "Chauffage siège avant gauche" },
+      "heater_front_right_seat": { "name": "Chauffage siège avant droit" },
+      "heater_rear_left_seat": { "name": "Chauffage siège arrière gauche" },
+      "heater_rear_center_seat": { "name": "Chauffage siège arrière central" },
+      "heater_rear_right_seat": { "name": "Chauffage siège arrière droit" },
       "lock_status": { "name": "Verrouillage central" },
       "address": { "name": "Adresse" },
       "fuel_level": { "name": "Niveau de carburant" },
@@ -161,6 +168,10 @@
         "vin": {
           "name": "VIN",
           "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        },
+        "heaters": {
+          "name": "Chauffages",
+          "description": "Chauffages à activer"
         }
       }
     },
@@ -171,6 +182,10 @@
         "vin": {
           "name": "VIN",
           "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        },
+        "heaters": {
+          "name": "Chauffages",
+          "description": "Chauffages à désactiver"
         }
       }
     },

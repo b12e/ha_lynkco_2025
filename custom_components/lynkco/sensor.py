@@ -98,6 +98,73 @@ SENSOR_TYPES: list[dict] = [
         "value_fn": lambda d: _lower(d.get("climate", {}).get("status")),
     },
     {
+        "key": "heater_steering_wheel",
+        "name": "Steering wheel heater",
+        "icon": "mdi:steering",
+        "device_class": SensorDeviceClass.ENUM,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _heater_status(d, "steeringWheel"),
+        "heater_key": "steeringWheel",
+    },
+    {
+        "key": "heater_windshield",
+        "name": "Windshield heater",
+        "icon": "mdi:car-defrost-front",
+        "device_class": SensorDeviceClass.ENUM,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _heater_status(d, "windshield"),
+    },
+    {
+        "key": "heater_front_left_seat",
+        "name": "Front left seat heater",
+        "icon": "mdi:car-seat-heater",
+        "device_class": SensorDeviceClass.ENUM,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _heater_status(d, "frontLeftSeat"),
+    },
+    {
+        "key": "heater_front_right_seat",
+        "name": "Front right seat heater",
+        "icon": "mdi:car-seat-heater",
+        "device_class": SensorDeviceClass.ENUM,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _heater_status(d, "frontRightSeat"),
+    },
+    {
+        "key": "heater_rear_left_seat",
+        "name": "Rear left seat heater",
+        "icon": "mdi:car-seat-heater",
+        "device_class": SensorDeviceClass.ENUM,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _heater_status(d, "rearLeftSeat"),
+        "heater_key": "rearLeftSeat",
+    },
+    {
+        "key": "heater_rear_center_seat",
+        "name": "Rear center seat heater",
+        "icon": "mdi:car-seat-heater",
+        "device_class": SensorDeviceClass.ENUM,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _heater_status(d, "rearCenterSeat"),
+        "heater_key": "rearCenterSeat",
+    },
+    {
+        "key": "heater_rear_right_seat",
+        "name": "Rear right seat heater",
+        "icon": "mdi:car-seat-heater",
+        "device_class": SensorDeviceClass.ENUM,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _heater_status(d, "rearRightSeat"),
+        "heater_key": "rearRightSeat",
+    },
+    {
         "key": "lock_status",
         "name": "Central lock",
         "icon": "mdi:car-door-lock",
@@ -200,6 +267,13 @@ def _lower(val):
         return str(val).lower()
     return None
 
+def _heater_status(d, key):
+    heaters = d.get("climate", {}).get("heaters") or {}
+    heater = heaters.get(key)
+    if heater is None:
+        return None
+    return _lower(heater.get("status"))
+
 def _battery_kwh(d):
     capacity = d.get("metadata", {}).get("batteryInfo", {}).get("batteryCapacity")
     soc = d.get("charge", {}).get("batteryState", {}).get("stateOfCharge")
@@ -215,8 +289,12 @@ async def async_setup_entry(
     entities = []
     for vin, coordinator in data["coordinators"].items():
         is_bev = coordinator.propulsion == "BEV"
+        heaters = (coordinator.data or {}).get("climate", {}).get("heaters") or {}
         for sensor_type in SENSOR_TYPES:
             if sensor_type.get("fuel_only") and is_bev:
+                continue
+            heater_key = sensor_type.get("heater_key")
+            if heater_key and heaters.get(heater_key) is None:
                 continue
             entities.append(LynkCoSensor(coordinator, sensor_type))
     async_add_entities(entities)
