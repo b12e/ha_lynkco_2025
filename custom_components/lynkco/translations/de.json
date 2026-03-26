@@ -161,6 +161,10 @@
         "vin": {
           "name": "FIN",
           "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        },
+        "heaters": {
+          "name": "Heizungen",
+          "description": "Welche Heizungen aktivieren"
         }
       }
     },
@@ -171,6 +175,10 @@
         "vin": {
           "name": "FIN",
           "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        },
+        "heaters": {
+          "name": "Heizungen",
+          "description": "Welche Heizungen deaktivieren"
         }
       }
     },

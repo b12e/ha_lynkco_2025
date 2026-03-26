@@ -161,6 +161,10 @@
         "vin": {
           "name": "VIN",
           "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        },
+        "heaters": {
+          "name": "Calefactores",
+          "description": "Qué calefactores activar"
         }
       }
     },
@@ -171,6 +175,10 @@
         "vin": {
           "name": "VIN",
           "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        },
+        "heaters": {
+          "name": "Calefactores",
+          "description": "Qué calefactores desactivar"
         }
       }
     },

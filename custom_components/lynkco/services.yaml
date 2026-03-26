@@ -59,12 +59,48 @@ start_heaters:
     vin:
       selector:
         text:
+    heaters:
+      required: true
+      selector:
+        select:
+          multiple: true
+          options:
+            - value: "front_left_seat"
+              label: "Front left seat"
+            - value: "front_right_seat"
+              label: "Front right seat"
+            - value: "rear_left_seat"
+              label: "Rear left seat"
+            - value: "rear_right_seat"
+              label: "Rear right seat"
+            - value: "steering_wheel"
+              label: "Steering wheel"
+            - value: "defrost"
+              label: "Windshield defrost"
 
 stop_heaters:
   fields:
     vin:
       selector:
         text:
+    heaters:
+      required: true
+      selector:
+        select:
+          multiple: true
+          options:
+            - value: "front_left_seat"
+              label: "Front left seat"
+            - value: "front_right_seat"
+              label: "Front right seat"
+            - value: "rear_left_seat"
+              label: "Rear left seat"
+            - value: "rear_right_seat"
+              label: "Rear right seat"
+            - value: "steering_wheel"
+              label: "Steering wheel"
+            - value: "defrost"
+              label: "Windshield defrost"
 
 start_conditioning:
   fields:

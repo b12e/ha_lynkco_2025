@@ -161,6 +161,10 @@
         "vin": {
           "name": "VIN",
           "description": "Vehicle Identification Number (optional if only one vehicle)"
+        },
+        "heaters": {
+          "name": "Heaters",
+          "description": "Which heaters to activate"
         }
       }
     },
@@ -171,6 +175,10 @@
         "vin": {
           "name": "VIN",
           "description": "Vehicle Identification Number (optional if only one vehicle)"
+        },
+        "heaters": {
+          "name": "Heaters",
+          "description": "Which heaters to deactivate"
         }
       }
     },

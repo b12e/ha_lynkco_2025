@@ -161,6 +161,10 @@
         "vin": {
           "name": "VIN",
           "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        },
+        "heaters": {
+          "name": "Verwarmingen",
+          "description": "Welke verwarmingen activeren"
         }
       }
     },
@@ -171,6 +175,10 @@
         "vin": {
           "name": "VIN",
           "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        },
+        "heaters": {
+          "name": "Verwarmingen",
+          "description": "Welke verwarmingen deactiveren"
         }
       }
     },

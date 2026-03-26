@@ -88,8 +88,8 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 | `lynkco.stop_conditioning` | Stop air conditioning | | t.b.c. | ✅ |
 | `lynkco.start_ventilate` | Start ventilation | | t.b.c. |✅||
 | `lynkco.stop_ventilate` | Stop ventilation | | t.b.c. | ✅
-| `lynkco.start_heaters` | Start seat/steering heaters | | t.b.c. | | |
-| `lynkco.stop_heaters` | Stop heaters | | t.b.c. | | |
+| `lynkco.start_heaters` | Start heaters | `heaters` (list) | t.b.c. | | |
+| `lynkco.stop_heaters` | Stop heaters | `heaters` (list) | t.b.c. | | |
 
 #### Notes:
 - ✅ = confirmed working on that model<br />

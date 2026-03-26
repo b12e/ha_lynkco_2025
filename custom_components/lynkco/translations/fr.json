@@ -161,6 +161,10 @@
         "vin": {
           "name": "VIN",
           "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        },
+        "heaters": {
+          "name": "Chauffages",
+          "description": "Quels chauffages activer"
         }
       }
     },
@@ -171,6 +175,10 @@
         "vin": {
           "name": "VIN",
           "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
+        },
+        "heaters": {
+          "name": "Chauffages",
+          "description": "Quels chauffages désactiver"
         }
       }
     },
