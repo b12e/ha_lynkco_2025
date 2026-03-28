@@ -1,0 +1,52 @@
+name: Pre-release
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "custom_components/lynkco/**"
+
+jobs:
+  prerelease:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get current version from manifest
+        id: current
+        run: |
+          version=$(jq -r .version custom_components/lynkco/manifest.json)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build pre-release version
+        id: prerelease
+        run: |
+          version="${{ steps.current.outputs.version }}-pr${{ github.event.pull_request.number }}.$(echo ${{ github.sha }} | cut -c1-7)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Delete existing pre-release for this PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release list --json tagName,isPrerelease -q '.[] | select(.isPrerelease) | .tagName' | \
+            grep "pr${{ github.event.pull_request.number }}\." | \
+            while read -r tag; do
+              echo "Deleting pre-release $tag"
+              gh release delete "$tag" --yes --cleanup-tag || true
+            done
+
+      - name: Create pre-release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="v${{ steps.prerelease.outputs.version }}"
+          gh release create "$tag" \
+            --title "$tag" \
+            --notes "Pre-release from PR #${{ github.event.pull_request.number }}" \
+            --prerelease \
+            --target "${{ github.event.pull_request.head.sha }}"
