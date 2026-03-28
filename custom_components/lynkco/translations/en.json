@@ -28,6 +28,20 @@
       "already_configured": "This account is already configured"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Polling interval (minutes)",
+          "driving_interval": "Polling interval while driving (minutes)"
+        },
+        "data_description": {
+          "scan_interval": "How often to fetch vehicle data (15–180 minutes)",
+          "driving_interval": "How often to fetch data when the car is running (1–60 minutes)"
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "battery_level": { "name": "Battery level" },

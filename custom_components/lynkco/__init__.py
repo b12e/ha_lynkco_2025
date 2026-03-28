@@ -1,6 +1,7 @@
 """Lynk & Co integration for Home Assistant."""
 
 import logging
+from datetime import timedelta
 
 import voluptuous as vol
 
@@ -10,7 +11,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import LynkCoAPI
-from .const import CONF_ACCESS_TOKEN, CONF_DEVICE_ID, CONF_REFRESH_TOKEN, DOMAIN
+from .const import CONF_ACCESS_TOKEN, CONF_DEVICE_ID, CONF_REFRESH_TOKEN, CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DOMAIN
 from .coordinator import LynkCoCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -178,6 +179,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    # Update coordinator interval when options change
+    async def _options_updated(_hass, _entry):
+        scan_minutes = _entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL // 60)
+        for coordinator in coordinators.values():
+            if not coordinator._driving:
+                coordinator.update_interval = timedelta(minutes=scan_minutes)
+
+    entry.async_on_unload(entry.add_update_listener(_options_updated))
 
     # Register services (only once)
     if not hass.services.has_service(DOMAIN, SERVICE_FLASH_LIGHTS):

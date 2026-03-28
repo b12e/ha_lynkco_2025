@@ -45,3 +45,5 @@ DRIVING_SCAN_INTERVAL = 60  # 1 minute when car is running
 CONF_ACCESS_TOKEN = "access_token"
 CONF_REFRESH_TOKEN = "refresh_token"
 CONF_DEVICE_ID = "device_id"
+CONF_SCAN_INTERVAL = "scan_interval"
+CONF_DRIVING_INTERVAL = "driving_interval"

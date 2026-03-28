@@ -28,6 +28,20 @@
       "already_configured": "Dieses Konto ist bereits konfiguriert"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Abfrageintervall (Minuten)",
+          "driving_interval": "Abfrageintervall während der Fahrt (Minuten)"
+        },
+        "data_description": {
+          "scan_interval": "Wie oft Fahrzeugdaten abgerufen werden (15–180 Minuten)",
+          "driving_interval": "Wie oft Daten abgerufen werden, wenn das Auto fährt (1–60 Minuten)"
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "battery_level": { "name": "Batteriestand" },

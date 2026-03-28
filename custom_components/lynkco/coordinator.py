@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import LynkCoAPI
-from .const import DEFAULT_SCAN_INTERVAL, DRIVING_SCAN_INTERVAL, DOMAIN
+from .const import CONF_DRIVING_INTERVAL, CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DRIVING_SCAN_INTERVAL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,11 +31,12 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         vin: str,
         model: str,
     ) -> None:
+        scan_minutes = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL // 60)
         super().__init__(
             hass,
             _LOGGER,
             name=f"{DOMAIN}_{vin}",
-            update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL),
+            update_interval=timedelta(minutes=scan_minutes),
         )
         self.api = api
         self.vin = vin
@@ -81,13 +82,15 @@ class LynkCoCoordinator(DataUpdateCoordinator):
             self.propulsion = propulsion
 
         # Adjust polling interval based on driving state
+        scan_minutes = self.entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL // 60)
+        drive_minutes = self.entry.options.get(CONF_DRIVING_INTERVAL, DRIVING_SCAN_INTERVAL // 60)
         driving = data["vehicle_data"].get("driveModeEnabled", False)
         if driving and not self._driving:
-            _LOGGER.debug("Car is running, increasing poll frequency to %ds", DRIVING_SCAN_INTERVAL)
-            self.update_interval = timedelta(seconds=DRIVING_SCAN_INTERVAL)
+            _LOGGER.debug("Car is running, increasing poll frequency to %dm", drive_minutes)
+            self.update_interval = timedelta(minutes=drive_minutes)
         elif not driving and self._driving:
-            _LOGGER.debug("Car stopped, reverting poll frequency to %ds", DEFAULT_SCAN_INTERVAL)
-            self.update_interval = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
+            _LOGGER.debug("Car stopped, reverting poll frequency to %dm", scan_minutes)
+            self.update_interval = timedelta(minutes=scan_minutes)
         self._driving = driving
 
         return data
