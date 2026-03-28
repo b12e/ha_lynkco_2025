@@ -1,7 +1,7 @@
 """Lynk & Co integration for Home Assistant."""
 
-import asyncio
 import logging
+from datetime import timedelta
 
 import voluptuous as vol
 
@@ -11,7 +11,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import LynkCoAPI
-from .const import CONF_ACCESS_TOKEN, CONF_DEVICE_ID, CONF_REFRESH_TOKEN, DOMAIN
+from .const import CONF_ACCESS_TOKEN, CONF_DEVICE_ID, CONF_REFRESH_TOKEN, CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DOMAIN
 from .coordinator import LynkCoCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -88,9 +88,6 @@ GLOVEBOX_LOCK_SCHEMA = vol.Schema({
     vol.Required(ATTR_PIN): vol.All(cv.string, vol.Match(r"^\d{4}$")),
 })
 
-ACTION_REFRESH_DELAY = 10  # seconds to wait before refreshing after an action
-
-
 def _all_vins(hass: HomeAssistant) -> list[str]:
     """Return all known VINs across all config entries."""
     vins = []
@@ -128,12 +125,15 @@ def _get_coordinator(hass: HomeAssistant, vin: str) -> LynkCoCoordinator | None:
     return None
 
 
-async def _delayed_refresh(hass: HomeAssistant, vin: str) -> None:
-    """Schedule a sensor refresh after a short delay to pick up new state."""
-    await asyncio.sleep(ACTION_REFRESH_DELAY)
+def _targeted_refresh(hass: HomeAssistant, vin: str, data_key: str, fetch_fn_name: str) -> None:
+    """Schedule a targeted refresh of a single data key after an action."""
     coordinator = _get_coordinator(hass, vin)
     if coordinator:
-        await coordinator.async_request_refresh()
+        api = _get_api(hass, vin)
+        fetch_fn = getattr(api, fetch_fn_name)
+        hass.async_create_task(
+            coordinator.async_targeted_refresh(data_key, lambda: fetch_fn(vin))
+        )
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -180,42 +180,49 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    # Update coordinator interval when options change
+    async def _options_updated(_hass, _entry):
+        scan_minutes = _entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL // 60)
+        for coordinator in coordinators.values():
+            if not coordinator._driving:
+                coordinator.update_interval = timedelta(minutes=scan_minutes)
+
+    entry.async_on_unload(entry.add_update_listener(_options_updated))
+
     # Register services (only once)
     if not hass.services.has_service(DOMAIN, SERVICE_FLASH_LIGHTS):
         async def handle_flash_lights(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).flash_lights(vin)
-            hass.async_create_task(_delayed_refresh(hass, vin))
 
         async def handle_honk_horn(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).honk_horn(vin)
-            hass.async_create_task(_delayed_refresh(hass, vin))
 
         async def handle_open_sunroof(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).open_sunroof(vin)
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "doors", "get_doors_windows")
 
         async def handle_close_sunroof(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).close_sunroof(vin)
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "doors", "get_doors_windows")
 
         async def handle_set_charge_limit(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).set_charge_limit(vin, call.data[ATTR_PERCENT])
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "charge", "get_charge_state")
 
         async def handle_start_ventilate(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).start_ventilate(vin)
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "doors", "get_doors_windows")
 
         async def handle_stop_ventilate(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).stop_ventilate(vin)
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "doors", "get_doors_windows")
 
         def _validate_heaters(hass: HomeAssistant, vin: str, heaters: list[str]) -> list[str]:
             coordinator = _get_coordinator(hass, vin)
@@ -231,43 +238,43 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             vin = _resolve_vin(hass, call)
             heaters = _validate_heaters(hass, vin, call.data[ATTR_HEATERS])
             await _get_api(hass, vin).start_heaters(vin, heaters)
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "climate", "get_climate_state")
 
         async def handle_stop_heaters(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             heaters = _validate_heaters(hass, vin, call.data[ATTR_HEATERS])
             await _get_api(hass, vin).stop_heaters(vin, heaters)
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "climate", "get_climate_state")
 
         async def handle_start_conditioning(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).start_conditioning(vin, call.data[ATTR_TEMP])
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "climate", "get_climate_state")
 
         async def handle_stop_conditioning(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).stop_conditioning(vin)
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "climate", "get_climate_state")
 
         async def handle_lock_door(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).lock_door(vin)
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "vehicle_data", "get_vehicle_data")
 
         async def handle_unlock_door(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).unlock_door(vin)
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "vehicle_data", "get_vehicle_data")
 
         async def handle_lock_glovebox(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).lock_glovebox(vin, call.data[ATTR_PIN])
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "vehicle_data", "get_vehicle_data")
 
         async def handle_unlock_glovebox(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).unlock_glovebox(vin)
-            hass.async_create_task(_delayed_refresh(hass, vin))
+            _targeted_refresh(hass, vin, "vehicle_data", "get_vehicle_data")
 
         async def handle_refresh(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)

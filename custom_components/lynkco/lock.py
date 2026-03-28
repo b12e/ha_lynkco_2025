@@ -1,6 +1,5 @@
 """Lock platform for Lynk & Co integration."""
 
-import asyncio
 import logging
 
 from homeassistant.components.lock import LockEntity
@@ -58,19 +57,23 @@ class LynkCoLock(CoordinatorEntity, LockEntity):
             return None
         return status == "LOCKED"
 
-    async def _delayed_refresh(self) -> None:
-        await asyncio.sleep(15)
-        await self.coordinator.async_request_refresh()
-
     async def async_lock(self, **kwargs) -> None:
         _LOGGER.info("Locking %s", self.coordinator.vin)
         await self._api.lock_door(self.coordinator.vin)
-        self.hass.async_create_task(self._delayed_refresh())
+        self.hass.async_create_task(
+            self.coordinator.async_targeted_refresh(
+                "vehicle_data", lambda: self._api.get_vehicle_data(self.coordinator.vin)
+            )
+        )
 
     async def async_unlock(self, **kwargs) -> None:
         _LOGGER.info("Unlocking %s", self.coordinator.vin)
         await self._api.unlock_door(self.coordinator.vin)
-        self.hass.async_create_task(self._delayed_refresh())
+        self.hass.async_create_task(
+            self.coordinator.async_targeted_refresh(
+                "vehicle_data", lambda: self._api.get_vehicle_data(self.coordinator.vin)
+            )
+        )
 
 
 class LynkCoGloveboxLock(CoordinatorEntity, LockEntity):
@@ -110,19 +113,23 @@ class LynkCoGloveboxLock(CoordinatorEntity, LockEntity):
             return None
         return status == "LOCKED"
 
-    async def _delayed_refresh(self) -> None:
-        await asyncio.sleep(15)
-        await self.coordinator.async_request_refresh()
-
     async def async_lock(self, **kwargs) -> None:
         code = kwargs.get("code")
         if not code:
             raise ValueError("A PIN code is required to lock the glovebox")
         _LOGGER.info("Locking glovebox %s", self.coordinator.vin)
         await self._api.lock_glovebox(self.coordinator.vin, code)
-        self.hass.async_create_task(self._delayed_refresh())
+        self.hass.async_create_task(
+            self.coordinator.async_targeted_refresh(
+                "vehicle_data", lambda: self._api.get_vehicle_data(self.coordinator.vin)
+            )
+        )
 
     async def async_unlock(self, **kwargs) -> None:
         _LOGGER.info("Unlocking glovebox %s", self.coordinator.vin)
         await self._api.unlock_glovebox(self.coordinator.vin)
-        self.hass.async_create_task(self._delayed_refresh())
+        self.hass.async_create_task(
+            self.coordinator.async_targeted_refresh(
+                "vehicle_data", lambda: self._api.get_vehicle_data(self.coordinator.vin)
+            )
+        )

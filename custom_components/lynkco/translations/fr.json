@@ -28,6 +28,20 @@
       "already_configured": "Ce compte est déjà configuré"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Intervalle d'actualisation (minutes)",
+          "driving_interval": "Intervalle d'actualisation en conduisant (minutes)"
+        },
+        "data_description": {
+          "scan_interval": "Fréquence de récupération des données du véhicule (15–180 minutes)",
+          "driving_interval": "Fréquence de récupération des données lorsque la voiture roule (1–60 minutes)"
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "battery_level": { "name": "Niveau de batterie" },
@@ -151,7 +165,7 @@
     },
     "start_ventilate": {
       "name": "Démarrer la ventilation",
-      "description": "Démarrer la ventilation du véhicule.",
+      "description": "Ouvrir légèrement toutes les vitres pour ventiler le véhicule.",
       "fields": {
         "vin": {
           "name": "VIN",
@@ -161,7 +175,7 @@
     },
     "stop_ventilate": {
       "name": "Arrêter la ventilation",
-      "description": "Arrêter la ventilation du véhicule.",
+      "description": "Fermer les vitres ouvertes pour la ventilation.",
       "fields": {
         "vin": {
           "name": "VIN",

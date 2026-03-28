@@ -6,11 +6,20 @@ import uuid
 import aiohttp
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow
+from homeassistant.config_entries import ConfigFlow, OptionsFlow
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import LynkCoAPI
-from .const import CONF_ACCESS_TOKEN, CONF_DEVICE_ID, CONF_REFRESH_TOKEN, DOMAIN
+from .const import (
+    CONF_ACCESS_TOKEN,
+    CONF_DEVICE_ID,
+    CONF_DRIVING_INTERVAL,
+    CONF_REFRESH_TOKEN,
+    CONF_SCAN_INTERVAL,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+    DRIVING_SCAN_INTERVAL,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -19,6 +28,10 @@ class LynkCoConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Lynk & Co."""
 
     VERSION = 1
+
+    @staticmethod
+    def async_get_options_flow(config_entry):
+        return LynkCoOptionsFlow(config_entry)
 
     def __init__(self) -> None:
         """Initialize."""
@@ -113,3 +126,29 @@ class LynkCoConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_reauth(self, entry_data=None):
         """Handle re-authentication."""
         return await self.async_step_user()
+
+
+class LynkCoOptionsFlow(OptionsFlow):
+    """Handle options for Lynk & Co."""
+
+    def __init__(self, config_entry) -> None:
+        self._config_entry = config_entry
+
+    async def async_step_init(self, user_input=None):
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        current = self._config_entry.options
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema({
+                vol.Required(
+                    CONF_SCAN_INTERVAL,
+                    default=current.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL // 60),
+                ): vol.All(vol.Coerce(int), vol.Range(min=15, max=180)),
+                vol.Required(
+                    CONF_DRIVING_INTERVAL,
+                    default=current.get(CONF_DRIVING_INTERVAL, DRIVING_SCAN_INTERVAL // 60),
+                ): vol.All(vol.Coerce(int), vol.Range(min=1, max=60)),
+            }),
+        )

@@ -23,10 +23,12 @@ jobs:
           version=$(jq -r .version custom_components/lynkco/manifest.json)
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Build pre-release version
+      - name: Bump patch version for pre-release
         id: prerelease
         run: |
-          version="${{ steps.current.outputs.version }}-pr${{ github.event.pull_request.number }}.$(echo ${{ github.sha }} | cut -c1-7)"
+          IFS='.' read -r major minor patch <<< "${{ steps.current.outputs.version }}"
+          new_patch=$((patch + 1))
+          version="${major}.${minor}.${new_patch}-pr${{ github.event.pull_request.number }}"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Delete existing pre-release for this PR

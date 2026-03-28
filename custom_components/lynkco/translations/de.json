@@ -28,6 +28,20 @@
       "already_configured": "Dieses Konto ist bereits konfiguriert"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Abfrageintervall (Minuten)",
+          "driving_interval": "Abfrageintervall während der Fahrt (Minuten)"
+        },
+        "data_description": {
+          "scan_interval": "Wie oft Fahrzeugdaten abgerufen werden (15–180 Minuten)",
+          "driving_interval": "Wie oft Daten abgerufen werden, wenn das Auto fährt (1–60 Minuten)"
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "battery_level": { "name": "Batteriestand" },
@@ -151,7 +165,7 @@
     },
     "start_ventilate": {
       "name": "Belüftung starten",
-      "description": "Die Belüftung des Fahrzeugs starten.",
+      "description": "Alle Fenster leicht öffnen, um das Fahrzeug zu belüften.",
       "fields": {
         "vin": {
           "name": "FIN",
@@ -161,7 +175,7 @@
     },
     "stop_ventilate": {
       "name": "Belüftung stoppen",
-      "description": "Die Belüftung des Fahrzeugs stoppen.",
+      "description": "Die zur Belüftung geöffneten Fenster schließen.",
       "fields": {
         "vin": {
           "name": "FIN",

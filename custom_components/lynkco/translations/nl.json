@@ -28,6 +28,20 @@
       "already_configured": "Dit account is al geconfigureerd"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Polling-interval (minuten)",
+          "driving_interval": "Polling-interval tijdens het rijden (minuten)"
+        },
+        "data_description": {
+          "scan_interval": "Hoe vaak voertuiggegevens ophalen (15–180 minuten)",
+          "driving_interval": "Hoe vaak gegevens ophalen wanneer de auto rijdt (1–60 minuten)"
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "battery_level": { "name": "Batterijniveau" },
@@ -151,7 +165,7 @@
     },
     "start_ventilate": {
       "name": "Ventilatie starten",
-      "description": "Start de ventilatie van het voertuig.",
+      "description": "Zet alle ramen op een kier om het voertuig te ventileren.",
       "fields": {
         "vin": {
           "name": "VIN",
@@ -161,7 +175,7 @@
     },
     "stop_ventilate": {
       "name": "Ventilatie stoppen",
-      "description": "Stop de ventilatie van het voertuig.",
+      "description": "Sluit de ramen die voor ventilatie geopend zijn.",
       "fields": {
         "vin": {
           "name": "VIN",
