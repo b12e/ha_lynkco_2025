@@ -9,7 +9,7 @@ Pull Requests are disabled until further notice.
 Tested on the following vehicles:
 - 2025 (New) Lynk & Co 01 (PHEV)
 - 2025 Lynk & Co 02 (BEV)
-- 2025 Lynk & Co 08 (PHEV)
+- 2025/2026 Lynk & Co 08 (PHEV)
 
 Other models are currently not available on the EU market, although it is likely when they do become available they are on the same platform and will work. The documentation will be updated accordingly as soon as this happens.
 
@@ -152,8 +152,8 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 # Installation
 
 ## HACS (recommended)
-1. Add this repository as a custom repository in HACS
-2. Install "Lynk & Co"
+1. Make sure [HACS](https://hacs.xyz) is installed in your Home Assistant installation
+2. Search for "Lynk & Co" and click Download. Follow the on-screen instructions.
 3. Restart Home Assistant
 4. Go to Settings → Integrations → Add → Lynk & Co
 
