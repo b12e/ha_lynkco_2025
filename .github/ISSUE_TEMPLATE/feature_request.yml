@@ -1,0 +1,67 @@
+name: Feature request
+description: Suggest an idea or improvement for the Lynk & Co integration
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest an improvement! 💡
+
+        The more context you give about *what* you want and *why*, the easier it is to evaluate.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you start
+      options:
+        - label: I have searched the [existing issues](https://github.com/b12e/ha_lynkco_2025/issues?q=is%3Aissue) and this hasn't been requested yet.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: A clear description of the problem or limitation you're running into. Is your request related to something that's frustrating or missing today?
+      placeholder: I'd like to automate charging based on the cabin temperature, but there's no sensor exposing it...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe what you'd like to happen — a new entity, sensor, service, configuration option, etc.
+      placeholder: Add a sensor for the current cabin temperature...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds you've tried or other approaches you've thought about.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: car_model
+    attributes:
+      label: Car model
+      description: If this request is specific to one model, let us know which.
+      options:
+        - Not model-specific
+        - Lynk & Co 01 (2025)
+        - Lynk & Co 02
+        - Lynk & Co 08
+        - Other / not listed
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Anything else that might help — screenshots, links to the Lynk & Co app showing the feature, related automations, etc.
+    validations:
+      required: false
