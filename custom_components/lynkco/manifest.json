@@ -12,5 +12,5 @@
   "requirements": [
     "pkce>=1.0.3"
   ],
-  "version": "0.5.2"
+  "version": "0.5.1"
 }

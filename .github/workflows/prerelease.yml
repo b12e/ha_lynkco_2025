@@ -35,8 +35,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release list --json tagName,isPrerelease -q '.[] | select(.isPrerelease) | .tagName' | \
-            grep "pr${{ github.event.pull_request.number }}\." | \
+          gh release list --json tagName,isPrerelease \
+            -q '.[] | select(.isPrerelease) | .tagName | select(endswith("-pr${{ github.event.pull_request.number }}"))' | \
             while read -r tag; do
               echo "Deleting pre-release $tag"
               gh release delete "$tag" --yes --cleanup-tag || true
