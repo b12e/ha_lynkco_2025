@@ -2,7 +2,9 @@
 
 Custom [Home Assistant](https://www.home-assistant.io/) integration for 2025 Lynk & Co vehicles (01, 02, 08) via [HACS](https://hacs.xyz/).
 
-Pull Requests are disabled until further notice.
+If you like the integration, make sure to show your love by giving it a ⭐. 
+
+Pull requests are currently turned off (to prevent AI slop). If you have any feature requests or issues, please [create an issue](https://github.com/b12e/ha_lynkco_2025/issues/new/choose) using the template provided. 
 
 ## Supported Models
 
