@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Lynk & Co 01 (pre-2025) owner?
+    url: https://github.com/Donkie/Hass-Lynk-Co
+    about: This integration does not support the pre-2025 Lynk & Co 01. Please use the Hass-Lynk-Co integration instead.
