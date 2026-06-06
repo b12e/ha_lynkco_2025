@@ -77,7 +77,7 @@ class LynkCoCoordinator(DataUpdateCoordinator):
                 raise UpdateFailed(f"API error: {err}") from err
 
         # Store propulsion type for entity filtering
-        propulsion = data["metadata"].get("vehicle", {}).get("propulsionType")
+        propulsion = (data["metadata"].get("vehicle") or {}).get("propulsionType")
         if propulsion:
             self.propulsion = propulsion
 

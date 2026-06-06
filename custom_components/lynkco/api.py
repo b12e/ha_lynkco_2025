@@ -132,11 +132,13 @@ class LynkCoAPI:
                         method, url, headers=headers, **kwargs
                     ) as retry:
                         retry.raise_for_status()
-                        return await retry.json()
+                        retry_data = await retry.json()
+                        return retry_data if retry_data is not None else {}
             resp.raise_for_status()
             if resp.content_length == 0:
                 return {}
-            return await resp.json()
+            data = await resp.json()
+            return data if data is not None else {}
 
     async def refresh_tokens(self) -> bool:
         url = f"{LOGIN_B2C_URL}oauth2/v2.0/token"
