@@ -163,7 +163,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     coordinators: dict[str, LynkCoCoordinator] = {}
     for vehicle_entry in vehicles:
-        vehicle = vehicle_entry.get("vehicle", {})
+        vehicle = vehicle_entry.get("vehicle") or {}
         vin = vehicle.get("vin")
         model = vehicle.get("model", "Unknown")
         if not vin:

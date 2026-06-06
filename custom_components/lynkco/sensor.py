@@ -26,7 +26,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.BATTERY,
         "unit": PERCENTAGE,
         "state_class": SensorStateClass.MEASUREMENT,
-        "value_fn": lambda d: _pct(d.get("charge", {}).get("batteryState", {}).get("stateOfCharge")),
+        "value_fn": lambda d: _pct(_dig(d, "charge", "batteryState", "stateOfCharge")),
     },
     {
         "key": "battery_range",
@@ -35,7 +35,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.DISTANCE,
         "unit": UnitOfLength.KILOMETERS,
         "state_class": SensorStateClass.MEASUREMENT,
-        "value_fn": lambda d: d.get("charge", {}).get("batteryState", {}).get("remainingRange"),
+        "value_fn": lambda d: _dig(d, "charge", "batteryState", "remainingRange"),
     },
     {
         "key": "charging_status",
@@ -44,7 +44,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
-        "value_fn": lambda d: _lower(d.get("charge", {}).get("batteryState", {}).get("status")),
+        "value_fn": lambda d: _lower(_dig(d, "charge", "batteryState", "status")),
     },
     {
         "key": "charging_speed",
@@ -53,7 +53,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.POWER,
         "unit": UnitOfPower.KILO_WATT,
         "state_class": SensorStateClass.MEASUREMENT,
-        "value_fn": lambda d: (d.get("charge", {}).get("batteryState", {}).get("chargingSpeed") or {}).get("kW"),
+        "value_fn": lambda d: _dig(d, "charge", "batteryState", "chargingSpeed", "kW"),
     },
     {
         "key": "charging_time_remaining",
@@ -62,7 +62,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.DURATION,
         "unit": UnitOfTime.MINUTES,
         "state_class": SensorStateClass.MEASUREMENT,
-        "value_fn": lambda d: d.get("charge", {}).get("batteryState", {}).get("remainingChargingTime"),
+        "value_fn": lambda d: _dig(d, "charge", "batteryState", "remainingChargingTime"),
     },
     {
         "key": "charge_limit",
@@ -71,7 +71,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": None,
         "unit": PERCENTAGE,
         "state_class": SensorStateClass.MEASUREMENT,
-        "value_fn": lambda d: (d.get("charge", {}).get("batteryState", {}).get("chargeLimit") or {}).get("value"),
+        "value_fn": lambda d: _dig(d, "charge", "batteryState", "chargeLimit", "value"),
     },
     {
         "key": "interior_temperature",
@@ -80,7 +80,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.TEMPERATURE,
         "unit": UnitOfTemperature.CELSIUS,
         "state_class": SensorStateClass.MEASUREMENT,
-        "value_fn": lambda d: d.get("climate", {}).get("interiorTemperature"),
+        "value_fn": lambda d: _dig(d, "climate", "interiorTemperature"),
     },
     {
         "key": "target_temperature",
@@ -89,7 +89,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.TEMPERATURE,
         "unit": UnitOfTemperature.CELSIUS,
         "state_class": SensorStateClass.MEASUREMENT,
-        "value_fn": lambda d: d.get("climate", {}).get("targetTemperature"),
+        "value_fn": lambda d: _dig(d, "climate", "targetTemperature"),
     },
     {
         "key": "climate_status",
@@ -98,7 +98,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
-        "value_fn": lambda d: _lower(d.get("climate", {}).get("status")),
+        "value_fn": lambda d: _lower(_dig(d, "climate", "status")),
     },
     {
         "key": "heater_steering_wheel",
@@ -174,7 +174,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
-        "value_fn": lambda d: _lower(d.get("vehicle_data", {}).get("centralLock", {}).get("status")),
+        "value_fn": lambda d: _lower(_dig(d, "vehicle_data", "centralLock", "status")),
     },
     {
         "key": "address",
@@ -183,7 +183,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": None,
         "unit": None,
         "state_class": None,
-        "value_fn": lambda d: (d.get("location", {}).get("vehicleLocation") or {}).get("longAddress"),
+        "value_fn": lambda d: _dig(d, "location", "vehicleLocation", "longAddress"),
     },
     {
         "key": "fuel_level",
@@ -192,7 +192,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": None,
         "unit": PERCENTAGE,
         "state_class": SensorStateClass.MEASUREMENT,
-        "value_fn": lambda d: _pct(d.get("fuel", {}).get("fuelState", {}).get("percentageOfRemainingFuel")),
+        "value_fn": lambda d: _pct(_dig(d, "fuel", "fuelState", "percentageOfRemainingFuel")),
         "fuel_only": True,
     },
     {
@@ -202,7 +202,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.DISTANCE,
         "unit": UnitOfLength.KILOMETERS,
         "state_class": SensorStateClass.MEASUREMENT,
-        "value_fn": lambda d: d.get("fuel", {}).get("fuelState", {}).get("remainingRange"),
+        "value_fn": lambda d: _dig(d, "fuel", "fuelState", "remainingRange"),
         "fuel_only": True,
     },
     {
@@ -212,7 +212,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": None,
         "unit": "L/100km",
         "state_class": SensorStateClass.MEASUREMENT,
-        "value_fn": lambda d: d.get("fuel", {}).get("fuelState", {}).get("averageConsumption"),
+        "value_fn": lambda d: _dig(d, "fuel", "fuelState", "averageConsumption"),
         "fuel_only": True,
     },
     {
@@ -222,7 +222,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
-        "value_fn": lambda d: _lower(d.get("fuel", {}).get("fuelInfo", {}).get("fuelType")),
+        "value_fn": lambda d: _lower(_dig(d, "fuel", "fuelInfo", "fuelType")),
         "fuel_only": True,
     },
     {
@@ -232,7 +232,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.DISTANCE,
         "unit": UnitOfLength.KILOMETERS,
         "state_class": SensorStateClass.TOTAL_INCREASING,
-        "value_fn": lambda d: d.get("metadata", {}).get("vehicle", {}).get("odometer"),
+        "value_fn": lambda d: _dig(d, "metadata", "vehicle", "odometer"),
     },
     {
         "key": "battery_capacity",
@@ -241,7 +241,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": None,
         "unit": UnitOfEnergy.KILO_WATT_HOUR,
         "state_class": SensorStateClass.MEASUREMENT,
-        "value_fn": lambda d: _round(d.get("metadata", {}).get("batteryInfo", {}).get("batteryCapacity")),
+        "value_fn": lambda d: _round(_dig(d, "metadata", "batteryInfo", "batteryCapacity")),
     },
     {
         "key": "battery_energy",
@@ -259,7 +259,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": None,
         "unit": UnitOfVolume.LITERS,
         "state_class": SensorStateClass.MEASUREMENT,
-        "value_fn": lambda d: d.get("metadata", {}).get("fuelInfo", {}).get("tankCapacity"),
+        "value_fn": lambda d: _dig(d, "metadata", "fuelInfo", "tankCapacity"),
         "fuel_only": True,
     },
     {
@@ -289,7 +289,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.TIMESTAMP,
         "unit": None,
         "state_class": None,
-        "value_fn": lambda d: _parse_ts(d.get("fuel", {}).get("fuelState", {}).get("updatedAt")),
+        "value_fn": lambda d: _parse_ts(_dig(d, "fuel", "fuelState", "updatedAt")),
         "fuel_only": True,
         "entity_registry_enabled_default": False,
     },
@@ -300,7 +300,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.TIMESTAMP,
         "unit": None,
         "state_class": None,
-        "value_fn": lambda d: _parse_ts((d.get("location", {}).get("vehicleLocation") or {}).get("updatedAt")),
+        "value_fn": lambda d: _parse_ts(_dig(d, "location", "vehicleLocation", "updatedAt")),
         "entity_registry_enabled_default": False,
     },
     {
@@ -310,11 +310,19 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.TIMESTAMP,
         "unit": None,
         "state_class": None,
-        "value_fn": lambda d: _parse_ts(d.get("climate", {}).get("updatedAt")),
+        "value_fn": lambda d: _parse_ts(_dig(d, "climate", "updatedAt")),
         "entity_registry_enabled_default": False,
     },
 ]
 
+
+def _dig(data, *keys):
+    """Safely traverse nested dicts, tolerating None or missing keys at any level."""
+    for key in keys:
+        if not isinstance(data, dict):
+            return None
+        data = data.get(key)
+    return data
 
 def _pct(val):
     if val is not None:
@@ -332,15 +340,11 @@ def _lower(val):
     return None
 
 def _heater_status(d, key):
-    heaters = d.get("climate", {}).get("heaters") or {}
-    heater = heaters.get(key)
-    if heater is None:
-        return None
-    return _lower(heater.get("status"))
+    return _lower(_dig(d, "climate", "heaters", key, "status"))
 
 def _battery_kwh(d):
-    capacity = d.get("metadata", {}).get("batteryInfo", {}).get("batteryCapacity")
-    soc = d.get("charge", {}).get("batteryState", {}).get("stateOfCharge")
+    capacity = _dig(d, "metadata", "batteryInfo", "batteryCapacity")
+    soc = _dig(d, "charge", "batteryState", "stateOfCharge")
     if capacity is not None and soc is not None:
         return round(capacity * soc, 1)
     return None
@@ -356,8 +360,8 @@ def _parse_ts(val):
         return None
 
 def _fuel_liters(d):
-    capacity = d.get("metadata", {}).get("fuelInfo", {}).get("tankCapacity")
-    pct = d.get("fuel", {}).get("fuelState", {}).get("percentageOfRemainingFuel")
+    capacity = _dig(d, "metadata", "fuelInfo", "tankCapacity")
+    pct = _dig(d, "fuel", "fuelState", "percentageOfRemainingFuel")
     if capacity is not None and pct is not None:
         return round(capacity * pct, 1)
     return None
@@ -370,7 +374,7 @@ async def async_setup_entry(
     entities = []
     for vin, coordinator in data["coordinators"].items():
         is_bev = coordinator.propulsion == "BEV"
-        heaters = (coordinator.data or {}).get("climate", {}).get("heaters") or {}
+        heaters = _dig(coordinator.data, "climate", "heaters") or {}
         for sensor_type in SENSOR_TYPES:
             if sensor_type.get("fuel_only") and is_bev:
                 continue

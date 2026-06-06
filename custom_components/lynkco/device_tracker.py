@@ -44,18 +44,16 @@ class LynkCoDeviceTracker(CoordinatorEntity, TrackerEntity):
     def source_type(self) -> SourceType:
         return SourceType.GPS
 
+    def _coordinates(self) -> dict:
+        data = self.coordinator.data or {}
+        location = data.get("location") or {}
+        vehicle_location = location.get("vehicleLocation") or {}
+        return vehicle_location.get("coordinates") or {}
+
     @property
     def latitude(self) -> float | None:
-        if self.coordinator.data is None:
-            return None
-        loc = self.coordinator.data.get("location", {}).get("vehicleLocation", {})
-        coords = loc.get("coordinates", {})
-        return coords.get("latitude")
+        return self._coordinates().get("latitude")
 
     @property
     def longitude(self) -> float | None:
-        if self.coordinator.data is None:
-            return None
-        loc = self.coordinator.data.get("location", {}).get("vehicleLocation", {})
-        coords = loc.get("coordinates", {})
-        return coords.get("longitude")
+        return self._coordinates().get("longitude")

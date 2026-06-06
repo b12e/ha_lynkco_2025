@@ -48,11 +48,9 @@ class LynkCoLock(CoordinatorEntity, LockEntity):
     def is_locked(self) -> bool | None:
         if self.coordinator.data is None:
             return None
-        status = (
-            self.coordinator.data.get("vehicle_data", {})
-            .get("centralLock", {})
-            .get("status")
-        )
+        vehicle_data = self.coordinator.data.get("vehicle_data") or {}
+        central_lock = vehicle_data.get("centralLock") or {}
+        status = central_lock.get("status")
         if status is None:
             return None
         return status == "LOCKED"
