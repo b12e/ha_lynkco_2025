@@ -26,6 +26,8 @@ body:
           required: true
         - label: I am running the latest version of the integration (please update via HACS first if you can).
           required: true
+        - label: I have checked out the [FAQ](https://github.com/b12e/ha_lynkco_2025/wiki/FAQ) and my issue is not mentioned there.
+          required: true
 
   - type: input
     id: integration_version
