@@ -175,6 +175,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = LynkCoCoordinator(hass, entry, api, vin, model)
         await coordinator.async_config_entry_first_refresh()
         coordinators[vin] = coordinator
+        # Endpoint-specific fast polling (driving / climate active); stopped on unload
+        entry.async_on_unload(coordinator.start_fast_poll())
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "api": api,
@@ -183,12 +185,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # Update coordinator interval when options change
+    # Apply the (full-snapshot) scan interval when options change
     async def _options_updated(_hass, _entry):
         scan_minutes = _entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL // 60)
         for coordinator in coordinators.values():
-            if not coordinator._driving:
-                coordinator.update_interval = timedelta(minutes=scan_minutes)
+            coordinator.update_interval = timedelta(minutes=scan_minutes)
 
     entry.async_on_unload(entry.add_update_listener(_options_updated))
 
