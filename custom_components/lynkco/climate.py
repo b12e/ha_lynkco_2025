@@ -40,7 +40,7 @@ class LynkCoClimate(CoordinatorEntity, RestoreEntity, ClimateEntity):
     _attr_translation_key = "climate"
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_target_temperature_step = 1
-    _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT_COOL]
+    _attr_hvac_modes = [HVACMode.OFF, HVACMode.AUTO]
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.TURN_ON
@@ -108,7 +108,7 @@ class LynkCoClimate(CoordinatorEntity, RestoreEntity, ClimateEntity):
         # Running states are ACTIVE_COOLING / ACTIVE_HEATING; everything else
         # (INACTIVE, DISABLED_UNLOCKED_CAR, DRIVE_MODE_ENABLED, ...) is off.
         if str(status).upper().startswith("ACTIVE"):
-            return HVACMode.HEAT_COOL
+            return HVACMode.AUTO
         return HVACMode.OFF
 
     @property
