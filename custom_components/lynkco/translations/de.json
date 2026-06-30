@@ -94,6 +94,9 @@
       "door_lock": { "name": "Türschloss" },
       "glovebox_lock": { "name": "Handschuhfach" }
     },
+    "switch": {
+      "charging": { "name": "Laden" }
+    },
     "device_tracker": {
       "location": { "name": "Standort" }
     }
@@ -160,6 +163,26 @@
         "percent": {
           "name": "Prozent",
           "description": "Ladelimit (50-100%)"
+        }
+      }
+    },
+    "start_charging": {
+      "name": "Laden starten",
+      "description": "Das Laden des Fahrzeugs starten. Bei PHEV-Modellen kann dabei der Motor starten, um die Batterie zu laden.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
+        }
+      }
+    },
+    "stop_charging": {
+      "name": "Laden stoppen",
+      "description": "Das Laden des Fahrzeugs stoppen.",
+      "fields": {
+        "vin": {
+          "name": "FIN",
+          "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
         }
       }
     },

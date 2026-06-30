@@ -15,7 +15,7 @@ from .const import CONF_ACCESS_TOKEN, CONF_DEVICE_ID, CONF_REFRESH_TOKEN, CONF_S
 from .coordinator import LynkCoCoordinator
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS = ["sensor", "binary_sensor", "device_tracker", "lock"]
+PLATFORMS = ["sensor", "binary_sensor", "device_tracker", "lock", "switch"]
 
 ATTR_VIN = "vin"
 ATTR_PERCENT = "percent"
@@ -43,6 +43,8 @@ SERVICE_HONK_HORN = "honk_horn"
 SERVICE_OPEN_SUNROOF = "open_sunroof"
 SERVICE_CLOSE_SUNROOF = "close_sunroof"
 SERVICE_SET_CHARGE_LIMIT = "set_charge_limit"
+SERVICE_START_CHARGING = "start_charging"
+SERVICE_STOP_CHARGING = "stop_charging"
 SERVICE_START_VENTILATE = "start_ventilate"
 SERVICE_STOP_VENTILATE = "stop_ventilate"
 SERVICE_START_HEATERS = "start_heaters"
@@ -59,6 +61,7 @@ ALL_SERVICES = [
     SERVICE_FLASH_LIGHTS, SERVICE_HONK_HORN,
     SERVICE_OPEN_SUNROOF, SERVICE_CLOSE_SUNROOF,
     SERVICE_SET_CHARGE_LIMIT,
+    SERVICE_START_CHARGING, SERVICE_STOP_CHARGING,
     SERVICE_START_VENTILATE, SERVICE_STOP_VENTILATE,
     SERVICE_START_HEATERS, SERVICE_STOP_HEATERS,
     SERVICE_START_CONDITIONING, SERVICE_STOP_CONDITIONING,
@@ -214,6 +217,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             await _get_api(hass, vin).set_charge_limit(vin, call.data[ATTR_PERCENT])
             _targeted_refresh(hass, vin, "charge", "get_charge_state")
 
+        async def handle_start_charging(call: ServiceCall) -> None:
+            vin = _resolve_vin(hass, call)
+            await _get_api(hass, vin).start_charging(vin)
+            _targeted_refresh(hass, vin, "charge", "get_charge_state")
+
+        async def handle_stop_charging(call: ServiceCall) -> None:
+            vin = _resolve_vin(hass, call)
+            await _get_api(hass, vin).stop_charging(vin)
+            _targeted_refresh(hass, vin, "charge", "get_charge_state")
+
         async def handle_start_ventilate(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             await _get_api(hass, vin).start_ventilate(vin)
@@ -289,6 +302,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.services.async_register(DOMAIN, SERVICE_OPEN_SUNROOF, handle_open_sunroof, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_CLOSE_SUNROOF, handle_close_sunroof, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_SET_CHARGE_LIMIT, handle_set_charge_limit, CHARGE_LIMIT_SCHEMA)
+        hass.services.async_register(DOMAIN, SERVICE_START_CHARGING, handle_start_charging, VIN_SCHEMA)
+        hass.services.async_register(DOMAIN, SERVICE_STOP_CHARGING, handle_stop_charging, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_START_VENTILATE, handle_start_ventilate, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_STOP_VENTILATE, handle_stop_ventilate, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_START_HEATERS, handle_start_heaters, HEATERS_SCHEMA)

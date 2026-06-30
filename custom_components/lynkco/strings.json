@@ -94,6 +94,9 @@
       "door_lock": { "name": "Door lock" },
       "glovebox_lock": { "name": "Glovebox" }
     },
+    "switch": {
+      "charging": { "name": "Charging" }
+    },
     "device_tracker": {
       "location": { "name": "Location" }
     }
@@ -160,6 +163,26 @@
         "percent": {
           "name": "Percent",
           "description": "Charge limit (50-100%)"
+        }
+      }
+    },
+    "start_charging": {
+      "name": "Start charging",
+      "description": "Start charging the vehicle. On PHEV models this may start the engine to charge the battery.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Vehicle Identification Number (optional if only one vehicle)"
+        }
+      }
+    },
+    "stop_charging": {
+      "name": "Stop charging",
+      "description": "Stop charging the vehicle.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Vehicle Identification Number (optional if only one vehicle)"
         }
       }
     },

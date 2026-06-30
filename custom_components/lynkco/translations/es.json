@@ -94,6 +94,9 @@
       "door_lock": { "name": "Cerradura de puertas" },
       "glovebox_lock": { "name": "Guantera" }
     },
+    "switch": {
+      "charging": { "name": "Carga" }
+    },
     "device_tracker": {
       "location": { "name": "Ubicación" }
     }
@@ -160,6 +163,26 @@
         "percent": {
           "name": "Porcentaje",
           "description": "Límite de carga (50-100%)"
+        }
+      }
+    },
+    "start_charging": {
+      "name": "Iniciar carga",
+      "description": "Iniciar la carga del vehículo. En modelos PHEV, esto puede arrancar el motor para cargar la batería.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "stop_charging": {
+      "name": "Detener carga",
+      "description": "Detener la carga del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
         }
       }
     },
