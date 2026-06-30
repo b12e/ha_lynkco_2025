@@ -20,11 +20,9 @@ Other models are currently not available on the EU market, although it is likely
 
 ## Polling
 
-The full vehicle snapshot is polled every 15 minutes by default. On top of that, only the endpoints relevant to what's happening are fast-polled (about every 60 seconds), instead of refetching everything:
+The full vehicle data is polled every 15 minutes by default. On top of that, only endpoints relevant to what's happening are fast-polled (about every 60 seconds), instead of refetching everything:
 - **While driving:** location, drive state and battery. The final location is fetched once when you reach your destination (on LynkOS 1.4.0+ the car only reports location when it stops).
 - **While the climate/conditioning system is active:** the climate state.
-
-Everything else stays on the 15-minute cycle. The "polling interval while driving" option controls the fast cadence for the driving endpoints.
 
 When you perform an action (e.g. lock the doors or start the heaters), only the relevant data is refreshed — not everything. The integration checks for a state change after 3 seconds, and if the car hasn't processed the command yet, retries after 5 and then 10 seconds before giving up. Fire-and-forget actions like flashing the lights or honking the horn don't trigger a refresh at all.
 
