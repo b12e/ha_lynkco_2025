@@ -8,7 +8,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfLength, UnitOfPower, UnitOfTemperature, UnitOfTime, UnitOfVolume
+from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfEnergy, UnitOfLength, UnitOfPower, UnitOfTemperature, UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -280,6 +280,7 @@ SENSOR_TYPES: list[dict] = [
         "unit": None,
         "state_class": None,
         "value_fn": lambda d: d.get("last_updated"),
+        "entity_category": EntityCategory.DIAGNOSTIC,
         "entity_registry_enabled_default": False,
     },
     {
@@ -291,6 +292,7 @@ SENSOR_TYPES: list[dict] = [
         "state_class": None,
         "value_fn": lambda d: _parse_ts(_dig(d, "fuel", "fuelState", "updatedAt")),
         "fuel_only": True,
+        "entity_category": EntityCategory.DIAGNOSTIC,
         "entity_registry_enabled_default": False,
     },
     {
@@ -301,6 +303,7 @@ SENSOR_TYPES: list[dict] = [
         "unit": None,
         "state_class": None,
         "value_fn": lambda d: _parse_ts(_dig(d, "location", "vehicleLocation", "updatedAt")),
+        "entity_category": EntityCategory.DIAGNOSTIC,
         "entity_registry_enabled_default": False,
     },
     {
@@ -311,6 +314,7 @@ SENSOR_TYPES: list[dict] = [
         "unit": None,
         "state_class": None,
         "value_fn": lambda d: _parse_ts(_dig(d, "climate", "updatedAt")),
+        "entity_category": EntityCategory.DIAGNOSTIC,
         "entity_registry_enabled_default": False,
     },
 ]
@@ -399,6 +403,8 @@ class LynkCoSensor(CoordinatorEntity, SensorEntity):
         self._attr_state_class = sensor_type.get("state_class")
         if "entity_registry_enabled_default" in sensor_type:
             self._attr_entity_registry_enabled_default = sensor_type["entity_registry_enabled_default"]
+        if "entity_category" in sensor_type:
+            self._attr_entity_category = sensor_type["entity_category"]
 
     @property
     def device_info(self):
