@@ -1,7 +1,7 @@
 # Lynk & Co Home Assistant Integration
 ![Usage counter](https://img.shields.io/badge/dynamic/json?color=41BDF5&logo=home-assistant&label=integration%20usage&suffix=%20installs&cacheSeconds=15600&url=https://raw.githubusercontent.com/b12e/ha-lynkco-usage-stats/refs/heads/main/usage.json&query=$.total_usage) 
 
-Custom [Home Assistant](https://www.home-assistant.io/) integration for 2025 Lynk & Co vehicles (01, 02, 08) via [HACS](https://hacs.xyz/).
+Custom [Home Assistant](https://www.home-assistant.io/) integration for Lynk & Co vehicles (01, 02, 08 released in or after 2025) via [HACS](https://hacs.xyz/).
 
 If you like the integration, make sure to show your love by giving it a ⭐. 
 
