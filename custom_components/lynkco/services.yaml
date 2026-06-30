@@ -42,6 +42,18 @@ set_charge_limit:
           step: 5
           unit_of_measurement: "%"
 
+start_charging:
+  fields:
+    vin:
+      selector:
+        text:
+
+stop_charging:
+  fields:
+    vin:
+      selector:
+        text:
+
 start_ventilate:
   fields:
     vin:

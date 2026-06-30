@@ -240,6 +240,16 @@ class LynkCoAPI:
         url = f"{COMMAND_BASE}/vehicle/{vin}/command/set_charge_limit"
         return await self._request("POST", url, params={"percent": percent})
 
+    async def start_charging(self, vin: str) -> dict:
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/charge_start"
+        )
+
+    async def stop_charging(self, vin: str) -> dict:
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/charge_stop"
+        )
+
     async def start_conditioning(self, vin: str, temp: int, level: int | None = None) -> dict:
         params = {"temp": temp}
         if level is not None:

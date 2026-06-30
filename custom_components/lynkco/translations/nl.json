@@ -94,6 +94,9 @@
       "door_lock": { "name": "Deurslot" },
       "glovebox_lock": { "name": "Handschoenenvak" }
     },
+    "switch": {
+      "charging": { "name": "Opladen" }
+    },
     "device_tracker": {
       "location": { "name": "Locatie" }
     }
@@ -160,6 +163,26 @@
         "percent": {
           "name": "Percentage",
           "description": "Oplaadlimiet (50-100%)"
+        }
+      }
+    },
+    "start_charging": {
+      "name": "Opladen starten",
+      "description": "Start het opladen van het voertuig. Bij PHEV-modellen kan hierdoor de motor starten om de batterij op te laden.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "stop_charging": {
+      "name": "Opladen stoppen",
+      "description": "Stop het opladen van het voertuig.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
         }
       }
     },

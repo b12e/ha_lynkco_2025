@@ -102,6 +102,9 @@ When you perform an action (e.g. lock the doors or start the heaters), only the 
 - Door lock / unlock
 - Glovebox lock (requires PIN) / unlock
 
+### Switch
+- Charging — start/stop charging (on when the car reports it is charging). On PHEV models, starting charging may start the engine to charge the battery.
+
 ### Actions (Services)
 
 All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When only one vehicle is configured, the VIN is auto-detected and can be omitted.
@@ -116,6 +119,8 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 | `lynkco.open_sunroof` | Open the sunroof | | ✅ | ❌ | t.b.c.
 | `lynkco.close_sunroof` | Close the sunroof | | ✅ | ❌ | t.b.c.
 | `lynkco.set_charge_limit` | Set charge limit | `percent` (50-100) | ✅ | ✅ | t.b.c.
+| `lynkco.start_charging` | Start charging | | ✅ | ✅ | ✅ |
+| `lynkco.stop_charging` | Stop charging | | ✅ | ✅ | ✅ |
 | `lynkco.start_conditioning` | Start air conditioning | `temp` (16-28) |✅ | ✅ | t.b.c.
 | `lynkco.stop_conditioning` | Stop air conditioning | | ✅ | ✅ | t.b.c
 | `lynkco.start_ventilate` | Open all windows slightly to ventilate | | ✅ |✅| t.b.c.
