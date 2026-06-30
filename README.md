@@ -105,6 +105,12 @@ When you perform an action (e.g. lock the doors or start the heaters), only the 
 ### Switch
 - Charging — start/stop charging (on when the car reports it is charging)
 
+### Climate
+- Air conditioning — turn on/off and set the target temperature (16–28 °C). On PHEV models, starting the climate can start the engine to heat/cool the cabin. Reads as off while the car blocks it (e.g. unlocked or being driven).
+
+### Button
+- Refresh data — force an immediate refresh of all sensors from the device page
+
 ### Actions (Services)
 
 All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When only one vehicle is configured, the VIN is auto-detected and can be omitted.

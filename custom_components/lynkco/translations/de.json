@@ -97,6 +97,12 @@
     "switch": {
       "charging": { "name": "Laden" }
     },
+    "climate": {
+      "climate": { "name": "Klimatisierung" }
+    },
+    "button": {
+      "refresh": { "name": "Daten aktualisieren" }
+    },
     "device_tracker": {
       "location": { "name": "Standort" }
     }
