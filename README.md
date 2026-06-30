@@ -103,7 +103,7 @@ When you perform an action (e.g. lock the doors or start the heaters), only the 
 - Glovebox lock (requires PIN) / unlock
 
 ### Switch
-- Charging — start/stop charging (on when the car reports it is charging). On PHEV models, starting charging may start the engine to charge the battery.
+- Charging — start/stop charging (on when the car reports it is charging)
 
 ### Actions (Services)
 

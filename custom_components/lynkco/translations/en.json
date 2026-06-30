@@ -168,7 +168,7 @@
     },
     "start_charging": {
       "name": "Start charging",
-      "description": "Start charging the vehicle. On PHEV models this may start the engine to charge the battery.",
+      "description": "Start charging the vehicle.",
       "fields": {
         "vin": {
           "name": "VIN",

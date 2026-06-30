@@ -168,7 +168,7 @@
     },
     "start_charging": {
       "name": "Opladen starten",
-      "description": "Start het opladen van het voertuig. Bij PHEV-modellen kan hierdoor de motor starten om de batterij op te laden.",
+      "description": "Start het opladen van het voertuig.",
       "fields": {
         "vin": {
           "name": "VIN",

@@ -168,7 +168,7 @@
     },
     "start_charging": {
       "name": "Iniciar carga",
-      "description": "Iniciar la carga del vehículo. En modelos PHEV, esto puede arrancar el motor para cargar la batería.",
+      "description": "Iniciar la carga del vehículo.",
       "fields": {
         "vin": {
           "name": "VIN",

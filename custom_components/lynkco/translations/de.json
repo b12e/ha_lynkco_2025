@@ -168,7 +168,7 @@
     },
     "start_charging": {
       "name": "Laden starten",
-      "description": "Das Laden des Fahrzeugs starten. Bei PHEV-Modellen kann dabei der Motor starten, um die Batterie zu laden.",
+      "description": "Das Laden des Fahrzeugs starten.",
       "fields": {
         "vin": {
           "name": "FIN",
