@@ -4,6 +4,7 @@ import logging
 
 from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -33,6 +34,7 @@ class LynkCoRefreshButton(ButtonEntity):
     _attr_has_entity_name = True
     _attr_translation_key = "refresh"
     _attr_icon = "mdi:refresh"
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator: LynkCoCoordinator) -> None:
         self.coordinator = coordinator

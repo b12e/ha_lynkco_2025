@@ -12,6 +12,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, MANUFACTURER, MODEL_NAMES
@@ -34,7 +35,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class LynkCoClimate(CoordinatorEntity, ClimateEntity):
+class LynkCoClimate(CoordinatorEntity, RestoreEntity, ClimateEntity):
     _attr_has_entity_name = True
     _attr_translation_key = "climate"
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
@@ -51,6 +52,19 @@ class LynkCoClimate(CoordinatorEntity, ClimateEntity):
         super().__init__(coordinator)
         self._api = api
         self._attr_unique_id = f"{coordinator.vin}_climate"
+        # The API's targetTemperature reflects the in-car setting, not the
+        # temperature sent with a remote start_conditioning, so we remember
+        # the last value we set ourselves (restored across restarts below).
+        self._target_temp: float | None = None
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        last_state = await self.async_get_last_state()
+        if last_state and last_state.attributes.get("temperature") is not None:
+            try:
+                self._target_temp = float(last_state.attributes["temperature"])
+            except (ValueError, TypeError):
+                self._target_temp = None
 
     @property
     def device_info(self):
@@ -74,6 +88,8 @@ class LynkCoClimate(CoordinatorEntity, ClimateEntity):
 
     @property
     def target_temperature(self) -> float | None:
+        if self._target_temp is not None:
+            return self._target_temp
         return self._climate.get("targetTemperature")
 
     @property
@@ -112,6 +128,8 @@ class LynkCoClimate(CoordinatorEntity, ClimateEntity):
         if temp is None:
             return
         _LOGGER.info("Setting climate temperature to %s for %s", temp, self.coordinator.vin)
+        self._target_temp = float(temp)
+        self.async_write_ha_state()
         await self._api.start_conditioning(self.coordinator.vin, int(round(temp)))
         self._refresh_climate()
 
