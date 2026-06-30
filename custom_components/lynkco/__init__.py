@@ -15,7 +15,7 @@ from .const import CONF_ACCESS_TOKEN, CONF_DEVICE_ID, CONF_REFRESH_TOKEN, CONF_S
 from .coordinator import LynkCoCoordinator
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS = ["sensor", "binary_sensor", "device_tracker", "lock", "switch"]
+PLATFORMS = ["sensor", "binary_sensor", "device_tracker", "lock", "switch", "climate", "button"]
 
 ATTR_VIN = "vin"
 ATTR_PERCENT = "percent"
