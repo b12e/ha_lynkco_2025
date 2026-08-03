@@ -216,6 +216,17 @@ class LynkCoAPI:
             "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/door_unlock"
         )
 
+    async def request_location(self, vin: str) -> dict:
+        """Ask the vehicle to report its current position.
+
+        Declared but never called by the official app (v2.63.0); verified working
+        against the live API. The car answers COMMAND_RECEIVED immediately and
+        pushes a fresh position a few seconds later.
+        """
+        return await self._request(
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/request_location"
+        )
+
     async def flash_lights(self, vin: str) -> dict:
         return await self._request(
             "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/flash_lights"

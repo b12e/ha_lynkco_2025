@@ -112,6 +112,7 @@ When you perform an action (e.g. lock the doors or start the heaters), only the 
 
 ### Button
 - Refresh data — force an immediate refresh of all sensors from the device page
+- Update location — ask the car to report a fresh position (it answers within a few seconds, even when parked)
 
 ### Actions (Services)
 
@@ -120,6 +121,7 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 | Service | Description | Parameters | 01 (facelift) | 02 | 08 |
 |---|---|---|---|---|---|
 | `lynkco.refresh` | Force-refresh all sensors now | | ✅ | ✅ | ✅ |
+| `lynkco.request_location` | Ask the car to report a fresh position | | ✅ | t.b.c. | t.b.c. |
 | `lynkco.lock_door` | Lock the vehicle's doors | | ✅ | ✅ | ✅ |
 | `lynkco.unlock_door` | Unlock the vehicle's doors | | ✅ | ✅ | ✅ |
 | `lynkco.flash_lights` | Flash the vehicle's lights | | ✅ | ✅ | t.b.c. |

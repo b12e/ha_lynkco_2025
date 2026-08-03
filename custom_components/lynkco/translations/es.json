@@ -101,7 +101,8 @@
       "climate": { "name": "Climatización" }
     },
     "button": {
-      "refresh": { "name": "Actualizar datos" }
+      "refresh": { "name": "Actualizar datos" },
+      "request_location": { "name": "Actualizar ubicación" }
     },
     "device_tracker": {
       "location": { "name": "Ubicación" }
@@ -111,6 +112,16 @@
     "refresh": {
       "name": "Actualizar sensores",
       "description": "Forzar una actualización inmediata de todos los sensores del vehículo.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
+        }
+      }
+    },
+    "request_location": {
+      "name": "Actualizar ubicación",
+      "description": "Pedir al vehículo que informe de su posición actual.",
       "fields": {
         "vin": {
           "name": "VIN",

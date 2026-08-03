@@ -101,7 +101,8 @@
       "climate": { "name": "Climate" }
     },
     "button": {
-      "refresh": { "name": "Refresh data" }
+      "refresh": { "name": "Refresh data" },
+      "request_location": { "name": "Update location" }
     },
     "device_tracker": {
       "location": { "name": "Location" }
@@ -111,6 +112,16 @@
     "refresh": {
       "name": "Refresh sensors",
       "description": "Force an immediate refresh of all vehicle sensors.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Vehicle Identification Number (optional if only one vehicle)"
+        }
+      }
+    },
+    "request_location": {
+      "name": "Update location",
+      "description": "Ask the vehicle to report its current position.",
       "fields": {
         "vin": {
           "name": "VIN",

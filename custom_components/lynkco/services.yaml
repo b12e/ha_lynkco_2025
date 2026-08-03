@@ -4,6 +4,12 @@ refresh:
       selector:
         text:
 
+request_location:
+  fields:
+    vin:
+      selector:
+        text:
+
 flash_lights:
   fields:
     vin:
