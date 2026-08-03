@@ -102,7 +102,8 @@
       "climate": { "name": "Klimaatregeling" }
     },
     "button": {
-      "refresh": { "name": "Gegevens vernieuwen" }
+      "refresh": { "name": "Gegevens vernieuwen" },
+      "request_location": { "name": "Locatie bijwerken" }
     },
     "device_tracker": {
       "location": { "name": "Locatie" }
@@ -112,6 +113,16 @@
     "refresh": {
       "name": "Sensoren vernieuwen",
       "description": "Forceer een directe vernieuwing van alle voertuigsensoren.",
+      "fields": {
+        "vin": {
+          "name": "VIN",
+          "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
+        }
+      }
+    },
+    "request_location": {
+      "name": "Locatie bijwerken",
+      "description": "Vraag de auto om zijn huidige positie te melden.",
       "fields": {
         "vin": {
           "name": "VIN",

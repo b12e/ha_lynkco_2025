@@ -21,24 +21,25 @@ async def async_setup_entry(
     entities = []
     for vin, coordinator in data["coordinators"].items():
         entities.append(LynkCoRefreshButton(coordinator))
+        entities.append(LynkCoRequestLocationButton(coordinator))
     async_add_entities(entities)
 
 
-class LynkCoRefreshButton(ButtonEntity):
-    """Button that forces an immediate data refresh.
+class LynkCoButton(ButtonEntity):
+    """Base for the integration's buttons.
 
-    Deliberately not a CoordinatorEntity so it stays available even after a
-    failed poll — that's exactly when a manual refresh is most useful.
+    Deliberately not a CoordinatorEntity so buttons stay available even after a
+    failed poll — that's exactly when they're most useful.
     """
 
     _attr_has_entity_name = True
-    _attr_translation_key = "refresh"
-    _attr_icon = "mdi:refresh"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _key: str
 
     def __init__(self, coordinator: LynkCoCoordinator) -> None:
         self.coordinator = coordinator
-        self._attr_unique_id = f"{coordinator.vin}_refresh"
+        self._attr_unique_id = f"{coordinator.vin}_{self._key}"
+        self._attr_translation_key = self._key
 
     @property
     def device_info(self):
@@ -50,6 +51,31 @@ class LynkCoRefreshButton(ButtonEntity):
             "serial_number": self.coordinator.vin,
         }
 
+
+class LynkCoRefreshButton(LynkCoButton):
+    """Button that forces an immediate data refresh."""
+
+    _attr_icon = "mdi:refresh"
+    _key = "refresh"
+
     async def async_press(self) -> None:
         _LOGGER.info("Manual refresh requested for %s", self.coordinator.vin)
         await self.coordinator.async_request_refresh()
+
+
+class LynkCoRequestLocationButton(LynkCoButton):
+    """Button that asks the vehicle to report a fresh position."""
+
+    _attr_icon = "mdi:crosshairs-gps"
+    _key = "request_location"
+
+    async def async_press(self) -> None:
+        _LOGGER.info("Location update requested for %s", self.coordinator.vin)
+        await self.coordinator.api.request_location(self.coordinator.vin)
+        # The car acknowledges immediately but pushes the position a few seconds
+        # later, so chase it in the background instead of blocking the press.
+        self.hass.async_create_task(
+            self.coordinator.async_targeted_refresh(
+                "location", lambda: self.coordinator.api.get_location(self.coordinator.vin)
+            )
+        )

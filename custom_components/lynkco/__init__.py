@@ -52,6 +52,7 @@ SERVICE_STOP_HEATERS = "stop_heaters"
 SERVICE_START_CONDITIONING = "start_conditioning"
 SERVICE_STOP_CONDITIONING = "stop_conditioning"
 SERVICE_REFRESH = "refresh"
+SERVICE_REQUEST_LOCATION = "request_location"
 SERVICE_LOCK_DOOR = "lock_door"
 SERVICE_UNLOCK_DOOR = "unlock_door"
 SERVICE_LOCK_GLOVEBOX = "lock_glovebox"
@@ -65,7 +66,7 @@ ALL_SERVICES = [
     SERVICE_START_VENTILATE, SERVICE_STOP_VENTILATE,
     SERVICE_START_HEATERS, SERVICE_STOP_HEATERS,
     SERVICE_START_CONDITIONING, SERVICE_STOP_CONDITIONING,
-    SERVICE_REFRESH,
+    SERVICE_REFRESH, SERVICE_REQUEST_LOCATION,
     SERVICE_LOCK_DOOR, SERVICE_UNLOCK_DOOR,
     SERVICE_LOCK_GLOVEBOX, SERVICE_UNLOCK_GLOVEBOX,
 ]
@@ -290,6 +291,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             await _get_api(hass, vin).unlock_glovebox(vin)
             _targeted_refresh(hass, vin, "vehicle_data", "get_vehicle_data")
 
+        async def handle_request_location(call: ServiceCall) -> None:
+            vin = _resolve_vin(hass, call)
+            await _get_api(hass, vin).request_location(vin)
+            _targeted_refresh(hass, vin, "location", "get_location")
+
         async def handle_refresh(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
             coordinator = _get_coordinator(hass, vin)
@@ -315,6 +321,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.services.async_register(DOMAIN, SERVICE_UNLOCK_DOOR, handle_unlock_door, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_LOCK_GLOVEBOX, handle_lock_glovebox, GLOVEBOX_LOCK_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_UNLOCK_GLOVEBOX, handle_unlock_glovebox, VIN_SCHEMA)
+        hass.services.async_register(DOMAIN, SERVICE_REQUEST_LOCATION, handle_request_location, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_REFRESH, handle_refresh, VIN_SCHEMA)
 
     return True
