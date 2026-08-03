@@ -21,6 +21,7 @@ Other models are currently not available on the EU market, although it is likely
 # Installation
 
 ## HACS (recommended)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=b12e&repository=ha_lynkco_2025&category=integration)
 1. Make sure [HACS](https://hacs.xyz) is installed in your Home Assistant installation
 2. Search for "Lynk & Co" and click Download. Follow the on-screen instructions.
 3. Restart Home Assistant
