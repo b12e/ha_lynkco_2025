@@ -50,13 +50,13 @@ Tokens are automatically refreshed. You should only need to re-authenticate if t
 - Lynk&Co only allows 1 device to be logged in to the app at all times. This sadly also means that, when you log in to Home Assistant, your mobile app will automatically be logged out and vice versa. The workaround is to create a Home Assistant dashboard that replaces the Lynk&Co mobile app.
 - There is evidence in the mobile app source code that Lynk&Co is working on a way to add multiple 'drivers' to the same vehicle - each using their own Lynk&Co account. Whether or not there's implications for this HACS integration is yet to be found out, but it appears that in the future you would be able to use the mobile app and HA integration simultaneously by creating a dedicated account for either HA or mobile app usage. 
 
-## Features
+# Features
 <details>
-<summary>List of all sensors and entities</summary>
+<summary>List of all sensors and exposed entities</summary>
   
-### Sensors
+## Sensors
 
-#### Battery
+### Battery
 
 | Entity | Description | Unit | Model Availability |
 |---|---|---|---|
@@ -70,7 +70,7 @@ Tokens are automatically refreshed. You should only need to re-authenticate if t
 | Charging time remaining | Time until fully charged | min | All |
 | Electric range | Remaining electric range | km | All |
 
-#### Fuel
+### Fuel
 | Entity | Description | Unit | Model Availability |
 |---|---|---|---|
 | Average fuel consumption | Average fuel consumption | L/100km | 01 / 08 |
@@ -80,7 +80,7 @@ Tokens are automatically refreshed. You should only need to re-authenticate if t
 | Fuel type | Fuel type | - | 01 / 08 |
 | Tank capacity | Fuel tank capacity | L | 01 / 08 |
 
-#### Climate
+### Climate
 | Entity | Description | Unit | Model Availability |
 |---|---|---|---|
 | Climate status | HVAC state | - | All |
@@ -94,7 +94,7 @@ Tokens are automatically refreshed. You should only need to re-authenticate if t
 | Target temperature | HVAC target temperature | °C | All |
 | Windshield heater | Heater status | - | All |
 
-#### Other
+### Other
 | Entity | Description | Unit | Model Availability |
 |---|---|---|---|
 | Address | Last known address | - | All |
@@ -139,8 +139,11 @@ Tokens are automatically refreshed. You should only need to re-authenticate if t
 - Update location - ask the car to report its current GPS location
 </details>
 
-### Actions (Services)
+## Actions (Services)
+<details>
+<summary>List of all actions you can perform (e.g. preconditioning)</summary>
 
+  
 All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When only one vehicle is configured, the VIN is auto-detected and can be omitted.
 
 | Service | Description | Parameters | 01 (facelift) | 02 | 08 |
@@ -190,6 +193,8 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 | `defrost` | ✅ | ✅ | ✅ |
 
 ⚠️ Zones marked with an asterisk (*) are only available on the More-models. The Core models are not equipped with these heating locations. This integration doesn't magically equip your vehicle with extra hardware :) 
+
+</details> 
 
 # Polling
 
