@@ -74,6 +74,15 @@ SENSOR_TYPES: list[dict] = [
         "value_fn": lambda d: _dig(d, "charge", "batteryState", "chargeLimit", "value"),
     },
     {
+        "key": "power_consumption",
+        "name": "Average electric consumption",
+        "icon": "mdi:meter-electric",
+        "device_class": None,
+        "unit": "kWh/100km",
+        "state_class": SensorStateClass.MEASUREMENT,
+        "value_fn": lambda d: _dig(d, "charge", "batteryState", "powerAverageConsumption"),
+    },
+    {
         "key": "interior_temperature",
         "name": "Interior temperature",
         "icon": "mdi:thermometer",

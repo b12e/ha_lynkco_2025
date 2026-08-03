@@ -50,6 +50,7 @@
       "charging_speed": { "name": "Vitesse de charge" },
       "charging_time_remaining": { "name": "Temps de charge restant" },
       "charge_limit": { "name": "Limite de charge" },
+      "power_consumption": { "name": "Consommation électrique moyenne" },
       "interior_temperature": { "name": "Température intérieure" },
       "target_temperature": { "name": "Température cible" },
       "climate_status": { "name": "État de la climatisation" },

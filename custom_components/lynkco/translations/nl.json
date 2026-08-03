@@ -50,6 +50,7 @@
       "charging_speed": { "name": "Oplaadsnelheid" },
       "charging_time_remaining": { "name": "Resterende oplaadtijd" },
       "charge_limit": { "name": "Oplaadlimiet" },
+      "power_consumption": { "name": "Gemiddeld stroomverbruik" },
       "interior_temperature": { "name": "Interieurtemperatuur" },
       "target_temperature": { "name": "Doeltemperatuur" },
       "climate_status": { "name": "Klimaatstatus" },

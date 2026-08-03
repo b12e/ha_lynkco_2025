@@ -37,6 +37,7 @@ When you perform an action (e.g. lock the doors or start the heaters), only the 
 #### Battery
 | Entity | Description | Unit | Model Availability |
 |---|---|---|---|
+| Average electric consumption | Average electric consumption | kWh/100km | All |
 | Battery capacity | Total battery capacity | kWh | All |
 | Battery energy | Current energy in battery (capacity × SoC) | kWh | All |
 | Battery level | State of charge | % | All |
