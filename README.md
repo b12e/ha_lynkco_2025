@@ -10,31 +10,54 @@ Pull requests are currently turned off (to prevent AI slop). If you have any fea
 ## Supported Models
 
 Tested on the following vehicles:
-- 2025 (New) Lynk & Co 01 (PHEV)
-- 2025 Lynk & Co 02 (BEV)
-- 2025/2026 Lynk & Co 08 (PHEV)
+- 2025 (New/Facelift) Lynk & Co 01 (PHEV) and newer
+- Lynk & Co 02 (BEV)
+- Lynk & Co 08 (PHEV)
 
 Other models are currently not available on the EU market, although it is likely when they do become available they are on the same platform and will work. The documentation will be updated accordingly as soon as this happens.
 
 > **Note**: Pre-2025 Lynk & Co 01 models use a different platform and are NOT supported. You can try your luck with [this](https://github.com/Donkie/Hass-Lynk-Co) repo.
 
-## Polling
+# Installation
 
-The full vehicle data is polled every 15 minutes by default. On top of that, only endpoints relevant to what's happening are fast-polled (about every 60 seconds), instead of refetching everything:
-- **While driving:** location, drive state and battery. The final location is fetched once when you reach your destination (on LynkOS 1.4.0+ the car only reports location when it stops).
-- **While the climate/conditioning system is active:** the climate state.
+## HACS (recommended)
+1. Make sure [HACS](https://hacs.xyz) is installed in your Home Assistant installation
+2. Search for "Lynk & Co" and click Download. Follow the on-screen instructions.
+3. Restart Home Assistant
+4. Go to Settings → Integrations → Add → Lynk & Co
 
-When you perform an action (e.g. lock the doors or start the heaters), only the relevant data is refreshed — not everything. The integration checks for a state change after 3 seconds, and if the car hasn't processed the command yet, retries after 5 and then 10 seconds before giving up. Fire-and-forget actions like flashing the lights or honking the horn don't trigger a refresh at all.
+## Manual
+Copy `custom_components/lynkco/` to your Home Assistant `custom_components` directory.
+
+# Setup
+
+The integration uses Azure AD B2C authentication with MFA in the same way the mobile app uses it. Setup requires a one-time browser login:
+
+1. Add the integration in Home Assistant
+2. A login URL is generated - open it in your browser
+3. Open DevTools (F12) → Network tab
+4. Log in with your Lynk & Co email + password + SMS MFA code
+5. After MFA, the browser will fail to open `msauth://...`
+6. In the network tab of your developer tools, find the last request → copy the `Location` header value (note: Firefox dev tools don't show the entire header. Right click on the request and copy the response headers instead, and then get the `msauth://` header from there)
+7. Paste the full `msauth://...` URL back in Home Assistant
+
+This process should be similar to the HACS integration for pre-2025 Lynk&Co cars such as the [Donkie](https://github.com/Donkie/Hass-Lynk-Co) one. 
+
+Tokens are automatically refreshed. You should only need to re-authenticate if the refresh token expires (e.g. if your Home Assistant instance has been offline for an extended period of time, or when you log in on the mobile app).
 
 ## ⚠️ Limitations
 
 - Lynk&Co only allows 1 device to be logged in to the app at all times. This sadly also means that, when you log in to Home Assistant, your mobile app will automatically be logged out and vice versa. The workaround is to create a Home Assistant dashboard that replaces the Lynk&Co mobile app.
+- There is evidence in the mobile app source code that Lynk&Co is working on a way to add multiple 'drivers' to the same vehicle - each using their own Lynk&Co account. Whether or not there's implications for this HACS integration is yet to be found out, but it appears that in the future you would be able to use the mobile app and HA integration simultaneously by creating a dedicated account for either HA or mobile app usage. 
 
 ## Features
-
+<details>
+<summary>List of all sensors and entities</summary>
+  
 ### Sensors
 
 #### Battery
+
 | Entity | Description | Unit | Model Availability |
 |---|---|---|---|
 | Average electric consumption | Average electric consumption | kWh/100km | All |
@@ -106,14 +129,15 @@ When you perform an action (e.g. lock the doors or start the heaters), only the 
 - Glovebox lock (requires PIN) / unlock
 
 ### Switch
-- Charging — start/stop charging (on when the car reports it is charging)
+- Charging - start/stop charging (on when the car reports it is charging)
 
 ### Climate
-- Air conditioning — turn on/off and set the target temperature (16–28 °C). On PHEV models, starting the climate can start the engine to heat/cool the cabin. Reads as off while the car blocks it (e.g. unlocked or being driven).
+- Air conditioning - turn on/off and set the target temperature (16–28 °C). On PHEV models, starting the climate can start the engine to heat/cool the cabin. Reads as off while the car blocks it (e.g. unlocked or being driven).
 
 ### Button
-- Refresh data — force an immediate refresh of all sensors from the device page
+- Refresh data - force an immediate refresh of all sensors from the device page
 - Update location - ask the car to report its current GPS location
+</details>
 
 ### Actions (Services)
 
@@ -167,36 +191,17 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 
 ⚠️ Zones marked with an asterisk (*) are only available on the More-models. The Core models are not equipped with these heating locations. This integration doesn't magically equip your vehicle with extra hardware :) 
 
-### Screenshot
+# Polling
+
+The full vehicle data is polled every 15 minutes by default. On top of that, only endpoints relevant to what's happening are fast-polled (about every 60 seconds), instead of refetching everything:
+- **While driving:** location, drive state and battery. The final location is fetched once when you reach your destination (on LynkOS 1.4.0+ the car only reports location when it stops).
+- **While the climate/conditioning system is active:** the climate state.
+
+When you perform an action (e.g. lock the doors or start the heaters), only the relevant data is refreshed - not everything. The integration checks for a state change after 3 seconds, and if the car hasn't processed the command yet, retries after 5 and then 10 seconds before giving up. Fire-and-forget actions like flashing the lights or honking the horn don't trigger a refresh at all.
+
+# Screenshot
 
 ![screenshot](screenshot.png)
-
-# Installation
-
-## HACS (recommended)
-1. Make sure [HACS](https://hacs.xyz) is installed in your Home Assistant installation
-2. Search for "Lynk & Co" and click Download. Follow the on-screen instructions.
-3. Restart Home Assistant
-4. Go to Settings → Integrations → Add → Lynk & Co
-
-## Manual
-Copy `custom_components/lynkco/` to your Home Assistant `custom_components` directory.
-
-# Setup
-
-The integration uses Azure AD B2C authentication with MFA in the same way the mobile app uses it. Setup requires a one-time browser login:
-
-1. Add the integration in Home Assistant
-2. A login URL is generated - open it in your browser
-3. Open DevTools (F12) → Network tab
-4. Log in with your Lynk & Co email + password + SMS MFA code
-5. After MFA, the browser will fail to open `msauth://...`
-6. In the network tab of your developer tools, find the last request → copy the `Location` header value (note: Firefox dev tools don't show the entire header. Right click on the request and copy the response headers instead, and then get the `msauth://` header from there)
-7. Paste the full `msauth://...` URL back in Home Assistant
-
-This process should be similar to the HACS integration for pre-2025 Lynk&Co cars such as the [Donkie](https://github.com/Donkie/Hass-Lynk-Co) one. 
-
-Tokens are automatically refreshed. You should only need to re-authenticate if the refresh token expires (e.g. if your Home Assistant instance has been offline for an extended period of time, or when you log in on the mobile app).
 
 # Credits
 
