@@ -25,7 +25,7 @@ Other models are currently not available on the EU market, although it is likely
 1. Make sure [HACS](https://hacs.xyz) is installed in your Home Assistant installation
 2. Search for "Lynk & Co" and click Download. Follow the on-screen instructions.
 3. Restart Home Assistant
-4. Go to Settings → Integrations → Add → Lynk & Co
+4. Go to Settings → Devices & services → + Add Integration → Lynk & Co
 
 ## Manual
 Copy `custom_components/lynkco/` to your Home Assistant `custom_components` directory.
