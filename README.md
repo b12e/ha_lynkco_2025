@@ -200,6 +200,6 @@ Tokens are automatically refreshed. You should only need to re-authenticate if t
 
 # Credits
 
-API reverse-engineered from the Lynk & Co Android app v2.55.0.
+API reverse-engineered from the Lynk & Co Android app v2.55.0 and v2.63.0.
 
 This HACS plugin is not endorsed by Lynk&Co and I have no affiliation with them whatsoever.
