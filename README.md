@@ -112,7 +112,7 @@ When you perform an action (e.g. lock the doors or start the heaters), only the 
 
 ### Button
 - Refresh data — force an immediate refresh of all sensors from the device page
-- Update location — ask the car to report a fresh position (it answers within a few seconds, even when parked)
+- Update location - ask the car to report its current GPS location
 
 ### Actions (Services)
 
@@ -139,6 +139,9 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 | `lynkco.stop_heaters` | Stop heaters | `heaters` (list) | ✅ | t.b.c. | t.b.c. |
 | `lynkco.lock_glovebox` | Lock the glovebox | `pin` (4 digits) | ✅ | t.b.c. | t.b.c. |
 | `lynkco.unlock_glovebox` | Unlock the glovebox | | ✅ | t.b.c. | t.b.c. |
+
+#### Help needed
+⚠️ Please open an issue if you have verified a feature works which is marked as t.b.c. in this table so I can update the readme as confirmed working/not working.
 
 #### Notes:
 - ✅ = confirmed working on that model<br />
