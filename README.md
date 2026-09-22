@@ -16,7 +16,7 @@ Tested on the following vehicles:
 
 Other models are currently not available on the EU market, although it is likely when they do become available they are on the same platform and will work. The documentation will be updated accordingly as soon as this happens.
 
-> **Note**: Pre-2025 Lynk & Co 01 models use a different platform and are NOT supported. You can try your luck with [this](https://github.com/Donkie/Hass-Lynk-Co) repo.
+> **Note**: Pre-2025 Lynk & Co 01 models use a different platform and are NOT officially supported by me. [There are reports](https://github.com/b12e/ha_lynkco_2025/issues/33) that this integration works with pre-2025 Lynk&Co 01 models, but [YMMV](https://www.merriam-webster.com/slang/ymmv). If this integration doesn't work, you can try your luck with [this](https://github.com/Donkie/Hass-Lynk-Co) repo.
 
 # Installation
 
