@@ -1,7 +1,7 @@
 {
   "_comment": "Lynk & Co 08 (Core and More). Everything is enabled.",
   "name": "Lynk & Co 08",
-  "source": "https://github.com/b12e/ha_lynkco_2025#actions-services",
+  "source": "https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-08",
   "actions": {
     "open_sunroof": true,
     "close_sunroof": true,
