@@ -25,7 +25,9 @@
       "no_vehicles": "Keine Fahrzeuge auf diesem Konto gefunden"
     },
     "abort": {
-      "already_configured": "Dieses Konto ist bereits konfiguriert"
+      "already_configured": "Dieses Konto ist bereits konfiguriert",
+      "reauth_successful": "Die erneute Anmeldung war erfolgreich.",
+      "wrong_account": "Das verwendete Konto ist nicht das für diesen Eintrag konfigurierte Konto. Melde dich mit demselben Lynk & Co-Konto an."
     }
   },
   "options": {

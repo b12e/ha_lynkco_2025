@@ -6,7 +6,7 @@ import uuid
 import aiohttp
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, OptionsFlow
+from homeassistant.config_entries import SOURCE_REAUTH, ConfigFlow, OptionsFlow
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import LynkCoAPI
@@ -104,6 +104,20 @@ class LynkCoConfigFlow(ConfigFlow, domain=DOMAIN):
                             else:
                                 # Use email as unique ID
                                 await self.async_set_unique_id(api.user_email)
+
+                                if self.source == SOURCE_REAUTH:
+                                    # Re-login after an expired session: keep the
+                                    # entry (and its entities), only swap the tokens.
+                                    self._abort_if_unique_id_mismatch(reason="wrong_account")
+                                    return self.async_update_reload_and_abort(
+                                        self._get_reauth_entry(),
+                                        data_updates={
+                                            CONF_ACCESS_TOKEN: access_token,
+                                            CONF_REFRESH_TOKEN: refresh_token,
+                                            CONF_DEVICE_ID: device_id,
+                                        },
+                                    )
+
                                 self._abort_if_unique_id_configured()
 
                                 return self.async_create_entry(
@@ -124,7 +138,11 @@ class LynkCoConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_reauth(self, entry_data=None):
-        """Handle re-authentication."""
+        """Handle re-authentication (opened from the Repairs entry).
+
+        Same browser login as the initial setup; the existing entry is updated
+        with the new tokens in async_step_paste_redirect.
+        """
         return await self.async_step_user()
 
 

@@ -8,13 +8,13 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ServiceValidationError
+from homeassistant.exceptions import ConfigEntryAuthFailed, ServiceValidationError
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
-from .api import LynkCoAPI
+from .api import LynkCoAPI, LynkCoAuthError
 from .const import (
     CLIMATE_SCAN_INTERVAL,
     CONF_DRIVING_INTERVAL,
@@ -155,9 +155,15 @@ class LynkCoCoordinator(DataUpdateCoordinator):
     async def _fetch_endpoint(
         self, key: str, fetch_fn: Callable[[], Coroutine[Any, Any, dict]]
     ) -> dict | None:
-        """Fetch one endpoint; a failure is recorded instead of failing the whole poll."""
+        """Fetch one endpoint; a failure is recorded instead of failing the whole poll.
+
+        An expired session (LynkCoAuthError) is not isolated: it affects every
+        endpoint and needs the user to log in again, so it propagates.
+        """
         try:
             value = await fetch_fn()
+        except LynkCoAuthError:
+            raise
         except Exception as err:  # noqa: BLE001 - any API error isolates this endpoint only
             if key not in self.endpoint_errors:
                 _LOGGER.warning("Lynk & Co endpoint %s failed for %s: %s", key, self.vin, err)
@@ -191,14 +197,21 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         return data
 
     async def _async_update_data(self) -> dict:
-        data = await self._async_fetch_all()
-        if data is None:
-            # Everything failed at once: most likely an expired session, so try
-            # one token refresh before giving up on this cycle.
-            if await self.api.refresh_tokens():
+        try:
+            data = await self._async_fetch_all()
+            if data is None:
+                # Everything failed at once: most likely an expired session, so try
+                # one token refresh before giving up on this cycle. A rejected
+                # refresh means the user has to log in again.
+                if not await self.api.refresh_tokens():
+                    raise LynkCoAuthError("Session expired and the refresh token was rejected")
                 data = await self._async_fetch_all()
             if data is None:
                 raise UpdateFailed(f"All Lynk & Co API endpoints failed: {self.endpoint_errors}")
+        except LynkCoAuthError as err:
+            # Home Assistant turns this into a Repairs entry that opens the
+            # re-authentication (login) flow for this account.
+            raise ConfigEntryAuthFailed(str(err)) from err
 
         # Store propulsion type for entity filtering
         propulsion = (data["metadata"].get("vehicle") or {}).get("propulsionType")
@@ -206,6 +219,13 @@ class LynkCoCoordinator(DataUpdateCoordinator):
             self.propulsion = propulsion
 
         return data
+
+    def _start_reauth(self, err: LynkCoAuthError) -> None:
+        """Ask Home Assistant for a new login outside the regular update cycle."""
+        _LOGGER.warning("Lynk & Co session for %s expired (%s); re-authentication required", self.vin, err)
+        self.last_update_success = False
+        self.async_update_listeners()
+        self.entry.async_start_reauth(self.hass)
 
     def start_fast_poll(self) -> Callable[[], None]:
         """Start the endpoint-specific fast-poll timer; returns an unsub callable.
@@ -251,7 +271,11 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         errors_before = dict(self.endpoint_errors)
         updates: dict[str, Any] = {}
         for key, fn_name in due.items():
-            value = await self._fetch_endpoint(key, getattr(self.api, fn_name))
+            try:
+                value = await self._fetch_endpoint(key, getattr(self.api, fn_name))
+            except LynkCoAuthError as err:
+                self._start_reauth(err)
+                return
             if value is not None:
                 updates[key] = value
                 self._last_fast_poll[key] = now
@@ -288,7 +312,11 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         for delay in REFRESH_RETRY_DELAYS:
             await asyncio.sleep(delay)
             had_error = data_key in self.endpoint_errors
-            new_value = await self._fetch_endpoint(data_key, fetch_fn)
+            try:
+                new_value = await self._fetch_endpoint(data_key, fetch_fn)
+            except LynkCoAuthError as err:
+                self._start_reauth(err)
+                return
             if new_value is None:
                 _LOGGER.debug("Targeted refresh of %s failed, will retry", data_key)
                 continue

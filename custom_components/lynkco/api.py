@@ -46,6 +46,14 @@ REDACT_KEY_PARTS = (
 )
 
 
+class LynkCoAuthError(Exception):
+    """The session is no longer valid and the refresh token was rejected.
+
+    Raised instead of a plain HTTP error so the integration can ask Home
+    Assistant to start the re-authentication flow (Settings > Repairs).
+    """
+
+
 def redact(value: object, key: str = "") -> object:
     """Return a copy of an API payload with sensitive values replaced."""
     if any(part in key.lower() for part in REDACT_KEY_PARTS):
@@ -157,15 +165,18 @@ class LynkCoAPI:
         async with self._session.request(method, url, headers=headers, **kwargs) as resp:
             if resp.status == 401:
                 _LOGGER.debug("Got 401, attempting token refresh")
-                if await self.refresh_tokens():
-                    headers = self._build_headers(url)
-                    async with self._session.request(
-                        method, url, headers=headers, **kwargs
-                    ) as retry:
-                        retry.raise_for_status()
-                        retry_data = await retry.json()
-                        self._log_response(url, retry_data)
-                        return retry_data if retry_data is not None else {}
+                if not await self.refresh_tokens():
+                    raise LynkCoAuthError("Session expired and the refresh token was rejected")
+                headers = self._build_headers(url)
+                async with self._session.request(
+                    method, url, headers=headers, **kwargs
+                ) as retry:
+                    if retry.status == 401:
+                        raise LynkCoAuthError("Still unauthorized after refreshing the token")
+                    retry.raise_for_status()
+                    retry_data = await retry.json()
+                    self._log_response(url, retry_data)
+                    return retry_data if retry_data is not None else {}
             resp.raise_for_status()
             if resp.content_length == 0:
                 return {}

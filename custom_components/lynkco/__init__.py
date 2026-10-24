@@ -7,11 +7,12 @@ import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import LynkCoAPI
+from .api import LynkCoAPI, LynkCoAuthError
 from .const import (
     CONF_ACCESS_TOKEN,
     CONF_DEVICE_ID,
@@ -207,8 +208,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         on_token_refresh=_persist_tokens,
     )
 
-    await api.validate_session()
-    vehicles = await api.get_vehicles()
+    # An expired session that cannot be refreshed raises ConfigEntryAuthFailed:
+    # Home Assistant then shows a Repairs entry that opens the login flow again.
+    try:
+        if not await api.validate_session() and not await api.refresh_tokens():
+            raise ConfigEntryAuthFailed("Lynk & Co session expired; log in again")
+        vehicles = await api.get_vehicles()
+    except LynkCoAuthError as err:
+        raise ConfigEntryAuthFailed(str(err)) from err
 
     if not vehicles:
         _LOGGER.error("No vehicles found")
@@ -226,6 +233,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # is the most precise identity the API offers; it is fetched once.
         try:
             guide_type = await api.get_vehicle_guide(vin)
+        except LynkCoAuthError as err:
+            raise ConfigEntryAuthFailed(str(err)) from err
         except Exception as err:  # noqa: BLE001 - identity is best effort
             _LOGGER.warning("Could not read the vehicle guide type for %s: %s", vin, err)
             guide_type = None

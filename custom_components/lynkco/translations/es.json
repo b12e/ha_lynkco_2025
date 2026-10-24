@@ -25,7 +25,9 @@
       "no_vehicles": "No se encontraron vehículos en esta cuenta"
     },
     "abort": {
-      "already_configured": "Esta cuenta ya está configurada"
+      "already_configured": "Esta cuenta ya está configurada",
+      "reauth_successful": "La reautenticación se ha completado correctamente.",
+      "wrong_account": "La cuenta con la que has iniciado sesión no es la configurada para esta entrada. Inicia sesión con la misma cuenta de Lynk & Co."
     }
   },
   "options": {
