@@ -78,14 +78,8 @@
       "last_updated_climate": { "name": "Última actualización (climatización)" }
     },
     "binary_sensor": {
-      "door_front_left": { "name": "Puerta delantera izquierda" },
-      "door_front_right": { "name": "Puerta delantera derecha" },
-      "door_rear_left": { "name": "Puerta trasera izquierda" },
-      "door_rear_right": { "name": "Puerta trasera derecha" },
-      "window_front_left": { "name": "Ventanilla delantera izquierda" },
-      "window_front_right": { "name": "Ventanilla delantera derecha" },
-      "window_rear_left": { "name": "Ventanilla trasera izquierda" },
-      "window_rear_right": { "name": "Ventanilla trasera derecha" },
+      "doors": { "name": "Puertas" },
+      "windows": { "name": "Ventanas" },
       "sunroof": { "name": "Techo solar" },
       "hood": { "name": "Capó" },
       "trunk": { "name": "Maletero" },
@@ -319,6 +313,16 @@
           "description": "Número de identificación del vehículo (opcional si solo hay un vehículo)"
         }
       }
+    }
+  },
+  "exceptions": {
+    "action_not_supported": { "message": "{action} no está habilitado para el {model} ({model_code}, tipo de guía {guide_type}): aún no se ha confirmado que funcione en este modelo. Si te funciona en la app de Lynk & Co, infórmalo para que se pueda habilitar: {support_url}" },
+    "action_not_permitted": { "message": "El coche no permite {action} en este momento. La mayoría de las acciones solo funcionan con el coche cerrado y la llave fuera del vehículo." }
+  },
+  "issues": {
+    "unknown_model": {
+      "title": "Modelo Lynk & Co desconocido {model_code}",
+      "description": "Este coche informa el código de modelo {model_code} y el tipo de guía {guide_type}, para los que esta integración aún no tiene un archivo de funciones. Solo están habilitadas las funciones que funcionan en todos los modelos Lynk & Co (sensores, cierre de puertas, luces, claxon y climatización). Descarga los diagnósticos desde la página del dispositivo y abre un informe de modelo para que se puedan habilitar las demás funciones: {report_url}"
     }
   }
 }

@@ -13,11 +13,20 @@ Tested on the following vehicles:
 - 2025 (New/Facelift) Lynk & Co 01 (PHEV) and newer
 - Lynk & Co 02 (BEV)
 - Lynk & Co 08 (PHEV)
+- Pre-2025 Lynk & Co 01: sensors plus the actions owners have confirmed, see below
 
 Other models are currently not available on the EU market, although it is likely when they do become available they are on the same platform and will work. The documentation will be updated accordingly as soon as this happens.
 
+The integration identifies your car by its model code (`CX11_A3`, `E335`, `DX11`, `CX11_A1`) and by the car guide type the API reports (model year for pre-2025 01s, Core/More for newer cars). Both are shown on the device page and in the diagnostics download. Remote actions are only enabled for models where they are confirmed to work; everything the API itself tells us (BEV vs PHEV, which heater zones exist, whether the glovebox can be locked) is detected automatically.
+
+### Pre-2025 Lynk & Co 01
+
 > [!NOTE]
-> Pre-2025 Lynk & Co 01 models use a different platform and are NOT officially supported by me. [There are reports](https://github.com/b12e/ha_lynkco_2025/issues/33) that this integration works with pre-2025 Lynk&Co 01 models, but [YMMV](https://www.merriam-webster.com/slang/ymmv). If this integration doesn't work, you can try your luck with [this](https://github.com/Donkie/Hass-Lynk-Co) repo.
+> Pre-2025 01s run on a different vehicle platform, but [owners report](https://github.com/b12e/ha_lynkco_2025/issues/33) that the same API serves them. On these cars the integration exposes all sensors the API returns data for, plus the actions confirmed so far: lock/unlock, flash lights, honk horn and start/stop climate. Every other action (sunroof, charging, charge limit, ventilation, heaters, glovebox, location request) is disabled until someone confirms it works, and calling it returns a clear error instead of silently doing nothing. [Hass-Lynk-Co](https://github.com/Donkie/Hass-Lynk-Co) remains an alternative for these cars.
+
+**Help confirm a feature:** test an action from Developer tools → Actions, then open a [model report](https://github.com/b12e/ha_lynkco_2025/issues/new?template=model_report.yml) and attach the diagnostics file (device page → ⋮ → Download diagnostics; it is redacted). Confirmed actions get enabled in the next release.
+
+A car with a model code the integration has never seen gets the same treatment, plus a notice under Settings → Repairs that links straight to the model report form.
 
 # Installation
 
@@ -124,37 +133,36 @@ Since late September, Lynk&Co allows to share your car with up to 3 additional L
 | Odometer | Total distance driven | km | All |
 
 ### Binary Sensors
-| Entity | Device class | Model Availability
-|---|---|--|
-| Front left door | door | All
-| Front right door | door | All
-| Rear left door | door | All
-| Rear right door | door | All
-| Front left window | window | All
-| Front right window | window | All
-| Rear left window | window | All
-| Rear right window | window | All
-| Sunroof | window | 01 / 08
-| Hood | door | All
-| Trunk | door | All
-| Car running | running | All
+| Entity | Device class | Model Availability | Notes |
+|---|---|---|---|
+| Doors | door | All | On when any door is open; attributes `front_left`, `front_right`, `rear_left`, `rear_right` (`open` / `closed` / `unknown`) |
+| Windows | window | All | On when any window is open; same four attributes |
+| Sunroof | window | 01 / 08 | |
+| Hood | door | All | |
+| Trunk | door | All | |
+| Car running | running | All | |
+
+Entities are tied to the API endpoint they read from. If one endpoint fails (for example the fuel state), only its entities become unavailable and the others keep updating with fresh data.
 
 ### Device Tracker
 - GPS location with coordinates
 
 ### Lock
 - Door lock / unlock
-- Glovebox lock (requires PIN) / unlock
+- Glovebox lock (requires PIN) / unlock, only on cars that report a lockable glovebox and where the action is confirmed
 
 ### Switch
-- Charging - start/stop charging (on when the car reports it is charging)
+- Charging - start/stop charging (on when the car reports it is charging), only where start and stop charging are confirmed
 
 ### Climate
 - Air conditioning - turn on/off and set the target temperature (16–28 °C). On PHEV models, starting the climate can start the engine to heat/cool the cabin. Reads as off while the car blocks it (e.g. unlocked or being driven).
 
 ### Button
 - Refresh data - force an immediate refresh of all sensors from the device page
-- Update location - ask the car to report its current GPS location
+- Update location - ask the car to report its current GPS location, only where confirmed
+
+### Diagnostics
+- Download diagnostics from the device page (⋮ → Download diagnostics) for a redacted JSON of everything the API reports for your car: model code, guide type, enabled features, failing endpoints and all raw payloads. Attach it to issues.
 </details>
 
 ## Actions (Services)
@@ -164,37 +172,40 @@ Since late September, Lynk&Co allows to share your car with up to 3 additional L
   
 All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When only one vehicle is configured, the VIN is auto-detected and can be omitted.
 
-| Service | Description | Parameters | 01 (facelift) | 02 | 08 |
-|---|---|---|---|---|---|
-| `lynkco.refresh` | Force-refresh all sensors now | | ✅ | ✅ | ✅ |
-| `lynkco.request_location` | Ask the car to report a fresh position | | ✅ | t.b.c. | t.b.c. |
-| `lynkco.lock_door` | Lock the vehicle's doors | | ✅ | ✅ | ✅ |
-| `lynkco.unlock_door` | Unlock the vehicle's doors | | ✅ | ✅ | ✅ |
-| `lynkco.flash_lights` | Flash the vehicle's lights | | ✅ | ✅ | t.b.c. |
-| `lynkco.honk_horn` | Honk the horn | | t.b.c. | ✅ | t.b.c. |
-| `lynkco.open_sunroof` | Open the sunroof | | ✅ | ❌ | t.b.c.
-| `lynkco.close_sunroof` | Close the sunroof | | ✅ | ❌ | t.b.c.
-| `lynkco.set_charge_limit` | Set charge limit | `percent` (50-100) | ✅ | ✅ | t.b.c.
-| `lynkco.start_charging` | Start charging | | ✅ | ✅ | ✅ |
-| `lynkco.stop_charging` | Stop charging | | ✅ | ✅ | ✅ |
-| `lynkco.start_conditioning` | Start air conditioning | `temp` (16-28) |✅ | ✅ | t.b.c.
-| `lynkco.stop_conditioning` | Stop air conditioning | | ✅ | ✅ | t.b.c
-| `lynkco.start_ventilate` | Open all windows slightly to ventilate | | ✅ |✅| t.b.c.
-| `lynkco.stop_ventilate` | Close ventilation windows | | ✅ | ✅ |  t.b.c.
-| `lynkco.start_heaters` | Start heaters | `heaters` (list) | ✅ |  t.b.c.| t.b.c. |
-| `lynkco.stop_heaters` | Stop heaters | `heaters` (list) | ✅ | t.b.c. | t.b.c. |
-| `lynkco.lock_glovebox` | Lock the glovebox | `pin` (4 digits) | ✅ | t.b.c. | t.b.c. |
-| `lynkco.unlock_glovebox` | Unlock the glovebox | | ✅ | t.b.c. | t.b.c. |
+| Service | Description | Parameters | 01 (pre-2025) | 01 (facelift) | 02 | 08 |
+|---|---|---|---|---|---|---|
+| `lynkco.refresh` | Force-refresh all sensors now | | ✅ | ✅ | ✅ | ✅ |
+| `lynkco.request_location` | Ask the car to report a fresh position | | 🚫 | ✅ | t.b.c. | t.b.c. |
+| `lynkco.lock_door` | Lock the vehicle's doors | | ✅ | ✅ | ✅ | ✅ |
+| `lynkco.unlock_door` | Unlock the vehicle's doors | | ✅ | ✅ | ✅ | ✅ |
+| `lynkco.flash_lights` | Flash the vehicle's lights | | ✅ | ✅ | ✅ | t.b.c. |
+| `lynkco.honk_horn` | Honk the horn | | ✅ | t.b.c. | ✅ | t.b.c. |
+| `lynkco.open_sunroof` | Open the sunroof | | 🚫 | ✅ | ❌ | t.b.c. |
+| `lynkco.close_sunroof` | Close the sunroof | | 🚫 | ✅ | ❌ | t.b.c. |
+| `lynkco.set_charge_limit` | Set charge limit | `percent` (50-100) | 🚫 | ✅ | ✅ | t.b.c. |
+| `lynkco.start_charging` | Start charging | | 🚫 | ✅ | ✅ | ✅ |
+| `lynkco.stop_charging` | Stop charging | | 🚫 | ✅ | ✅ | ✅ |
+| `lynkco.start_conditioning` | Start air conditioning | `temp` (16-28) | ✅ | ✅ | ✅ | t.b.c. |
+| `lynkco.stop_conditioning` | Stop air conditioning | | ✅ | ✅ | ✅ | t.b.c. |
+| `lynkco.start_ventilate` | Open all windows slightly to ventilate | | 🚫 | ✅ | ✅ | t.b.c. |
+| `lynkco.stop_ventilate` | Close ventilation windows | | 🚫 | ✅ | ✅ | t.b.c. |
+| `lynkco.start_heaters` | Start heaters | `heaters` (list) | 🚫 | ✅ | t.b.c. | t.b.c. |
+| `lynkco.stop_heaters` | Stop heaters | `heaters` (list) | 🚫 | ✅ | t.b.c. | t.b.c. |
+| `lynkco.lock_glovebox` | Lock the glovebox | `pin` (4 digits) | 🚫 | ✅ | t.b.c. | t.b.c. |
+| `lynkco.unlock_glovebox` | Unlock the glovebox | | 🚫 | ✅ | t.b.c. | t.b.c. |
 
 #### Help needed
 > [!TIP]
-> Please open an issue if you have verified a feature works which is marked as t.b.c. in this table so I can update the readme as confirmed working/not working.
+> Please open an issue if you have verified a feature works which is marked as t.b.c. or 🚫 in this table so I can update the readme and enable it. For 🚫 features, use the [model report](https://github.com/b12e/ha_lynkco_2025/issues/new?template=model_report.yml) form and attach your diagnostics download.
 
 #### Notes:
 > [!IMPORTANT]
 > A lot of the actions are only available when the doors are locked and the key is not in the vehicle.
 
 - ✅ = confirmed working on that model<br />
+- t.b.c. = enabled, not yet confirmed on that model<br />
+- 🚫 = disabled by the integration on that model until an owner confirms it works (the action returns an error explaining this)<br />
+- ❌ = the car does not have this feature<br />
 - Sunroof actions aren't available on the Lynk&Co 02 as it doesn't have a sunroof that can open.<br />
 - The glovebox locking/unlocking appears to be only possible while the vehicle is unlocked (needs confirmation). The Lynk&Co API accepts the action when the vehicle is locked, but the glovebox doesn't appear to be locking/unlocking when it is.
 - `temp` is in ºC.

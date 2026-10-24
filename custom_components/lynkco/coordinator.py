@@ -6,20 +6,46 @@ from collections.abc import Callable, Coroutine
 from datetime import datetime, timedelta
 from typing import Any
 
-from homeassistant.util import dt as dt_util
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .api import LynkCoAPI
-from .const import CLIMATE_SCAN_INTERVAL, CONF_DRIVING_INTERVAL, CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DRIVING_SCAN_INTERVAL, DOMAIN
+from .const import (
+    CLIMATE_SCAN_INTERVAL,
+    CONF_DRIVING_INTERVAL,
+    CONF_SCAN_INTERVAL,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+    DRIVING_SCAN_INTERVAL,
+    GUIDE_TYPE_NAMES,
+    LIVE_PERMISSION_FLAGS,
+    MANUFACTURER,
+    MODEL_NAMES,
+    MODEL_REPORT_URL,
+)
+from .features import ModelFeatures
 
 _LOGGER = logging.getLogger(__name__)
 
 REFRESH_RETRY_DELAYS = [3, 5, 10]
 FAST_POLL_BASE_INTERVAL = timedelta(seconds=CLIMATE_SCAN_INTERVAL)  # finest fast-poll cadence
+
+# Every data key a full snapshot carries (fuel is skipped on BEVs)
+DATA_KEYS = ("vehicle_data", "location", "charge", "climate", "doors", "fuel", "metadata")
+
+
+def dig(data, *keys):
+    """Safely traverse nested dicts, tolerating None or missing keys at any level."""
+    for key in keys:
+        if not isinstance(data, dict):
+            return None
+        data = data.get(key)
+    return data
 
 
 class LynkCoCoordinator(DataUpdateCoordinator):
@@ -32,6 +58,8 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         api: LynkCoAPI,
         vin: str,
         model: str,
+        guide_type: str | None,
+        features: ModelFeatures,
     ) -> None:
         scan_minutes = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL // 60)
         super().__init__(
@@ -43,40 +71,134 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         self.api = api
         self.vin = vin
         self.model = model
+        self.guide_type = guide_type
+        self.features = features
         self.propulsion: str | None = None  # Set after first fetch (e.g. "PHEV", "BEV")
         self.entry = entry
         self._last_fast_poll: dict[str, datetime] = {}
+        # data key -> last error message, for endpoints that failed on the latest poll
+        self.endpoint_errors: dict[str, str] = {}
 
-    async def _async_fetch_all(self) -> dict:
-        vehicle_data = await self.api.get_vehicle_data(self.vin)
-        location = await self.api.get_location(self.vin)
-        charge = await self.api.get_charge_state(self.vin)
-        climate = await self.api.get_climate_state(self.vin)
-        doors = await self.api.get_doors_windows(self.vin)
-        fuel = await self.api.get_fuel_state(self.vin) if self.propulsion != "BEV" else {}
-        metadata = await self.api.get_vehicle_metadata(self.vin)
-        return {
-            "vehicle_data": vehicle_data,
-            "location": location,
-            "charge": charge,
-            "climate": climate,
-            "doors": doors,
-            "fuel": fuel,
-            "metadata": metadata,
-            "last_updated": dt_util.now(),
+    # --- identity ---------------------------------------------------------
+
+    @property
+    def model_name(self) -> str:
+        """Human readable name: guide type (year / trim) first, model code second."""
+        if self.guide_type and self.guide_type in GUIDE_TYPE_NAMES:
+            return GUIDE_TYPE_NAMES[self.guide_type]
+        return MODEL_NAMES.get(self.model, f"Lynk & Co {self.model}")
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        vehicle = dig(self.data, "metadata", "vehicle") or {}
+        hw_parts = [str(v) for v in (vehicle.get("propulsionType"), vehicle.get("year")) if v]
+        return DeviceInfo(
+            identifiers={(DOMAIN, self.vin)},
+            name=self.model_name,
+            manufacturer=MANUFACTURER,
+            model=self.model_name,
+            model_id=self.model,
+            hw_version=" ".join(hw_parts) or None,
+            serial_number=self.vin,
+        )
+
+    # --- feature gating ---------------------------------------------------
+
+    def action_enabled(self, action: str) -> bool:
+        return self.features.action_enabled(action)
+
+    def require_action(self, action: str) -> None:
+        """Raise a translated error when an action is off for this model or blocked right now."""
+        placeholders = {
+            "action": action.replace("_", " "),
+            "model": self.model_name,
+            "model_code": self.model,
+            "guide_type": self.guide_type or "unknown",
+            "support_url": self.features.source or MODEL_REPORT_URL,
         }
+        if not self.features.action_enabled(action):
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="action_not_supported",
+                translation_placeholders=placeholders,
+            )
+        blocked = False
+        flag = LIVE_PERMISSION_FLAGS.get(action)
+        if flag and dig(self.data, "vehicle_data", flag) is False:
+            blocked = True
+        if action in ("start_ventilate", "stop_ventilate") and (
+            dig(self.data, "doors", "windowVentilateState", "enabled") is False
+        ):
+            blocked = True
+        if blocked:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="action_not_permitted",
+                translation_placeholders=placeholders,
+            )
+
+    # --- polling ----------------------------------------------------------
+
+    def _endpoints(self) -> dict[str, Callable[[], Coroutine[Any, Any, dict]]]:
+        endpoints: dict[str, Callable[[], Coroutine[Any, Any, dict]]] = {
+            "vehicle_data": lambda: self.api.get_vehicle_data(self.vin),
+            "location": lambda: self.api.get_location(self.vin),
+            "charge": lambda: self.api.get_charge_state(self.vin),
+            "climate": lambda: self.api.get_climate_state(self.vin),
+            "doors": lambda: self.api.get_doors_windows(self.vin),
+            "metadata": lambda: self.api.get_vehicle_metadata(self.vin),
+        }
+        if self.propulsion != "BEV":
+            endpoints["fuel"] = lambda: self.api.get_fuel_state(self.vin)
+        return endpoints
+
+    async def _fetch_endpoint(
+        self, key: str, fetch_fn: Callable[[], Coroutine[Any, Any, dict]]
+    ) -> dict | None:
+        """Fetch one endpoint; a failure is recorded instead of failing the whole poll."""
+        try:
+            value = await fetch_fn()
+        except Exception as err:  # noqa: BLE001 - any API error isolates this endpoint only
+            if key not in self.endpoint_errors:
+                _LOGGER.warning("Lynk & Co endpoint %s failed for %s: %s", key, self.vin, err)
+            else:
+                _LOGGER.debug("Lynk & Co endpoint %s still failing for %s: %s", key, self.vin, err)
+            self.endpoint_errors[key] = str(err)
+            return None
+        if key in self.endpoint_errors:
+            _LOGGER.info("Lynk & Co endpoint %s recovered for %s", key, self.vin)
+            self.endpoint_errors.pop(key, None)
+        return value
+
+    async def _async_fetch_all(self) -> dict | None:
+        """Fetch every endpoint; returns None only when all of them failed.
+
+        Requests stay sequential: the API client may refresh the shared token
+        after a 401, and concurrent refreshes could overwrite each other.
+        """
+        old_data = self.data or {}
+        results: dict[str, dict] = {}
+        for key, fetch_fn in self._endpoints().items():
+            value = await self._fetch_endpoint(key, fetch_fn)
+            if value is not None:
+                results[key] = value
+        if not results:
+            return None
+        # Keep the last known value for an endpoint that failed; the entities
+        # tied to it report unavailable through endpoint_errors.
+        data = {key: results.get(key, old_data.get(key, {})) for key in DATA_KEYS}
+        data["last_updated"] = dt_util.now()
+        return data
 
     async def _async_update_data(self) -> dict:
-        try:
-            data = await self._async_fetch_all()
-        except Exception as err:
+        data = await self._async_fetch_all()
+        if data is None:
+            # Everything failed at once: most likely an expired session, so try
+            # one token refresh before giving up on this cycle.
             if await self.api.refresh_tokens():
-                try:
-                    data = await self._async_fetch_all()
-                except Exception as retry_err:
-                    raise UpdateFailed(f"API error after refresh: {retry_err}") from retry_err
-            else:
-                raise UpdateFailed(f"API error: {err}") from err
+                data = await self._async_fetch_all()
+            if data is None:
+                raise UpdateFailed(f"All Lynk & Co API endpoints failed: {self.endpoint_errors}")
 
         # Store propulsion type for entity filtering
         propulsion = (data["metadata"].get("vehicle") or {}).get("propulsionType")
@@ -126,19 +248,21 @@ class LynkCoCoordinator(DataUpdateCoordinator):
             return
 
         was_driving = (self.data.get("vehicle_data") or {}).get("driveModeEnabled", False)
+        errors_before = dict(self.endpoint_errors)
         updates: dict[str, Any] = {}
         for key, fn_name in due.items():
-            try:
-                updates[key] = await getattr(self.api, fn_name)(self.vin)
+            value = await self._fetch_endpoint(key, getattr(self.api, fn_name))
+            if value is not None:
+                updates[key] = value
                 self._last_fast_poll[key] = now
-            except Exception:
-                _LOGGER.debug("Fast poll of %s failed", key)
         if not updates:
+            if self.endpoint_errors != errors_before:
+                self.async_update_listeners()  # availability changed
             return
 
         changed = any(updates[k] != self.data.get(k) for k in updates)
         self.data = {**self.data, **updates, "last_updated": dt_util.now()}
-        if changed:
+        if changed or self.endpoint_errors != errors_before:
             self.async_update_listeners()
         _LOGGER.debug("Fast-polled %s for %s (changed=%s)", list(updates), self.vin, changed)
 
@@ -163,9 +287,9 @@ class LynkCoCoordinator(DataUpdateCoordinator):
 
         for delay in REFRESH_RETRY_DELAYS:
             await asyncio.sleep(delay)
-            try:
-                new_value = await fetch_fn()
-            except Exception:
+            had_error = data_key in self.endpoint_errors
+            new_value = await self._fetch_endpoint(data_key, fetch_fn)
+            if new_value is None:
                 _LOGGER.debug("Targeted refresh of %s failed, will retry", data_key)
                 continue
 
@@ -174,5 +298,10 @@ class LynkCoCoordinator(DataUpdateCoordinator):
                 self.async_update_listeners()
                 _LOGGER.debug("Targeted refresh of %s detected change", data_key)
                 return
+            if had_error:
+                self.async_update_listeners()  # endpoint recovered, entities back
+                return
 
         _LOGGER.debug("Targeted refresh of %s: no change after %d retries", data_key, len(REFRESH_RETRY_DELAYS))
+        if data_key in self.endpoint_errors:
+            self.async_update_listeners()  # make the failure visible as unavailable

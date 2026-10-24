@@ -1,0 +1,28 @@
+{
+  "_comment": "Baseline for any model code / guide type without its own file. Only actions confirmed on every tested model are enabled; everything else stays off until an owner confirms it through the model report issue form. Keys absent from a model file inherit these values.",
+  "name": "Unknown Lynk & Co model",
+  "source": "https://github.com/b12e/ha_lynkco_2025/issues/new?template=model_report.yml",
+  "actions": {
+    "lock_door": true,
+    "unlock_door": true,
+    "flash_lights": true,
+    "honk_horn": true,
+    "start_conditioning": true,
+    "stop_conditioning": true,
+    "open_sunroof": false,
+    "close_sunroof": false,
+    "set_charge_limit": false,
+    "start_charging": false,
+    "stop_charging": false,
+    "start_ventilate": false,
+    "stop_ventilate": false,
+    "start_heaters": false,
+    "stop_heaters": false,
+    "lock_glovebox": false,
+    "unlock_glovebox": false,
+    "request_location": false
+  },
+  "entities": {
+    "sunroof": false
+  }
+}

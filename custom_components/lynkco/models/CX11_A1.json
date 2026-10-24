@@ -1,0 +1,7 @@
+{
+  "_comment": "Pre-2025 Lynk & Co 01 (original platform). Only actions confirmed by owners in https://github.com/b12e/ha_lynkco_2025/issues/33 are enabled (lock/unlock, flash, honk, conditioning), which is exactly the default set. Year-specific overrides can be added as CX11_2021_HEV.json, CX11_2021_PHEV.json, CX11_2022.json or CX11_2023.json (the guide type wins over the model code).",
+  "name": "Lynk & Co 01 (pre-2025)",
+  "source": "https://github.com/b12e/ha_lynkco_2025/issues/33",
+  "actions": {},
+  "entities": {}
+}

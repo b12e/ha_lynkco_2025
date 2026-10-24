@@ -78,14 +78,8 @@
       "last_updated_climate": { "name": "Laatst bijgewerkt (klimaat)" }
     },
     "binary_sensor": {
-      "door_front_left": { "name": "Deur linksvoor" },
-      "door_front_right": { "name": "Deur rechtsvoor" },
-      "door_rear_left": { "name": "Deur linksachter" },
-      "door_rear_right": { "name": "Deur rechtsachter" },
-      "window_front_left": { "name": "Raam linksvoor" },
-      "window_front_right": { "name": "Raam rechtsvoor" },
-      "window_rear_left": { "name": "Raam linksachter" },
-      "window_rear_right": { "name": "Raam rechtsachter" },
+      "doors": { "name": "Deuren" },
+      "windows": { "name": "Ramen" },
       "sunroof": { "name": "Schuifdak" },
       "hood": { "name": "Motorkap" },
       "trunk": { "name": "Kofferbak" },
@@ -319,6 +313,16 @@
           "description": "Voertuigidentificatienummer (optioneel bij slechts 1 geconfigureerd voertuig)"
         }
       }
+    }
+  },
+  "exceptions": {
+    "action_not_supported": { "message": "{action} is niet ingeschakeld voor de {model} ({model_code}, guide type {guide_type}): het is nog niet bevestigd dat dit werkt op dit model. Werkt het wel in de Lynk & Co-app? Meld het dan zodat het ingeschakeld kan worden: {support_url}" },
+    "action_not_permitted": { "message": "De auto staat {action} op dit moment niet toe. De meeste acties werken alleen als de auto vergrendeld is en de sleutel zich buiten de auto bevindt." }
+  },
+  "issues": {
+    "unknown_model": {
+      "title": "Onbekend Lynk & Co-model {model_code}",
+      "description": "Deze auto meldt modelcode {model_code} en guide type {guide_type}, waarvoor deze integratie nog geen functiebestand heeft. Alleen functies die op elk Lynk & Co-model werken zijn ingeschakeld (sensoren, deurslot, lichten, claxon en klimaat). Download de diagnostische gegevens via de apparaatpagina en open een modelrapport zodat de overige functies ingeschakeld kunnen worden: {report_url}"
     }
   }
 }
