@@ -71,13 +71,14 @@ Tokens are automatically refreshed. You should only need to re-authenticate if t
 > [!WARNING]
 > Lynk&Co only allows 1 device to be logged in to the app at all times. This sadly also means that, when you log in to Home Assistant, your mobile app will automatically be logged out and vice versa. The workaround is to create a Home Assistant dashboard that replaces the Lynk&Co mobile app.
 
-Since late September, Lynk&Co allows to share your car with up to 3 additional Lynk&Co accounts. You could potentially create a new account, share the car with this account, and then use that account with HA or on your mobile phone. I've so far not tested this functionality. If there are issues, please open an issue.
+> [!TIP]
+> Since late September, Lynk&Co allows to share your car with up to 3 additional Lynk&Co accounts. You could potentially create a new account, share the car with this account, and then use that account with HA or on your mobile phone. I've so far not tested this functionality. If there are issues, please open an issue.
 
 # Features
 
 Every sensor, entity and action is documented per car model in the wiki, with its status on that model:
 
-- [Lynk & Co 01 (2025)](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-01-(2025))
+- [Lynk & Co 01 (>MY2025)](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-01-(2025))
 - [Lynk & Co 02](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-02)
 - [Lynk & Co 08](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-08)
 - [Lynk & Co 01 (pre-2025)](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-01-(pre-2025))
