@@ -40,7 +40,8 @@ MODEL_NAMES = {
 
 # Guide type (GET vehicle/{vin}/vehicle_guide) → human-readable name. This is the
 # most precise identity the API offers: model year for pre-2025 01s, equipment
-# level (Core / More) for everything newer.
+# level (Core / More) and, from model year 2026 on, the year for everything newer.
+# The full list is public: https://gw.api.lynkco.biz/mobile-app/car-guide/v1/api/v1/guide/types
 GUIDE_TYPE_NAMES = {
     "CX11_2021_HEV": "Lynk & Co 01 HEV (2021)",
     "CX11_2021_PHEV": "Lynk & Co 01 PHEV (2021)",
@@ -48,8 +49,12 @@ GUIDE_TYPE_NAMES = {
     "CX11_2023": "Lynk & Co 01 (2023)",
     "CX11_CORE": "Lynk & Co 01 Core (2025)",
     "CX11_MORE": "Lynk & Co 01 More (2025)",
-    "E335_CORE": "Lynk & Co 02 Core",
-    "E335_MORE": "Lynk & Co 02 More",
+    "CX11_2026_CORE": "Lynk & Co 01 Core (2026)",
+    "CX11_2026_MORE": "Lynk & Co 01 More (2026)",
+    "E335_CORE": "Lynk & Co 02 Core (2025)",
+    "E335_MORE": "Lynk & Co 02 More (2025)",
+    "E335_2027_CORE": "Lynk & Co 02 Core (2027)",
+    "E335_2027_MORE": "Lynk & Co 02 More (2027)",
     "DX11_CORE": "Lynk & Co 08 Core",
     "DX11_MORE": "Lynk & Co 08 More",
 }
