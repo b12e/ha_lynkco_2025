@@ -1,11 +1,15 @@
 name: Release
 
+# Versions are calendar based: YYYY.M.N, where N counts the releases made in
+# that month, starting at 0 (2026.11.0 is the first release of November 2026,
+# 2026.11.1 the second). By default the next number is computed from the
+# version currently in manifest.json; pass `version` to force a specific one.
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to release (e.g. 0.3.0)"
-        required: true
+        description: "Override version (YYYY.M.N, e.g. 2026.11.0). Leave empty to auto-compute the next release for this month."
+        required: false
         type: string
 
 jobs:
@@ -21,16 +25,36 @@ jobs:
           ref: main
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Validate version format
+      - name: Compute version
+        id: version
+        env:
+          OVERRIDE: ${{ inputs.version }}
         run: |
-          if ! echo "${{ inputs.version }}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "Error: Version must be in format X.Y.Z"
+          current=$(jq -r .version custom_components/lynkco/manifest.json)
+          today=$(date -u +%Y.%-m)
+          if [ -n "$OVERRIDE" ]; then
+            if ! echo "$OVERRIDE" | grep -qE '^[0-9]{4}\.(1[0-2]|[1-9])\.[0-9]+$'; then
+              echo "::error::Version must be in format YYYY.M.N (e.g. 2026.11.0), got '$OVERRIDE'"
+              exit 1
+            fi
+            version="$OVERRIDE"
+          elif [[ "$current" == "$today."* ]]; then
+            patch="${current##*.}"
+            patch="${patch%%-*}"
+            version="${today}.$((patch + 1))"
+          else
+            version="${today}.0"
+          fi
+          if git rev-parse -q --verify "refs/tags/v${version}" >/dev/null; then
+            echo "::error::Tag v${version} already exists"
             exit 1
           fi
+          echo "Releasing ${version} (manifest was ${current})"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Update manifest.json
         run: |
-          jq --arg v "${{ inputs.version }}" '.version = $v' \
+          jq --arg v "${{ steps.version.outputs.version }}" '.version = $v' \
             custom_components/lynkco/manifest.json > manifest.tmp \
             && mv manifest.tmp custom_components/lynkco/manifest.json
 
@@ -55,7 +79,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add custom_components/lynkco/manifest.json
-          git commit -m "Bump version to ${{ inputs.version }}"
+          git commit -m "chore(release): ${{ steps.version.outputs.version }}"
           git push origin main
 
       - name: Delete all pre-releases
@@ -72,7 +96,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="v${{ inputs.version }}"
+          tag="v${{ steps.version.outputs.version }}"
           gh release create "$tag" \
             --title "$tag" \
             --notes "${{ steps.changelog.outputs.log }}" \

@@ -1,7 +1,7 @@
 # Lynk & Co Home Assistant Integration
 ![Usage counter](https://img.shields.io/badge/dynamic/json?color=41BDF5&logo=home-assistant&label=integration%20usage&suffix=%20installs&cacheSeconds=15600&url=https://raw.githubusercontent.com/b12e/hacs-b12e-usage-stats/refs/heads/main/usage.json&query=$.integrations.lynkco.total_usage) 
 
-Custom [Home Assistant](https://www.home-assistant.io/) integration for Lynk & Co vehicles (>MY25 01, 02 and 08) via [HACS](https://hacs.xyz/).
+Custom [Home Assistant](https://www.home-assistant.io/) integration for Lynk & Co vehicles (>MY25 01, 02 and 08), installable from the Home Assistant [Marketplace](https://www.home-assistant.io/integrations/marketplace/) (Home Assistant 2026.11 and newer) or [HACS](https://hacs.xyz/) (2026.10 and older).
 
 If you like the integration, make sure to show your love by giving it a ⭐. 
 
@@ -16,12 +16,24 @@ Tested on the following vehicles:
 
 Other models are currently not available on the EU market, although it is likely when they do become available they are on the same platform and will work. The documentation will be updated accordingly as soon as this happens.
 
-> **Note**: Pre-2025 Lynk & Co 01 models use a different platform and are NOT officially supported by me. [There are reports](https://github.com/b12e/ha_lynkco_2025/issues/33) that this integration works with pre-2025 Lynk&Co 01 models, but [YMMV](https://www.merriam-webster.com/slang/ymmv). If this integration doesn't work, you can try your luck with [this](https://github.com/Donkie/Hass-Lynk-Co) repo.
+> [!NOTE]
+> Pre-2025 Lynk & Co 01 models use a different platform and are NOT officially supported by me. [There are reports](https://github.com/b12e/ha_lynkco_2025/issues/33) that this integration works with pre-2025 Lynk&Co 01 models, but [YMMV](https://www.merriam-webster.com/slang/ymmv). If this integration doesn't work, you can try your luck with [this](https://github.com/Donkie/Hass-Lynk-Co) repo.
 
 # Installation
 
-## HACS (recommended)
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=b12e&repository=ha_lynkco_2025&category=integration)
+[![Open your Home Assistant instance and open this repository in the Marketplace or HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=b12e&repository=ha_lynkco_2025&category=integration)
+
+## Marketplace (Home Assistant 2026.11 and newer)
+Starting with Home Assistant 2026.11, HACS ships as part of Home Assistant itself under the name [Marketplace](https://www.home-assistant.io/integrations/marketplace/). It uses the same catalog, so this integration is available there without adding a custom repository.
+1. Go to Settings → Marketplace
+2. Search for "Lynk & Co" and click Install
+3. Restart Home Assistant
+4. Go to Settings → Devices & services → + Add Integration → Lynk & Co
+
+> [!NOTE]
+> If you installed the integration through HACS before upgrading to 2026.11, nothing changes: it stays installed and keeps receiving updates through the Marketplace.
+
+## HACS (Home Assistant 2026.10 and older)
 1. Make sure [HACS](https://hacs.xyz) is installed in your Home Assistant installation
 2. Search for "Lynk & Co" and click Download. Follow the on-screen instructions.
 3. Restart Home Assistant
@@ -39,17 +51,22 @@ The integration uses Azure AD B2C authentication with MFA in the same way the mo
 3. Open DevTools (F12) → Network tab
 4. Log in with your Lynk & Co email + password + SMS MFA code
 5. After MFA, the browser will fail to open `msauth://...`
-6. In the network tab of your developer tools, find the last request → copy the `Location` header value (note: Firefox dev tools don't show the entire header. Right click on the request and copy the response headers instead, and then get the `msauth://` header from there)
+6. In the network tab of your developer tools, find the last request → copy the `Location` header value
 7. Paste the full `msauth://...` URL back in Home Assistant
+
+> [!TIP]
+> Firefox dev tools don't show the entire header. Right click on the request and copy the response headers instead, and then get the `msauth://` header from there.
 
 This process should be similar to the HACS integration for pre-2025 Lynk&Co cars such as the [Donkie](https://github.com/Donkie/Hass-Lynk-Co) one. 
 
 Tokens are automatically refreshed. You should only need to re-authenticate if the refresh token expires (e.g. if your Home Assistant instance has been offline for an extended period of time, or when you log in on the mobile app).
 
-## ⚠️ Limitations
+## Limitations
 
-- Lynk&Co only allows 1 device to be logged in to the app at all times. This sadly also means that, when you log in to Home Assistant, your mobile app will automatically be logged out and vice versa. The workaround is to create a Home Assistant dashboard that replaces the Lynk&Co mobile app.
-- Since late September, Lynk&Co allows to share your car with up to 3 additional Lynk&Co accounts. You could potentially create a new account, share the car with this account, and then use that account with HA or on your mobile phone. I've so far not tested this functionality. If there are issues, please open an issue.
+> [!WARNING]
+> Lynk&Co only allows 1 device to be logged in to the app at all times. This sadly also means that, when you log in to Home Assistant, your mobile app will automatically be logged out and vice versa. The workaround is to create a Home Assistant dashboard that replaces the Lynk&Co mobile app.
+
+Since late September, Lynk&Co allows to share your car with up to 3 additional Lynk&Co accounts. You could potentially create a new account, share the car with this account, and then use that account with HA or on your mobile phone. I've so far not tested this functionality. If there are issues, please open an issue.
 
 # Features
 <details>
@@ -170,19 +187,23 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 | `lynkco.unlock_glovebox` | Unlock the glovebox | | ✅ | t.b.c. | t.b.c. |
 
 #### Help needed
-⚠️ Please open an issue if you have verified a feature works which is marked as t.b.c. in this table so I can update the readme as confirmed working/not working.
+> [!TIP]
+> Please open an issue if you have verified a feature works which is marked as t.b.c. in this table so I can update the readme as confirmed working/not working.
 
 #### Notes:
+> [!IMPORTANT]
+> A lot of the actions are only available when the doors are locked and the key is not in the vehicle.
+
 - ✅ = confirmed working on that model<br />
 - Sunroof actions aren't available on the Lynk&Co 02 as it doesn't have a sunroof that can open.<br />
-- A lot of the actions are only available when the doors are locked and the key is not in the vehicle.
-- The gloveblox locking/unlocking appears to be only possible while the vehicle is unlocked (needs confirmation). The Lynk&Co API accepts the action when the vehicle is locked, but the glovebox doesn't appear to be locking/unlocking when it is.
+- The glovebox locking/unlocking appears to be only possible while the vehicle is unlocked (needs confirmation). The Lynk&Co API accepts the action when the vehicle is locked, but the glovebox doesn't appear to be locking/unlocking when it is.
 - `temp` is in ºC.
 - `heaters` accepts a list of zones (see table below)
 
 
 #### Heater zones
-**Note:** Heaters require the climate system to be active first (use `start_conditioning` before `start_heaters`).
+> [!IMPORTANT]
+> Heaters require the climate system to be active first (use `start_conditioning` before `start_heaters`).
 
 | Zone | 01 | 02 | 08 |
 |---|---|---|---|
@@ -193,7 +214,8 @@ All actions (except `lynkco.refresh`) accept an optional `vin` parameter. When o
 | `steering_wheel` | ✅ * | ✅ *| ✅ * |
 | `defrost` | ✅ | ✅ | ✅ |
 
-⚠️ Zones marked with an asterisk (*) are only available on the More-models. The Core models are not equipped with these heating locations. This integration doesn't magically equip your vehicle with extra hardware :) 
+> [!NOTE]
+> Zones marked with an asterisk (*) are only available on the More-models. The Core models are not equipped with these heating locations. This integration doesn't magically equip your vehicle with extra hardware :)
 
 </details> 
 
@@ -213,6 +235,6 @@ Custom polling intervals can be configured using the gear icon after setting up 
 
 # Credits
 
-API reverse-engineered from the Lynk & Co Android app v2.55.0 and v2.63.0.
+API reverse-engineered from the Lynk & Co Android app v2.55.0 and v2.63.0, and verified against v2.67.0.
 
-This HACS plugin is not endorsed by Lynk&Co and I have no affiliation with them whatsoever.
+This integration is not endorsed by Lynk&Co and I have no affiliation with them whatsoever.

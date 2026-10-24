@@ -34,7 +34,7 @@ body:
     attributes:
       label: Integration version
       description: HACS → Lynk & Co, or the `version` field in `custom_components/lynkco/manifest.json`.
-      placeholder: e.g. 0.5.1
+      placeholder: e.g. 2026.11.0
     validations:
       required: true
 
