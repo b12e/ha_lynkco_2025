@@ -1,0 +1,22 @@
+{
+  "_comment": "Lynk & Co 08 (Core and More). Everything is enabled.",
+  "name": "Lynk & Co 08",
+  "source": "https://github.com/b12e/ha_lynkco_2025#actions-services",
+  "actions": {
+    "open_sunroof": true,
+    "close_sunroof": true,
+    "set_charge_limit": true,
+    "start_charging": true,
+    "stop_charging": true,
+    "start_ventilate": true,
+    "stop_ventilate": true,
+    "start_heaters": true,
+    "stop_heaters": true,
+    "lock_glovebox": true,
+    "unlock_glovebox": true,
+    "request_location": true
+  },
+  "entities": {
+    "sunroof": true
+  }
+}

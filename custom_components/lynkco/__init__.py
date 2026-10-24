@@ -8,11 +8,21 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import LynkCoAPI
-from .const import CONF_ACCESS_TOKEN, CONF_DEVICE_ID, CONF_REFRESH_TOKEN, CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import (
+    CONF_ACCESS_TOKEN,
+    CONF_DEVICE_ID,
+    CONF_REFRESH_TOKEN,
+    CONF_SCAN_INTERVAL,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+    MODEL_REPORT_URL,
+)
 from .coordinator import LynkCoCoordinator
+from .features import async_get_model_features
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["sensor", "binary_sensor", "device_tracker", "lock", "switch", "climate", "button"]
@@ -92,6 +102,7 @@ GLOVEBOX_LOCK_SCHEMA = vol.Schema({
     vol.Required(ATTR_PIN): vol.All(cv.string, vol.Match(r"^\d{4}$")),
 })
 
+
 def _all_vins(hass: HomeAssistant) -> list[str]:
     """Return all known VINs across all config entries."""
     vins = []
@@ -129,6 +140,15 @@ def _get_coordinator(hass: HomeAssistant, vin: str) -> LynkCoCoordinator | None:
     return None
 
 
+def _require_action(hass: HomeAssistant, vin: str, action: str) -> LynkCoCoordinator:
+    """Resolve the coordinator for a VIN and check the action is allowed on that car."""
+    coordinator = _get_coordinator(hass, vin)
+    if coordinator is None:
+        raise vol.Invalid(f"VIN {vin} not found")
+    coordinator.require_action(action)
+    return coordinator
+
+
 def _targeted_refresh(hass: HomeAssistant, vin: str, data_key: str, fetch_fn_name: str) -> None:
     """Schedule a targeted refresh of a single data key after an action."""
     coordinator = _get_coordinator(hass, vin)
@@ -138,6 +158,35 @@ def _targeted_refresh(hass: HomeAssistant, vin: str, data_key: str, fetch_fn_nam
         hass.async_create_task(
             coordinator.async_targeted_refresh(data_key, lambda: fetch_fn(vin))
         )
+
+
+def _model_report_url(model: str, guide_type: str | None) -> str:
+    """Issue form link with the identity fields prefilled."""
+    return f"{MODEL_REPORT_URL}&model_code={model}&guide_type={guide_type or ''}"
+
+
+def _update_unknown_model_issue(hass: HomeAssistant, coordinator: LynkCoCoordinator) -> None:
+    """Raise (or clear) the Repairs notice for a car without a model feature file."""
+    issue_id = f"unknown_model_{coordinator.vin}"
+    if not coordinator.features.is_default:
+        ir.async_delete_issue(hass, DOMAIN, issue_id)
+        return
+    report_url = _model_report_url(coordinator.model, coordinator.guide_type)
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        issue_id,
+        is_fixable=False,
+        is_persistent=False,
+        severity=ir.IssueSeverity.WARNING,
+        learn_more_url=report_url,
+        translation_key="unknown_model",
+        translation_placeholders={
+            "model_code": coordinator.model,
+            "guide_type": coordinator.guide_type or "unknown",
+            "report_url": report_url,
+        },
+    )
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -173,9 +222,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if not vin:
             continue
 
-        coordinator = LynkCoCoordinator(hass, entry, api, vin, model)
+        # The guide type (model year for pre-2025 01s, Core/More for newer cars)
+        # is the most precise identity the API offers; it is fetched once.
+        try:
+            guide_type = await api.get_vehicle_guide(vin)
+        except Exception as err:  # noqa: BLE001 - identity is best effort
+            _LOGGER.warning("Could not read the vehicle guide type for %s: %s", vin, err)
+            guide_type = None
+        features = await async_get_model_features(hass, guide_type, model)
+        _LOGGER.info(
+            "Vehicle %s: model %s, guide type %s, features from %s",
+            vin, model, guide_type, features.file,
+        )
+
+        coordinator = LynkCoCoordinator(hass, entry, api, vin, model, guide_type, features)
         await coordinator.async_config_entry_first_refresh()
         coordinators[vin] = coordinator
+        _update_unknown_model_issue(hass, coordinator)
         # Endpoint-specific fast polling (driving / climate active); stopped on unload
         entry.async_on_unload(coordinator.start_fast_poll())
 
@@ -198,44 +261,53 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if not hass.services.has_service(DOMAIN, SERVICE_FLASH_LIGHTS):
         async def handle_flash_lights(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_FLASH_LIGHTS)
             await _get_api(hass, vin).flash_lights(vin)
 
         async def handle_honk_horn(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_HONK_HORN)
             await _get_api(hass, vin).honk_horn(vin)
 
         async def handle_open_sunroof(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_OPEN_SUNROOF)
             await _get_api(hass, vin).open_sunroof(vin)
             _targeted_refresh(hass, vin, "doors", "get_doors_windows")
 
         async def handle_close_sunroof(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_CLOSE_SUNROOF)
             await _get_api(hass, vin).close_sunroof(vin)
             _targeted_refresh(hass, vin, "doors", "get_doors_windows")
 
         async def handle_set_charge_limit(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_SET_CHARGE_LIMIT)
             await _get_api(hass, vin).set_charge_limit(vin, call.data[ATTR_PERCENT])
             _targeted_refresh(hass, vin, "charge", "get_charge_state")
 
         async def handle_start_charging(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_START_CHARGING)
             await _get_api(hass, vin).start_charging(vin)
             _targeted_refresh(hass, vin, "charge", "get_charge_state")
 
         async def handle_stop_charging(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_STOP_CHARGING)
             await _get_api(hass, vin).stop_charging(vin)
             _targeted_refresh(hass, vin, "charge", "get_charge_state")
 
         async def handle_start_ventilate(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_START_VENTILATE)
             await _get_api(hass, vin).start_ventilate(vin)
             _targeted_refresh(hass, vin, "doors", "get_doors_windows")
 
         async def handle_stop_ventilate(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_STOP_VENTILATE)
             await _get_api(hass, vin).stop_ventilate(vin)
             _targeted_refresh(hass, vin, "doors", "get_doors_windows")
 
@@ -251,48 +323,57 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         async def handle_start_heaters(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_START_HEATERS)
             heaters = _validate_heaters(hass, vin, call.data[ATTR_HEATERS])
             await _get_api(hass, vin).start_heaters(vin, heaters)
             _targeted_refresh(hass, vin, "climate", "get_climate_state")
 
         async def handle_stop_heaters(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_STOP_HEATERS)
             heaters = _validate_heaters(hass, vin, call.data[ATTR_HEATERS])
             await _get_api(hass, vin).stop_heaters(vin, heaters)
             _targeted_refresh(hass, vin, "climate", "get_climate_state")
 
         async def handle_start_conditioning(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_START_CONDITIONING)
             await _get_api(hass, vin).start_conditioning(vin, call.data[ATTR_TEMP])
             _targeted_refresh(hass, vin, "climate", "get_climate_state")
 
         async def handle_stop_conditioning(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_STOP_CONDITIONING)
             await _get_api(hass, vin).stop_conditioning(vin)
             _targeted_refresh(hass, vin, "climate", "get_climate_state")
 
         async def handle_lock_door(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_LOCK_DOOR)
             await _get_api(hass, vin).lock_door(vin)
             _targeted_refresh(hass, vin, "vehicle_data", "get_vehicle_data")
 
         async def handle_unlock_door(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_UNLOCK_DOOR)
             await _get_api(hass, vin).unlock_door(vin)
             _targeted_refresh(hass, vin, "vehicle_data", "get_vehicle_data")
 
         async def handle_lock_glovebox(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_LOCK_GLOVEBOX)
             await _get_api(hass, vin).lock_glovebox(vin, call.data[ATTR_PIN])
             _targeted_refresh(hass, vin, "vehicle_data", "get_vehicle_data")
 
         async def handle_unlock_glovebox(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_UNLOCK_GLOVEBOX)
             await _get_api(hass, vin).unlock_glovebox(vin)
             _targeted_refresh(hass, vin, "vehicle_data", "get_vehicle_data")
 
         async def handle_request_location(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
+            _require_action(hass, vin, SERVICE_REQUEST_LOCATION)
             await _get_api(hass, vin).request_location(vin)
             _targeted_refresh(hass, vin, "location", "get_location")
 

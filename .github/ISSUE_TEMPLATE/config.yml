@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Lynk & Co 01 (pre-2025) owner?
-    url: https://github.com/Donkie/Hass-Lynk-Co
-    about: This integration does not support the pre-2025 Lynk & Co 01. Please use the Hass-Lynk-Co integration instead.
+    url: https://github.com/b12e/ha_lynkco_2025/issues/33
+    about: Pre-2025 01s work with read-only sensors plus the actions owners have confirmed. Read the current state in this issue, and use the "Model report" form to confirm more features. The Hass-Lynk-Co integration (github.com/Donkie/Hass-Lynk-Co) remains an alternative.
