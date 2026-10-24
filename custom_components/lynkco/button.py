@@ -6,9 +6,10 @@ from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, MANUFACTURER, MODEL_NAMES
+from .const import DOMAIN
 from .coordinator import LynkCoCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,9 +20,11 @@ async def async_setup_entry(
 ) -> None:
     data = hass.data[DOMAIN][entry.entry_id]
     entities = []
-    for vin, coordinator in data["coordinators"].items():
+    for coordinator in data["coordinators"].values():
         entities.append(LynkCoRefreshButton(coordinator))
-        entities.append(LynkCoRequestLocationButton(coordinator))
+        # Not inferable from the API: only on models where it is confirmed to work
+        if coordinator.action_enabled("request_location"):
+            entities.append(LynkCoRequestLocationButton(coordinator))
     async_add_entities(entities)
 
 
@@ -29,7 +32,7 @@ class LynkCoButton(ButtonEntity):
     """Base for the integration's buttons.
 
     Deliberately not a CoordinatorEntity so buttons stay available even after a
-    failed poll — that's exactly when they're most useful.
+    failed poll - that's exactly when they're most useful.
     """
 
     _attr_has_entity_name = True
@@ -42,14 +45,8 @@ class LynkCoButton(ButtonEntity):
         self._attr_translation_key = self._key
 
     @property
-    def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self.coordinator.vin)},
-            "name": MODEL_NAMES.get(self.coordinator.model, f"Lynk & Co {self.coordinator.model}"),
-            "manufacturer": MANUFACTURER,
-            "model": MODEL_NAMES.get(self.coordinator.model, self.coordinator.model),
-            "serial_number": self.coordinator.vin,
-        }
+    def device_info(self) -> DeviceInfo:
+        return self.coordinator.device_info
 
 
 class LynkCoRefreshButton(LynkCoButton):
@@ -70,6 +67,7 @@ class LynkCoRequestLocationButton(LynkCoButton):
     _key = "request_location"
 
     async def async_press(self) -> None:
+        self.coordinator.require_action("request_location")
         _LOGGER.info("Location update requested for %s", self.coordinator.vin)
         await self.coordinator.api.request_location(self.coordinator.vin)
         # The car acknowledges immediately but pushes the position a few seconds

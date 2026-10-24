@@ -5,3 +5,7 @@
 .DS_Store
 .metals/
 .vscode/
+
+# Python
+__pycache__/
+.pytest_cache/

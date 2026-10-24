@@ -13,10 +13,10 @@ from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, MANUFACTURER, MODEL_NAMES
+from .const import DOMAIN
 from .coordinator import LynkCoCoordinator
+from .entity import LynkCoEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,14 +30,13 @@ async def async_setup_entry(
 ) -> None:
     data = hass.data[DOMAIN][entry.entry_id]
     entities = []
-    for vin, coordinator in data["coordinators"].items():
+    for coordinator in data["coordinators"].values():
         entities.append(LynkCoClimate(coordinator, data["api"]))
     async_add_entities(entities)
 
 
-class LynkCoClimate(CoordinatorEntity, RestoreEntity, ClimateEntity):
-    _attr_has_entity_name = True
-    _attr_translation_key = "climate"
+class LynkCoClimate(LynkCoEntity, RestoreEntity, ClimateEntity):
+    _data_key = "climate"
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_target_temperature_step = 1
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.AUTO]
@@ -49,9 +48,8 @@ class LynkCoClimate(CoordinatorEntity, RestoreEntity, ClimateEntity):
     _enable_turn_on_off_backwards_compatibility = False
 
     def __init__(self, coordinator: LynkCoCoordinator, api) -> None:
-        super().__init__(coordinator)
+        super().__init__(coordinator, "climate")
         self._api = api
-        self._attr_unique_id = f"{coordinator.vin}_climate"
         # The API's targetTemperature reflects the in-car setting, not the
         # temperature sent with a remote start_conditioning, so we remember
         # the last value we set ourselves (restored across restarts below).
@@ -65,16 +63,6 @@ class LynkCoClimate(CoordinatorEntity, RestoreEntity, ClimateEntity):
                 self._target_temp = float(last_state.attributes["temperature"])
             except (ValueError, TypeError):
                 self._target_temp = None
-
-    @property
-    def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self.coordinator.vin)},
-            "name": MODEL_NAMES.get(self.coordinator.model, f"Lynk & Co {self.coordinator.model}"),
-            "manufacturer": MANUFACTURER,
-            "model": MODEL_NAMES.get(self.coordinator.model, self.coordinator.model),
-            "serial_number": self.coordinator.vin,
-        }
 
     @property
     def _climate(self) -> dict:
@@ -127,6 +115,7 @@ class LynkCoClimate(CoordinatorEntity, RestoreEntity, ClimateEntity):
         temp = kwargs.get(ATTR_TEMPERATURE)
         if temp is None:
             return
+        self.coordinator.require_action("start_conditioning")
         _LOGGER.info("Setting climate temperature to %s for %s", temp, self.coordinator.vin)
         self._target_temp = float(temp)
         self.async_write_ha_state()
@@ -140,12 +129,14 @@ class LynkCoClimate(CoordinatorEntity, RestoreEntity, ClimateEntity):
             await self.async_turn_on()
 
     async def async_turn_on(self) -> None:
+        self.coordinator.require_action("start_conditioning")
         temp = self.target_temperature or DEFAULT_TARGET_TEMP
         _LOGGER.info("Starting climate for %s", self.coordinator.vin)
         await self._api.start_conditioning(self.coordinator.vin, int(round(temp)))
         self._refresh_climate()
 
     async def async_turn_off(self) -> None:
+        self.coordinator.require_action("stop_conditioning")
         _LOGGER.info("Stopping climate for %s", self.coordinator.vin)
         await self._api.stop_conditioning(self.coordinator.vin)
         self._refresh_climate()

@@ -78,14 +78,8 @@
       "last_updated_climate": { "name": "Dernière mise à jour (climatisation)" }
     },
     "binary_sensor": {
-      "door_front_left": { "name": "Porte avant gauche" },
-      "door_front_right": { "name": "Porte avant droite" },
-      "door_rear_left": { "name": "Porte arrière gauche" },
-      "door_rear_right": { "name": "Porte arrière droite" },
-      "window_front_left": { "name": "Vitre avant gauche" },
-      "window_front_right": { "name": "Vitre avant droite" },
-      "window_rear_left": { "name": "Vitre arrière gauche" },
-      "window_rear_right": { "name": "Vitre arrière droite" },
+      "doors": { "name": "Portes" },
+      "windows": { "name": "Vitres" },
       "sunroof": { "name": "Toit ouvrant" },
       "hood": { "name": "Capot" },
       "trunk": { "name": "Coffre" },
@@ -319,6 +313,16 @@
           "description": "Numéro d'identification du véhicule (optionnel si un seul véhicule)"
         }
       }
+    }
+  },
+  "exceptions": {
+    "action_not_supported": { "message": "{action} n'est pas activé pour la {model} ({model_code}, type de guide {guide_type}) : son fonctionnement n'a pas encore été confirmé sur ce modèle. Si cela fonctionne dans l'application Lynk & Co, merci de le signaler pour qu'il puisse être activé : {support_url}" },
+    "action_not_permitted": { "message": "La voiture n'autorise pas {action} pour le moment. La plupart des actions ne fonctionnent que lorsque la voiture est verrouillée et que la clé se trouve hors du véhicule." }
+  },
+  "issues": {
+    "unknown_model": {
+      "title": "Modèle Lynk & Co inconnu {model_code}",
+      "description": "Cette voiture indique le code modèle {model_code} et le type de guide {guide_type}, pour lesquels cette intégration n'a pas encore de fichier de fonctionnalités. Seules les fonctionnalités communes à tous les modèles Lynk & Co sont activées (capteurs, verrouillage des portes, feux, klaxon et climatisation). Téléchargez les diagnostics depuis la page de l'appareil et ouvrez un rapport de modèle pour que les autres fonctionnalités puissent être activées : {report_url}"
     }
   }
 }

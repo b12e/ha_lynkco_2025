@@ -6,39 +6,77 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, MANUFACTURER, MODEL_NAMES
+from .const import DOMAIN
 from .coordinator import LynkCoCoordinator
+from .entity import LynkCoEntity
 
-BINARY_SENSOR_TYPES: list[dict] = [
-    {"key": "door_front_left", "name": "Front left door", "field": "doorFrontLeftStatus", "device_class": BinarySensorDeviceClass.DOOR},
-    {"key": "door_front_right", "name": "Front right door", "field": "doorFrontRightStatus", "device_class": BinarySensorDeviceClass.DOOR},
-    {"key": "door_rear_left", "name": "Rear left door", "field": "doorRearLeftStatus", "device_class": BinarySensorDeviceClass.DOOR},
-    {"key": "door_rear_right", "name": "Rear right door", "field": "doorRearRightStatus", "device_class": BinarySensorDeviceClass.DOOR},
-    {"key": "window_front_left", "name": "Front left window", "field": "windowFrontLeftStatus", "device_class": BinarySensorDeviceClass.WINDOW},
-    {"key": "window_front_right", "name": "Front right window", "field": "windowFrontRightStatus", "device_class": BinarySensorDeviceClass.WINDOW},
-    {"key": "window_rear_left", "name": "Rear left window", "field": "windowRearLeftStatus", "device_class": BinarySensorDeviceClass.WINDOW},
-    {"key": "window_rear_right", "name": "Rear right window", "field": "windowRearRightStatus", "device_class": BinarySensorDeviceClass.WINDOW},
-    {"key": "sunroof", "name": "Sunroof", "field": "sunroofStatus", "device_class": BinarySensorDeviceClass.WINDOW, "exclude_models": ["E335"]},
-    {"key": "hood", "name": "Hood", "field": "hoodStatus", "device_class": BinarySensorDeviceClass.DOOR},
-    {"key": "trunk", "name": "Trunk", "field": "trunkStatus", "device_class": BinarySensorDeviceClass.DOOR},
+# One sensor per group of openings; the individual positions are attributes.
+GROUPED_SENSOR_TYPES: list[dict] = [
+    {
+        "key": "doors",
+        "device_class": BinarySensorDeviceClass.DOOR,
+        "fields": {
+            "front_left": "doorFrontLeftStatus",
+            "front_right": "doorFrontRightStatus",
+            "rear_left": "doorRearLeftStatus",
+            "rear_right": "doorRearRightStatus",
+        },
+    },
+    {
+        "key": "windows",
+        "device_class": BinarySensorDeviceClass.WINDOW,
+        "fields": {
+            "front_left": "windowFrontLeftStatus",
+            "front_right": "windowFrontRightStatus",
+            "rear_left": "windowRearLeftStatus",
+            "rear_right": "windowRearRightStatus",
+        },
+    },
+]
+
+DOORS_SENSOR_TYPES: list[dict] = [
+    # "entity_key" is looked up in the model feature file (not inferable from the API)
+    {"key": "sunroof", "field": "sunroofStatus", "device_class": BinarySensorDeviceClass.WINDOW, "entity_key": "sunroof"},
+    {"key": "hood", "field": "hoodStatus", "device_class": BinarySensorDeviceClass.DOOR},
+    {"key": "trunk", "field": "trunkStatus", "device_class": BinarySensorDeviceClass.DOOR},
 ]
 
 VEHICLE_DATA_BINARY_SENSORS: list[dict] = [
-    {"key": "car_running", "name": "Car running", "field": "driveModeEnabled", "device_class": BinarySensorDeviceClass.RUNNING, "icon": "mdi:car"},
+    {"key": "car_running", "field": "driveModeEnabled", "device_class": BinarySensorDeviceClass.RUNNING, "icon": "mdi:car"},
 ]
+
+# Per-door / per-window sensors replaced by the grouped ones; their registry
+# entries are removed so no orphaned "restored" entities linger.
+RETIRED_KEYS = (
+    "door_front_left", "door_front_right", "door_rear_left", "door_rear_right",
+    "window_front_left", "window_front_right", "window_rear_left", "window_rear_right",
+)
+
+
+def _remove_retired_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    registry = er.async_get(hass)
+    for reg_entry in er.async_entries_for_config_entry(registry, entry.entry_id):
+        if reg_entry.domain != "binary_sensor":
+            continue
+        if any(reg_entry.unique_id.endswith(f"_{key}") for key in RETIRED_KEYS):
+            registry.async_remove(reg_entry.entity_id)
 
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
+    _remove_retired_entities(hass, entry)
     data = hass.data[DOMAIN][entry.entry_id]
     entities = []
-    for vin, coordinator in data["coordinators"].items():
-        for sensor_type in BINARY_SENSOR_TYPES:
-            if coordinator.model in sensor_type.get("exclude_models", []):
+    for coordinator in data["coordinators"].values():
+        for sensor_type in GROUPED_SENSOR_TYPES:
+            entities.append(LynkCoGroupedBinarySensor(coordinator, sensor_type))
+        for sensor_type in DOORS_SENSOR_TYPES:
+            entity_key = sensor_type.get("entity_key")
+            if entity_key and not coordinator.features.entity_enabled(entity_key):
                 continue
             entities.append(LynkCoBinarySensor(coordinator, sensor_type))
         for sensor_type in VEHICLE_DATA_BINARY_SENSORS:
@@ -46,61 +84,67 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class LynkCoBinarySensor(CoordinatorEntity, BinarySensorEntity):
-    _attr_has_entity_name = True
+def _is_open(value) -> bool | None:
+    if value is None:
+        return None
+    return value != "CLOSED"
+
+
+class LynkCoGroupedBinarySensor(LynkCoEntity, BinarySensorEntity):
+    """On when any opening in the group is not closed; attributes show each one."""
+
+    _data_key = "doors"
 
     def __init__(self, coordinator: LynkCoCoordinator, sensor_type: dict) -> None:
-        super().__init__(coordinator)
-        self._sensor_type = sensor_type
-        self._attr_unique_id = f"{coordinator.vin}_{sensor_type['key']}"
-        self._attr_translation_key = sensor_type["key"]
+        super().__init__(coordinator, sensor_type["key"])
+        self._fields: dict[str, str] = sensor_type["fields"]
         self._attr_device_class = sensor_type["device_class"]
 
-    @property
-    def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self.coordinator.vin)},
-            "name": MODEL_NAMES.get(self.coordinator.model, f"Lynk & Co {self.coordinator.model}"),
-            "manufacturer": MANUFACTURER,
-            "model": MODEL_NAMES.get(self.coordinator.model, self.coordinator.model),
-            "serial_number": self.coordinator.vin,
-        }
+    def _states(self) -> dict[str, bool | None]:
+        doors = (self.coordinator.data or {}).get("doors") or {}
+        return {name: _is_open(doors.get(field)) for name, field in self._fields.items()}
 
     @property
     def is_on(self) -> bool | None:
-        if self.coordinator.data is None:
+        states = self._states()
+        known = [state for state in states.values() if state is not None]
+        if not known:
             return None
-        doors = self.coordinator.data.get("doors", {})
-        value = doors.get(self._sensor_type["field"])
-        if value is None:
-            return None
-        return value != "CLOSED"
+        return any(known)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, str]:
+        return {
+            name: "unknown" if state is None else ("open" if state else "closed")
+            for name, state in self._states().items()
+        }
 
 
-class LynkCoVehicleDataBinarySensor(CoordinatorEntity, BinarySensorEntity):
-    _attr_has_entity_name = True
+class LynkCoBinarySensor(LynkCoEntity, BinarySensorEntity):
+    _data_key = "doors"
 
     def __init__(self, coordinator: LynkCoCoordinator, sensor_type: dict) -> None:
-        super().__init__(coordinator)
-        self._sensor_type = sensor_type
-        self._attr_unique_id = f"{coordinator.vin}_{sensor_type['key']}"
-        self._attr_translation_key = sensor_type["key"]
+        super().__init__(coordinator, sensor_type["key"])
+        self._field = sensor_type["field"]
+        self._attr_device_class = sensor_type["device_class"]
+
+    @property
+    def is_on(self) -> bool | None:
+        doors = (self.coordinator.data or {}).get("doors") or {}
+        return _is_open(doors.get(self._field))
+
+
+class LynkCoVehicleDataBinarySensor(LynkCoEntity, BinarySensorEntity):
+    _data_key = "vehicle_data"
+
+    def __init__(self, coordinator: LynkCoCoordinator, sensor_type: dict) -> None:
+        super().__init__(coordinator, sensor_type["key"])
+        self._field = sensor_type["field"]
         self._attr_device_class = sensor_type["device_class"]
         if "icon" in sensor_type:
             self._attr_icon = sensor_type["icon"]
 
     @property
-    def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self.coordinator.vin)},
-            "name": MODEL_NAMES.get(self.coordinator.model, f"Lynk & Co {self.coordinator.model}"),
-            "manufacturer": MANUFACTURER,
-            "model": MODEL_NAMES.get(self.coordinator.model, self.coordinator.model),
-            "serial_number": self.coordinator.vin,
-        }
-
-    @property
     def is_on(self) -> bool | None:
-        if self.coordinator.data is None:
-            return None
-        return self.coordinator.data.get("vehicle_data", {}).get(self._sensor_type["field"])
+        vehicle_data = (self.coordinator.data or {}).get("vehicle_data") or {}
+        return vehicle_data.get(self._field)

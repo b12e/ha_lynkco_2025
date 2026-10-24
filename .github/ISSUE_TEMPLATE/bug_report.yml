@@ -13,9 +13,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        ⚠️ **The Lynk & Co 01 (pre-2025) is not supported by this integration.**
-
-        If you have a **pre-2025 01**, please use [Hass-Lynk-Co](https://github.com/Donkie/Hass-Lynk-Co) instead — reports for that model will be closed here.
+        ℹ️ **Pre-2025 Lynk & Co 01, or a model the integration does not know yet?** Only read-only sensors and confirmed actions are enabled on those cars. To get more features enabled, use the **Model report** form instead of a bug report, and attach the diagnostics file (Settings → Devices & services → Lynk & Co → your car → ⋮ → Download diagnostics).
 
   - type: checkboxes
     id: preflight
@@ -53,6 +51,7 @@ body:
       label: Car model
       options:
         - Lynk & Co 01 (2025)
+        - Lynk & Co 01 (pre-2025)
         - Lynk & Co 02
         - Lynk & Co 08
         - Other / not listed
@@ -117,7 +116,9 @@ body:
 
         Logs can also be found at Settings → System → Logs, or in the `home-assistant.log` file.
 
-        ⚠️ **Please redact sensitive data before posting** — your VIN, access/refresh tokens, email address, and GPS coordinates can appear in the logs.
+        The API responses in the debug log are redacted automatically (VIN, tokens, coordinates, addresses). A **diagnostics download** (device page → ⋮ → Download diagnostics) is redacted too and is often the fastest way to see what the car reports, so feel free to attach it.
+
+        ⚠️ **Please still check for sensitive data before posting** — other log lines can contain your email address or VIN.
       render: text
     validations:
       required: true

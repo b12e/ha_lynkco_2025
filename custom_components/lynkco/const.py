@@ -29,14 +29,42 @@ SIGNATURE_BASE_URLS = [
     f"{API_BASE}/mobile-app/car-sharing/v1/",
 ]
 
-# Polling
-# Model code → human-readable name
+# Model code (vehicle.model) → human-readable name. The app knows exactly these
+# four codes plus UNKNOWN; CX11_A1 is the original 01, CX11_A3 the 2025 facelift.
 MODEL_NAMES = {
-    "CX11_A1": "Lynk & Co 01",
+    "CX11_A1": "Lynk & Co 01 (pre-2025)",
     "CX11_A3": "Lynk & Co 01 (2025)",
     "E335": "Lynk & Co 02",
     "DX11": "Lynk & Co 08",
 }
+
+# Guide type (GET vehicle/{vin}/vehicle_guide) → human-readable name. This is the
+# most precise identity the API offers: model year for pre-2025 01s, equipment
+# level (Core / More) for everything newer.
+GUIDE_TYPE_NAMES = {
+    "CX11_2021_HEV": "Lynk & Co 01 HEV (2021)",
+    "CX11_2021_PHEV": "Lynk & Co 01 PHEV (2021)",
+    "CX11_2022": "Lynk & Co 01 (2022)",
+    "CX11_2023": "Lynk & Co 01 (2023)",
+    "CX11_CORE": "Lynk & Co 01 Core (2025)",
+    "CX11_MORE": "Lynk & Co 01 More (2025)",
+    "E335_CORE": "Lynk & Co 02 Core",
+    "E335_MORE": "Lynk & Co 02 More",
+    "DX11_CORE": "Lynk & Co 08 Core",
+    "DX11_MORE": "Lynk & Co 08 More",
+}
+PRE_2025_GUIDE_TYPES = {"CX11_2021_HEV", "CX11_2021_PHEV", "CX11_2022", "CX11_2023"}
+
+ISSUE_TRACKER = "https://github.com/b12e/ha_lynkco_2025"
+MODEL_REPORT_URL = f"{ISSUE_TRACKER}/issues/new?template=model_report.yml"
+
+# Live permission flags in vehicle_data that gate an action at call time
+LIVE_PERMISSION_FLAGS = {
+    "flash_lights": "flashingPermitted",
+    "honk_horn": "honkingPermitted",
+}
+
+# Polling
 
 DEFAULT_SCAN_INTERVAL = 900  # 15 minutes
 DRIVING_SCAN_INTERVAL = 60  # 1 minute when car is running
