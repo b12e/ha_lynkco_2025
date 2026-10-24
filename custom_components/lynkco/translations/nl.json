@@ -25,7 +25,9 @@
       "no_vehicles": "Geen voertuigen gevonden op dit account"
     },
     "abort": {
-      "already_configured": "Dit account is al geconfigureerd"
+      "already_configured": "Dit account is al geconfigureerd",
+      "reauth_successful": "Opnieuw aanmelden is gelukt.",
+      "wrong_account": "Het account waarmee je bent ingelogd is niet het account van deze integratie. Log in met hetzelfde Lynk & Co-account."
     }
   },
   "options": {
