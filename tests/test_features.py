@@ -66,7 +66,7 @@ def test_pre_2025_01_only_gets_basics():
     assert resolved.file == "CX11_A1"
     assert enabled_actions(resolved) == BASICS
     assert resolved.entity_enabled("sunroof") is False
-    assert "issues/33" in resolved.source
+    assert "pre-2025" in resolved.source
 
 
 @pytest.mark.parametrize("model", ["CX11_A3", "DX11"])

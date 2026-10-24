@@ -1,7 +1,7 @@
 {
   "_comment": "Lynk & Co 02 (Core and More). The 02 has no opening sunroof, so the sunroof sensor and actions stay off.",
   "name": "Lynk & Co 02",
-  "source": "https://github.com/b12e/ha_lynkco_2025#actions-services",
+  "source": "https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-02",
   "actions": {
     "open_sunroof": false,
     "close_sunroof": false,
