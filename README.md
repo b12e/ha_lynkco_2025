@@ -98,7 +98,7 @@ Custom polling intervals can be configured using the gear icon after setting up 
 
 # Screenshot
 
-![screenshot](screenshot.png)
+<img width="1260" height="871" alt="image" src="https://github.com/user-attachments/assets/bc763f0a-7b3a-44d6-917f-8ea24ba05ce2" />
 
 # Credits
 
