@@ -78,10 +78,10 @@ Tokens are automatically refreshed. You should only need to re-authenticate if t
 
 Every sensor, entity and action is documented per car model in the wiki, with its status on that model:
 
-- [Lynk & Co 01 (>MY2025)](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-01-(2025))
+- [Lynk & Co 01 (>MY2025)](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-&-Co-01-(2025-Facelift))
 - [Lynk & Co 02](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-02)
 - [Lynk & Co 08](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-08)
-- [Lynk & Co 01 (pre-2025)](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-01-(pre-2025))
+- [Lynk & Co 01 (pre-2025)](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-&-Co-01-(2021%E2%80%902024))
 
 In short: battery, fuel (PHEV), climate and heater sensors, odometer and address, grouped door and window sensors, a GPS device tracker, door and glovebox locks, a charging switch, a climate entity, refresh and update-location buttons, and `lynkco.*` actions for everything the official app can do remotely (lock, lights, horn, sunroof, charging, charge limit, climate, ventilation, heaters, glovebox, location request). The [wiki home page](https://github.com/b12e/ha_lynkco_2025/wiki) explains how a feature gets its status on a model and how to confirm one.
 
