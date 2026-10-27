@@ -25,7 +25,9 @@
       "no_vehicles": "No vehicles found on this account"
     },
     "abort": {
-      "already_configured": "This account is already configured"
+      "already_configured": "This account is already configured",
+      "reauth_successful": "Re-authentication was successful.",
+      "wrong_account": "The account you logged in with is not the one configured for this entry. Log in with the same Lynk & Co account."
     }
   },
   "options": {
@@ -78,14 +80,8 @@
       "last_updated_climate": { "name": "Last updated (climate)" }
     },
     "binary_sensor": {
-      "door_front_left": { "name": "Front left door" },
-      "door_front_right": { "name": "Front right door" },
-      "door_rear_left": { "name": "Rear left door" },
-      "door_rear_right": { "name": "Rear right door" },
-      "window_front_left": { "name": "Front left window" },
-      "window_front_right": { "name": "Front right window" },
-      "window_rear_left": { "name": "Rear left window" },
-      "window_rear_right": { "name": "Rear right window" },
+      "doors": { "name": "Doors" },
+      "windows": { "name": "Windows" },
       "sunroof": { "name": "Sunroof" },
       "hood": { "name": "Hood" },
       "trunk": { "name": "Trunk" },
@@ -319,6 +315,16 @@
           "description": "Vehicle Identification Number (optional if only one vehicle)"
         }
       }
+    }
+  },
+  "exceptions": {
+    "action_not_supported": { "message": "{action} is not enabled for the {model} ({model_code}, guide type {guide_type}): it has not been confirmed to work on this model yet. If it works for you in the Lynk & Co app, please report it so it can be enabled: {support_url}" },
+    "action_not_permitted": { "message": "The car does not allow {action} right now. Most actions only work while the car is locked and the key is outside the vehicle." }
+  },
+  "issues": {
+    "unknown_model": {
+      "title": "Unknown Lynk & Co model {model_code}",
+      "description": "This car reports model code {model_code} and guide type {guide_type}, which this integration has no feature file for yet. Only features that work on every Lynk & Co model are enabled (sensors, door lock, lights, horn and climate). Please download the diagnostics from the device page and open a model report so the remaining features can be enabled: {report_url}"
     }
   }
 }

@@ -1,0 +1,102 @@
+name: Model report
+description: Report which features work on your Lynk & Co, so they can be enabled for your model (pre-2025 01, or a model the integration does not know yet)
+title: "[Model]: "
+labels: ["model-support", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping! 🚗
+
+        The integration only enables remote actions that are confirmed to work on your car's model. Everything you confirm here can be switched on in the next release.
+
+        **Please attach the diagnostics file**: Settings → Devices & services → Lynk & Co → your car → ⋮ → **Download diagnostics**. It is redacted (no VIN, tokens, coordinates or addresses) and tells exactly what your car reports.
+
+  - type: input
+    id: model_code
+    attributes:
+      label: Model code
+      description: From the diagnostics file (`model_code`), or the device page (Model ID). Prefilled when you came here from a Home Assistant repair.
+      placeholder: e.g. CX11_A1
+    validations:
+      required: true
+
+  - type: input
+    id: guide_type
+    attributes:
+      label: Guide type
+      description: From the diagnostics file (`guide_type`). Pre-2025 01s report their model year (CX11_2022, CX11_2023, ...), newer cars their equipment level (CX11_MORE, E335_CORE, ...).
+      placeholder: e.g. CX11_2023
+    validations:
+      required: false
+
+  - type: input
+    id: model_year
+    attributes:
+      label: Car model and year
+      placeholder: e.g. Lynk & Co 01 PHEV, 2023
+    validations:
+      required: true
+
+  - type: input
+    id: integration_version
+    attributes:
+      label: Integration version
+      placeholder: e.g. 2026.11.0
+    validations:
+      required: true
+
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+      placeholder: e.g. 2026.11.0
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: works
+    attributes:
+      label: Confirmed working
+      description: Tick every action you tested from Home Assistant (Developer tools → Actions) and that had the expected effect on the car. Only tick what you actually saw working.
+      options:
+        - label: "`lynkco.request_location` (car reports a fresh position within seconds)"
+        - label: "`lynkco.open_sunroof` / `lynkco.close_sunroof`"
+        - label: "`lynkco.set_charge_limit`"
+        - label: "`lynkco.start_charging`"
+        - label: "`lynkco.stop_charging`"
+        - label: "`lynkco.start_ventilate` / `lynkco.stop_ventilate`"
+        - label: "`lynkco.start_heaters` / `lynkco.stop_heaters` (with conditioning active)"
+        - label: "`lynkco.lock_glovebox` / `lynkco.unlock_glovebox`"
+
+  - type: checkboxes
+    id: no_effect
+    attributes:
+      label: Tested, no effect
+      description: Tick the actions you tested that did nothing (the API accepted the command but the car did not react, or an error was returned).
+      options:
+        - label: "`lynkco.request_location`"
+        - label: "`lynkco.open_sunroof` / `lynkco.close_sunroof`"
+        - label: "`lynkco.set_charge_limit`"
+        - label: "`lynkco.start_charging`"
+        - label: "`lynkco.stop_charging`"
+        - label: "`lynkco.start_ventilate` / `lynkco.stop_ventilate`"
+        - label: "`lynkco.start_heaters` / `lynkco.stop_heaters`"
+        - label: "`lynkco.lock_glovebox` / `lynkco.unlock_glovebox`"
+        - label: "Something in the basics (lock/unlock, lights, horn, climate) does NOT work either (describe below)"
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics file
+      description: Drag the downloaded diagnostics JSON file into this field. Please also mention any sensor that shows a wrong or never-updating value.
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything else worth knowing, such as which actions you did not test and why, or how the car behaves in the official app.
+    validations:
+      required: false

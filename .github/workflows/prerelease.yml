@@ -9,6 +9,8 @@ on:
 jobs:
   prerelease:
     runs-on: ubuntu-latest
+    # Dependency bumps are merged automatically; they don't need a testable build.
+    if: github.actor != 'dependabot[bot]'
     permissions:
       contents: write
 
@@ -17,18 +19,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get current version from manifest
-        id: current
-        run: |
-          version=$(jq -r .version custom_components/lynkco/manifest.json)
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-
-      - name: Bump patch version for pre-release
+      - name: Compute pre-release version
         id: prerelease
         run: |
-          IFS='.' read -r major minor patch <<< "${{ steps.current.outputs.version }}"
-          new_patch=$((patch + 1))
-          version="${major}.${minor}.${new_patch}-pr${{ github.event.pull_request.number }}"
+          # Same calendar scheme as release.yml (YYYY.M.N): the version this PR
+          # would become if released today, suffixed with the PR number.
+          current=$(jq -r .version custom_components/lynkco/manifest.json)
+          today=$(date -u +%Y.%-m)
+          if [[ "$current" == "$today."* ]]; then
+            patch="${current##*.}"
+            patch="${patch%%-*}"
+            next="${today}.$((patch + 1))"
+          else
+            next="${today}.0"
+          fi
+          version="${next}-pr${{ github.event.pull_request.number }}"
+          echo "Pre-release ${version} (manifest is ${current})"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Delete existing pre-release for this PR

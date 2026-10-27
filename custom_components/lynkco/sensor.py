@@ -11,16 +11,17 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfEnergy, UnitOfLength, UnitOfPower, UnitOfTemperature, UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, MANUFACTURER, MODEL_NAMES
+from .const import DOMAIN
 from .coordinator import LynkCoCoordinator
+from .entity import LynkCoEntity
 
 
 SENSOR_TYPES: list[dict] = [
     {
         "key": "battery_level",
+        "data_key": "charge",
         "name": "Battery level",
         "icon": "mdi:battery",
         "device_class": SensorDeviceClass.BATTERY,
@@ -30,6 +31,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "battery_range",
+        "data_key": "charge",
         "name": "Electric range",
         "icon": "mdi:map-marker-distance",
         "device_class": SensorDeviceClass.DISTANCE,
@@ -39,6 +41,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "charging_status",
+        "data_key": "charge",
         "name": "Charging status",
         "icon": "mdi:ev-station",
         "device_class": SensorDeviceClass.ENUM,
@@ -48,6 +51,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "charging_speed",
+        "data_key": "charge",
         "name": "Charging speed",
         "icon": "mdi:flash",
         "device_class": SensorDeviceClass.POWER,
@@ -57,6 +61,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "charging_time_remaining",
+        "data_key": "charge",
         "name": "Charging time remaining",
         "icon": "mdi:timer-sand",
         "device_class": SensorDeviceClass.DURATION,
@@ -66,6 +71,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "charge_limit",
+        "data_key": "charge",
         "name": "Charge limit",
         "icon": "mdi:battery-lock",
         "device_class": None,
@@ -75,6 +81,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "power_consumption",
+        "data_key": "charge",
         "name": "Average electric consumption",
         "icon": "mdi:meter-electric",
         "device_class": None,
@@ -84,6 +91,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "interior_temperature",
+        "data_key": "climate",
         "name": "Interior temperature",
         "icon": "mdi:thermometer",
         "device_class": SensorDeviceClass.TEMPERATURE,
@@ -93,6 +101,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "target_temperature",
+        "data_key": "climate",
         "name": "Target temperature",
         "icon": "mdi:thermometer-auto",
         "device_class": SensorDeviceClass.TEMPERATURE,
@@ -102,6 +111,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "climate_status",
+        "data_key": "climate",
         "name": "Climate status",
         "icon": "mdi:air-conditioner",
         "device_class": SensorDeviceClass.ENUM,
@@ -111,6 +121,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "heater_steering_wheel",
+        "data_key": "climate",
         "name": "Steering wheel heater",
         "icon": "mdi:steering",
         "device_class": SensorDeviceClass.ENUM,
@@ -121,6 +132,8 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "heater_windshield",
+        "data_key": "climate",
+        "heater_key": "windshield",
         "name": "Windshield heater",
         "icon": "mdi:car-defrost-front",
         "device_class": SensorDeviceClass.ENUM,
@@ -130,6 +143,8 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "heater_front_left_seat",
+        "data_key": "climate",
+        "heater_key": "frontLeftSeat",
         "name": "Front left seat heater",
         "icon": "mdi:car-seat-heater",
         "device_class": SensorDeviceClass.ENUM,
@@ -139,6 +154,8 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "heater_front_right_seat",
+        "data_key": "climate",
+        "heater_key": "frontRightSeat",
         "name": "Front right seat heater",
         "icon": "mdi:car-seat-heater",
         "device_class": SensorDeviceClass.ENUM,
@@ -148,6 +165,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "heater_rear_left_seat",
+        "data_key": "climate",
         "name": "Rear left seat heater",
         "icon": "mdi:car-seat-heater",
         "device_class": SensorDeviceClass.ENUM,
@@ -158,6 +176,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "heater_rear_center_seat",
+        "data_key": "climate",
         "name": "Rear center seat heater",
         "icon": "mdi:car-seat-heater",
         "device_class": SensorDeviceClass.ENUM,
@@ -168,6 +187,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "heater_rear_right_seat",
+        "data_key": "climate",
         "name": "Rear right seat heater",
         "icon": "mdi:car-seat-heater",
         "device_class": SensorDeviceClass.ENUM,
@@ -178,6 +198,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "lock_status",
+        "data_key": "vehicle_data",
         "name": "Central lock",
         "icon": "mdi:car-door-lock",
         "device_class": SensorDeviceClass.ENUM,
@@ -187,6 +208,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "address",
+        "data_key": "location",
         "name": "Address",
         "icon": "mdi:map-marker",
         "device_class": None,
@@ -196,6 +218,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "fuel_level",
+        "data_key": "fuel",
         "name": "Fuel level",
         "icon": "mdi:gas-station",
         "device_class": None,
@@ -206,6 +229,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "fuel_range",
+        "data_key": "fuel",
         "name": "Fuel range",
         "icon": "mdi:gas-station-outline",
         "device_class": SensorDeviceClass.DISTANCE,
@@ -216,6 +240,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "fuel_consumption",
+        "data_key": "fuel",
         "name": "Average fuel consumption",
         "icon": "mdi:fuel",
         "device_class": None,
@@ -226,6 +251,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "fuel_type",
+        "data_key": "fuel",
         "name": "Fuel type",
         "icon": "mdi:gas-station",
         "device_class": SensorDeviceClass.ENUM,
@@ -236,6 +262,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "odometer",
+        "data_key": "metadata",
         "name": "Odometer",
         "icon": "mdi:counter",
         "device_class": SensorDeviceClass.DISTANCE,
@@ -245,6 +272,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "battery_capacity",
+        "data_key": "metadata",
         "name": "Battery capacity",
         "icon": "mdi:battery-high",
         "device_class": None,
@@ -254,6 +282,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "battery_energy",
+        "data_key": "charge",
         "name": "Battery energy",
         "icon": "mdi:battery-charging",
         "device_class": None,
@@ -263,6 +292,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "tank_capacity",
+        "data_key": "metadata",
         "name": "Tank capacity",
         "icon": "mdi:gas-station",
         "device_class": None,
@@ -273,6 +303,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "fuel_level_liters",
+        "data_key": "fuel",
         "name": "Fuel level",
         "icon": "mdi:gas-station",
         "device_class": None,
@@ -294,6 +325,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "last_updated_fuel",
+        "data_key": "fuel",
         "name": "Last updated (fuel)",
         "icon": "mdi:clock-outline",
         "device_class": SensorDeviceClass.TIMESTAMP,
@@ -306,6 +338,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "last_updated_location",
+        "data_key": "location",
         "name": "Last updated (location)",
         "icon": "mdi:clock-outline",
         "device_class": SensorDeviceClass.TIMESTAMP,
@@ -317,6 +350,7 @@ SENSOR_TYPES: list[dict] = [
     },
     {
         "key": "last_updated_climate",
+        "data_key": "climate",
         "name": "Last updated (climate)",
         "icon": "mdi:clock-outline",
         "device_class": SensorDeviceClass.TIMESTAMP,
@@ -385,10 +419,12 @@ async def async_setup_entry(
 ) -> None:
     data = hass.data[DOMAIN][entry.entry_id]
     entities = []
-    for vin, coordinator in data["coordinators"].items():
+    for coordinator in data["coordinators"].values():
         is_bev = coordinator.propulsion == "BEV"
         heaters = _dig(coordinator.data, "climate", "heaters") or {}
         for sensor_type in SENSOR_TYPES:
+            # Both inferable from the API: a BEV has no fuel state, and a heater
+            # zone the car lacks is reported as null.
             if sensor_type.get("fuel_only") and is_bev:
                 continue
             heater_key = sensor_type.get("heater_key")
@@ -398,14 +434,10 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class LynkCoSensor(CoordinatorEntity, SensorEntity):
-    _attr_has_entity_name = True
-
+class LynkCoSensor(LynkCoEntity, SensorEntity):
     def __init__(self, coordinator: LynkCoCoordinator, sensor_type: dict) -> None:
-        super().__init__(coordinator)
+        super().__init__(coordinator, sensor_type["key"], sensor_type.get("data_key"))
         self._sensor_type = sensor_type
-        self._attr_unique_id = f"{coordinator.vin}_{sensor_type['key']}"
-        self._attr_translation_key = sensor_type["key"]
         self._attr_icon = sensor_type["icon"]
         self._attr_device_class = sensor_type.get("device_class")
         self._attr_native_unit_of_measurement = sensor_type.get("unit")
@@ -414,16 +446,6 @@ class LynkCoSensor(CoordinatorEntity, SensorEntity):
             self._attr_entity_registry_enabled_default = sensor_type["entity_registry_enabled_default"]
         if "entity_category" in sensor_type:
             self._attr_entity_category = sensor_type["entity_category"]
-
-    @property
-    def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self.coordinator.vin)},
-            "name": MODEL_NAMES.get(self.coordinator.model, f"Lynk & Co {self.coordinator.model}"),
-            "manufacturer": MANUFACTURER,
-            "model": MODEL_NAMES.get(self.coordinator.model, self.coordinator.model),
-            "serial_number": self.coordinator.vin,
-        }
 
     @property
     def native_value(self):

@@ -4,10 +4,10 @@ from homeassistant.components.device_tracker import SourceType, TrackerEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, MANUFACTURER, MODEL_NAMES
-from .coordinator import LynkCoCoordinator
+from .const import DOMAIN
+from .coordinator import LynkCoCoordinator, dig
+from .entity import LynkCoEntity
 
 
 async def async_setup_entry(
@@ -15,39 +15,24 @@ async def async_setup_entry(
 ) -> None:
     data = hass.data[DOMAIN][entry.entry_id]
     entities = []
-    for vin, coordinator in data["coordinators"].items():
+    for coordinator in data["coordinators"].values():
         entities.append(LynkCoDeviceTracker(coordinator))
     async_add_entities(entities)
 
 
-class LynkCoDeviceTracker(CoordinatorEntity, TrackerEntity):
-    _attr_has_entity_name = True
-    _attr_translation_key = "location"
+class LynkCoDeviceTracker(LynkCoEntity, TrackerEntity):
+    _data_key = "location"
     _attr_icon = "mdi:car"
 
     def __init__(self, coordinator: LynkCoCoordinator) -> None:
-        super().__init__(coordinator)
-        self._attr_unique_id = f"{coordinator.vin}_location"
-
-    @property
-    def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self.coordinator.vin)},
-            "name": MODEL_NAMES.get(self.coordinator.model, f"Lynk & Co {self.coordinator.model}"),
-            "manufacturer": MANUFACTURER,
-            "model": MODEL_NAMES.get(self.coordinator.model, self.coordinator.model),
-            "serial_number": self.coordinator.vin,
-        }
+        super().__init__(coordinator, "location")
 
     @property
     def source_type(self) -> SourceType:
         return SourceType.GPS
 
     def _coordinates(self) -> dict:
-        data = self.coordinator.data or {}
-        location = data.get("location") or {}
-        vehicle_location = location.get("vehicleLocation") or {}
-        return vehicle_location.get("coordinates") or {}
+        return dig(self.coordinator.data, "location", "vehicleLocation", "coordinates") or {}
 
     @property
     def latitude(self) -> float | None:

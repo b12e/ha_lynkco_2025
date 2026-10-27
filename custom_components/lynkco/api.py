@@ -25,6 +25,45 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# Lower-cased fragments of JSON keys whose values never reach the debug log.
+REDACT_KEY_PARTS = (
+    "token",
+    "authorization",
+    "password",
+    "secret",
+    "vin",
+    "email",
+    "address",
+    "latitude",
+    "longitude",
+    "coordinate",
+    "customer",
+    "snowflake",
+    "device",
+    "temid",
+    "registrationnumber",
+    "vehiclename",
+)
+
+
+class LynkCoAuthError(Exception):
+    """The session is no longer valid and the refresh token was rejected.
+
+    Raised instead of a plain HTTP error so the integration can ask Home
+    Assistant to start the re-authentication flow (Settings > Repairs).
+    """
+
+
+def redact(value: object, key: str = "") -> object:
+    """Return a copy of an API payload with sensitive values replaced."""
+    if any(part in key.lower() for part in REDACT_KEY_PARTS):
+        return "<redacted>"
+    if isinstance(value, dict):
+        return {name: redact(item, str(name)) for name, item in value.items()}
+    if isinstance(value, list):
+        return [redact(item, key) for item in value]
+    return value
+
 
 def _compute_signature(secret: str, nonce: str, path: str) -> str:
     return hashlib.sha256((secret + nonce + path).encode("utf-8")).hexdigest()
@@ -113,8 +152,8 @@ class LynkCoAPI:
             "X-SIGNATURE-VERSION": SIGNATURE_VERSION,
             "X-SIGNATURE": sig,
             "X-App-Name": "Lynk&Co",
-            "X-App-Version": "2.55.0",
-            "X-App-Build-Number": "8284",
+            "X-App-Version": "2.67.0",
+            "X-App-Build-Number": "8455",
             "X-Device-OS-Version": "14",
             "X-Device-Model": "Pixel 8",
             "X-Device-Language": "en",
@@ -126,19 +165,29 @@ class LynkCoAPI:
         async with self._session.request(method, url, headers=headers, **kwargs) as resp:
             if resp.status == 401:
                 _LOGGER.debug("Got 401, attempting token refresh")
-                if await self.refresh_tokens():
-                    headers = self._build_headers(url)
-                    async with self._session.request(
-                        method, url, headers=headers, **kwargs
-                    ) as retry:
-                        retry.raise_for_status()
-                        retry_data = await retry.json()
-                        return retry_data if retry_data is not None else {}
+                if not await self.refresh_tokens():
+                    raise LynkCoAuthError("Session expired and the refresh token was rejected")
+                headers = self._build_headers(url)
+                async with self._session.request(
+                    method, url, headers=headers, **kwargs
+                ) as retry:
+                    if retry.status == 401:
+                        raise LynkCoAuthError("Still unauthorized after refreshing the token")
+                    retry.raise_for_status()
+                    retry_data = await retry.json()
+                    self._log_response(url, retry_data)
+                    return retry_data if retry_data is not None else {}
             resp.raise_for_status()
             if resp.content_length == 0:
                 return {}
             data = await resp.json()
+            self._log_response(url, data)
             return data if data is not None else {}
+
+    @staticmethod
+    def _log_response(url: str, data: object) -> None:
+        if _LOGGER.isEnabledFor(logging.DEBUG):
+            _LOGGER.debug("API response %s: %s", _extract_path(url), redact(data))
 
     async def refresh_tokens(self) -> bool:
         url = f"{LOGIN_B2C_URL}oauth2/v2.0/token"
@@ -205,6 +254,17 @@ class LynkCoAPI:
 
     async def get_fuel_state(self, vin: str) -> dict:
         return await self._request("GET", f"{LOVE_BASE}/vehicle/{vin}/fuel_state")
+
+    async def get_vehicle_guide(self, vin: str) -> str | None:
+        """Return the car guide type, the most precise identity the API offers.
+
+        Pre-2025 01s report their model year (CX11_2021_PHEV, CX11_2022,
+        CX11_2023); newer cars report their equipment level (CX11_MORE,
+        E335_CORE, DX11_MORE, ...).
+        """
+        data = await self._request("GET", f"{LOVE_BASE}/vehicle/{vin}/vehicle_guide")
+        guide_type = data.get("type")
+        return str(guide_type) if guide_type else None
 
     async def lock_door(self, vin: str) -> dict:
         return await self._request(

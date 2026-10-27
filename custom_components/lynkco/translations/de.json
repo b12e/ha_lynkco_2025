@@ -25,7 +25,9 @@
       "no_vehicles": "Keine Fahrzeuge auf diesem Konto gefunden"
     },
     "abort": {
-      "already_configured": "Dieses Konto ist bereits konfiguriert"
+      "already_configured": "Dieses Konto ist bereits konfiguriert",
+      "reauth_successful": "Die erneute Anmeldung war erfolgreich.",
+      "wrong_account": "Das verwendete Konto ist nicht das für diesen Eintrag konfigurierte Konto. Melde dich mit demselben Lynk & Co-Konto an."
     }
   },
   "options": {
@@ -78,14 +80,8 @@
       "last_updated_climate": { "name": "Zuletzt aktualisiert (Klima)" }
     },
     "binary_sensor": {
-      "door_front_left": { "name": "Tür vorne links" },
-      "door_front_right": { "name": "Tür vorne rechts" },
-      "door_rear_left": { "name": "Tür hinten links" },
-      "door_rear_right": { "name": "Tür hinten rechts" },
-      "window_front_left": { "name": "Fenster vorne links" },
-      "window_front_right": { "name": "Fenster vorne rechts" },
-      "window_rear_left": { "name": "Fenster hinten links" },
-      "window_rear_right": { "name": "Fenster hinten rechts" },
+      "doors": { "name": "Türen" },
+      "windows": { "name": "Fenster" },
       "sunroof": { "name": "Schiebedach" },
       "hood": { "name": "Motorhaube" },
       "trunk": { "name": "Kofferraum" },
@@ -319,6 +315,16 @@
           "description": "Fahrzeug-Identifizierungsnummer (optional bei nur einem Fahrzeug)"
         }
       }
+    }
+  },
+  "exceptions": {
+    "action_not_supported": { "message": "{action} ist für den {model} ({model_code}, Guide-Typ {guide_type}) nicht aktiviert: Es wurde noch nicht bestätigt, dass dies bei diesem Modell funktioniert. Wenn es in der Lynk & Co-App funktioniert, melde es bitte, damit es aktiviert werden kann: {support_url}" },
+    "action_not_permitted": { "message": "Das Fahrzeug erlaubt {action} im Moment nicht. Die meisten Aktionen funktionieren nur, wenn das Fahrzeug verriegelt ist und sich der Schlüssel außerhalb des Fahrzeugs befindet." }
+  },
+  "issues": {
+    "unknown_model": {
+      "title": "Unbekanntes Lynk & Co-Modell {model_code}",
+      "description": "Dieses Fahrzeug meldet den Modellcode {model_code} und den Guide-Typ {guide_type}, für die diese Integration noch keine Funktionsdatei hat. Nur Funktionen, die bei jedem Lynk & Co-Modell funktionieren, sind aktiviert (Sensoren, Türverriegelung, Licht, Hupe und Klima). Bitte lade die Diagnosedaten über die Geräteseite herunter und erstelle einen Modellbericht, damit die übrigen Funktionen aktiviert werden können: {report_url}"
     }
   }
 }
