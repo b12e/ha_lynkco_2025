@@ -1,6 +1,9 @@
 {
   "domain": "lynkco",
   "name": "Lynk & Co",
+  "categories": [
+    "vehicles_transport.cars_evs"
+  ],
   "codeowners": [
     "@b12e"
   ],
