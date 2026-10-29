@@ -5,7 +5,7 @@ Custom [Home Assistant](https://www.home-assistant.io/) integration for Lynk & C
 
 If you like the integration, make sure to show your love by giving it a ⭐. 
 
-Pull requests are currently turned off (to prevent AI slop). If you have any feature requests or issues, please [create an issue](https://github.com/b12e/ha_lynkco_2025/issues/new/choose) using the template provided. 
+If you have any feature requests or issues, please [create an issue](https://github.com/b12e/ha_lynkco_2025/issues/new/choose) using the template provided. 
 
 ## Supported Models
 
