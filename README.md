@@ -31,9 +31,7 @@ A car with a model code the integration has never seen gets the same treatment, 
 ## Marketplace (Home Assistant 2026.11 and newer)
 Starting with Home Assistant 2026.11, HACS ships as part of Home Assistant itself under the name [Marketplace](https://www.home-assistant.io/integrations/marketplace/). It uses the same catalog, so this integration is available there without adding a custom repository.
 1. Go to Settings → Marketplace
-2. Search for "Lynk & Co" and click Install
-3. Restart Home Assistant
-4. Go to Settings → Devices & services → + Add Integration → Lynk & Co
+2. Search for "Lynk & Co" and click Install. You should be prompted with the setup wizard. If not, you can go to Settings → Devices & services → + Add Integration → Lynk & Co.
 
 > [!NOTE]
 > If you installed the integration through HACS before upgrading to 2026.11, nothing changes: it stays installed and keeps receiving updates through the Marketplace.
