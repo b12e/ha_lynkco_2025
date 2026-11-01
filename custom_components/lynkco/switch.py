@@ -48,13 +48,13 @@ class LynkCoChargingSwitch(LynkCoEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs) -> None:
         self.coordinator.require_action("start_charging")
-        _LOGGER.info("Starting charging %s", self.coordinator.vin)
+        _LOGGER.info("Starting charging %s", self.coordinator.log_vin)
         await self._api.start_charging(self.coordinator.vin)
         self._refresh_charge()
 
     async def async_turn_off(self, **kwargs) -> None:
         self.coordinator.require_action("stop_charging")
-        _LOGGER.info("Stopping charging %s", self.coordinator.vin)
+        _LOGGER.info("Stopping charging %s", self.coordinator.log_vin)
         await self._api.stop_charging(self.coordinator.vin)
         self._refresh_charge()
 

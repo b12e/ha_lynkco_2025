@@ -56,7 +56,7 @@ class LynkCoRefreshButton(LynkCoButton):
     _key = "refresh"
 
     async def async_press(self) -> None:
-        _LOGGER.info("Manual refresh requested for %s", self.coordinator.vin)
+        _LOGGER.info("Manual refresh requested for %s", self.coordinator.log_vin)
         await self.coordinator.async_request_refresh()
 
 
@@ -68,7 +68,7 @@ class LynkCoRequestLocationButton(LynkCoButton):
 
     async def async_press(self) -> None:
         self.coordinator.require_action("request_location")
-        _LOGGER.info("Location update requested for %s", self.coordinator.vin)
+        _LOGGER.info("Location update requested for %s", self.coordinator.log_vin)
         await self.coordinator.api.request_location(self.coordinator.vin)
         # The car acknowledges immediately but pushes the position a few seconds
         # later, so chase it in the background instead of blocking the press.
