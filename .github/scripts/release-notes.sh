@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Build the release notes for the next release and print them as markdown.
 #
-# Change list: the commits since the last final release tag (vYYYY.M.N).
+# Change list: the commits since the last final release tag (vYYYY.M.N),
+# grouped into new features, bug fixes and other changes; maintenance commits
+# (chore, ci, build, test, style, refactor, docs) are left out.
 # Pre-release tags such as v2026.11.0-beta1 or v2026.11.1-pr50 are ignored on
 # purpose: a beta tag on main once shrank the list to a single entry because
 # `git describe` treated it as the previous release.
@@ -41,7 +43,36 @@ else
   range="HEAD"
 fi
 
-changes=$(git log "$range" --pretty=format:'- %s (%h)' --invert-grep --grep='^chore(release):' -- "$path_filter")
+# Change list grouped by conventional commit type. Maintenance commits (chore,
+# ci, build, test, style, refactor, docs) are left out: a release bump or a
+# moved workflow file is of no interest to someone installing the release.
+changes=$(
+  git log "$range" --format='%s%x1f%h' -- "$path_filter" | awk -v FS="$(printf '\037')" '
+    function group_of(subject,    low) {
+      low = tolower(subject)
+      if (low ~ /^feat(\([^)]*\))?!?:/) return "feat"
+      if (low ~ /^(fix|perf)(\([^)]*\))?!?:/) return "fix"
+      if (low ~ /^(chore|ci|build|tests?|style|refactor|docs)(\([^)]*\))?!?:/) return ""
+      return "other"
+    }
+    function emit(group, title,    i) {
+      if (!count[group]) return
+      if (printed++) print ""
+      print title
+      for (i = 1; i <= count[group]; i++) print lines[group, i]
+    }
+    {
+      group = group_of($1)
+      if (group == "") next
+      count[group]++
+      lines[group, count[group]] = "- " $1 " (" $2 ")"
+    }
+    END {
+      emit("feat", "New features:")
+      emit("fix", "Bug fixes:")
+      emit("other", "Other changes:")
+    }'
+)
 if [ -z "$changes" ]; then
   changes="- Minor changes"
 fi
@@ -157,4 +188,4 @@ if [ -n "$breaking" ]; then
   printf '%s\n' "$breaking" | awk '/^  - / { print "> " $0; next } { print "> - " $0 }'
   printf '\n'
 fi
-printf "# What's new:\n%s\n" "$changes"
+printf "# What's new:\n\n%s\n" "$changes"
