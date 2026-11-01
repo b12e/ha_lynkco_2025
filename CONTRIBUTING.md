@@ -4,13 +4,11 @@ Thanks for wanting to improve the Lynk & Co integration. Here is how to make tha
 
 ## Ideas and bugs: open an issue
 
-An issue is the preferred way to contribute, also for things you could build yourself. Use the matching template; each one asks for exactly what is needed to act on it:
+An issue is the preferred way to contribute, also for things you could build yourself with the help of LLMs (see below on the usage of LLMs). Use the matching template; each one asks for exactly what is needed to act on it:
 
 - [Bug report](https://github.com/b12e/ha_lynkco_2025/issues/new?template=bug_report.yml) - attach the diagnostics download (device page, three dots, Download diagnostics). It is redacted and shows what your car reports.
 - [Feature request](https://github.com/b12e/ha_lynkco_2025/issues/new?template=feature_request.yml) - describe what you want to achieve in Home Assistant, not only the sensor or action you miss. The API often offers more than one way to get there.
 - [Model report](https://github.com/b12e/ha_lynkco_2025/issues/new?template=model_report.yml) - your car gets a Repairs notice about an unknown model, or an action is disabled for it although the official app has it.
-
-Changes are tested on a real car and account before they ship, including the shared-account setup. An issue gets that treatment for free.
 
 ## Pull requests
 
@@ -24,6 +22,8 @@ Pull requests are welcome too. To keep them easy to review and release:
 
 ## Using an LLM
 
-That is fine. This project is developed with one as well.
+That is fine. So do I - this integration is developed with one as well and there's nothing wrong with that. I'd argue this integration wouldn't exist without the help of my dear friend Claude.
 
-But if your plan is to tell your model "make a pull request for X", skip that step and open an issue describing X instead. I will do the vibecoding part myself, with the API knowledge, the decompiled app, the test harness and a real car at hand. That costs me less time than reviewing and re-testing a generated pull request, and you get the feature sooner.
+HOWEVER: if your plan is to tell your LLM model of choice "build X and make a pull request", skip that step and open an issue describing X instead. 
+
+There's little point of us both burning tokens, and it costs me less time to do it myself than reviewing and re-testing a generated pull request (and making sure nothing malicious slips in), so you get the feature sooner.
