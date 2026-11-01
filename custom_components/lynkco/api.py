@@ -216,8 +216,9 @@ class LynkCoAPI:
             if resp.status != 401 and not taken:
                 return await self._read_json(url, resp)
 
+        reclaimed = False  # True once validate-session took the session back for this request
         if taken:
-            await self._reclaim_session()
+            reclaimed = await self._reclaim_session()
         else:
             _LOGGER.debug("Got 401, attempting token refresh")
             async with self._refresh_lock:
@@ -231,10 +232,18 @@ class LynkCoAPI:
         ) as retry:
             if retry.status == 401 and not taken:
                 raise LynkCoAuthError("Still unauthorized after refreshing the token")
-            if retry.status == 403 and taken:
-                # Still forbidden with the session back: this endpoint is simply
-                # not permitted for the account, so stop re-claiming for it. A new
-                # login would not help either; the coordinator isolates the endpoint.
+            # Deliberately no refresh for a 401 on the retry after a re-claim (the
+            # token expired between the two requests): _read_json raises it as a
+            # plain error and the next request refreshes the token as usual, which
+            # costs one endpoint one cycle and keeps this method to a single retry.
+            if retry.status == 403 and reclaimed:
+                # Still forbidden right after the API accepted the re-claim: this
+                # endpoint is simply not permitted for the account, so stop
+                # re-claiming for it. A new login would not help either; the
+                # coordinator isolates the endpoint. After a skipped (within the
+                # interval) or failed re-claim the path stays in the working set,
+                # so the next 403 past the interval claims the session again
+                # instead of leaving every endpoint forbidden until a reload.
                 self._working_paths.discard(path)
             return await self._read_json(url, retry)
 
@@ -324,7 +333,7 @@ class LynkCoAPI:
         )
         return error
 
-    async def _reclaim_session(self) -> None:
+    async def _reclaim_session(self) -> bool:
         """Claim the account's single device session back from the device that took it.
 
         Lynk & Co keeps one device session per account: when the phone app logs
@@ -335,19 +344,31 @@ class LynkCoAPI:
         SESSION_RECLAIM_INTERVAL serves every 403 of a poll: the other requests
         only retry, and concurrent 403s wait for the lock instead of each
         calling validate-session.
+
+        True when validate-session was called for this request and accepted the
+        claim. False when the re-claim was skipped because of the interval or
+        when the API did not accept it: the caller then keeps the endpoint in
+        the working set, so a later 403 tries again.
         """
         async with self._refresh_lock:
             if (
                 self._last_reclaim is not None
                 and time.monotonic() - self._last_reclaim < SESSION_RECLAIM_INTERVAL
             ):
-                return
+                return False
             _LOGGER.warning(
                 "The Lynk & Co session was taken by another device (probably the phone app); "
                 "claiming it back"
             )
-            await self.validate_session()
+            reclaimed = await self.validate_session()
             self._last_reclaim = time.monotonic()
+            if not reclaimed:
+                _LOGGER.warning(
+                    "Claiming the Lynk & Co session back failed; the next refused request "
+                    "after %d seconds tries again",
+                    SESSION_RECLAIM_INTERVAL,
+                )
+            return reclaimed
 
     async def validate_session(self) -> bool:
         """Claim the account's device session for this client; True when the session is valid.
@@ -366,6 +387,7 @@ class LynkCoAPI:
             timeout=REQUEST_TIMEOUT,
         ) as resp:
             if resp.status != 200:
+                _LOGGER.debug("validate-session answered %d", resp.status)
                 return False
             try:
                 body = await resp.json(content_type=None)
