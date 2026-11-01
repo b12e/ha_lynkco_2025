@@ -65,7 +65,7 @@
       "heater_rear_right_seat": { "name": "Sitzheizung hinten rechts" },
       "lock_status": { "name": "Zentralverriegelung" },
       "address": { "name": "Adresse" },
-      "fuel_level": { "name": "Kraftstoffstand" },
+      "fuel_level": { "name": "Kraftstoff in Prozent" },
       "fuel_range": { "name": "Kraftstoffreichweite" },
       "fuel_consumption": { "name": "Durchschnittsverbrauch" },
       "fuel_type": { "name": "Kraftstoffart" },

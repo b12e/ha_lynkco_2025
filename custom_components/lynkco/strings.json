@@ -65,7 +65,7 @@
       "heater_rear_right_seat": { "name": "Rear right seat heater" },
       "lock_status": { "name": "Central lock" },
       "address": { "name": "Address" },
-      "fuel_level": { "name": "Fuel level" },
+      "fuel_level": { "name": "Fuel percentage" },
       "fuel_range": { "name": "Fuel range" },
       "fuel_consumption": { "name": "Average fuel consumption" },
       "fuel_type": { "name": "Fuel type" },

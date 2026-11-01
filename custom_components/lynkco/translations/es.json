@@ -65,7 +65,7 @@
       "heater_rear_right_seat": { "name": "Calefacción asiento trasero derecho" },
       "lock_status": { "name": "Cierre centralizado" },
       "address": { "name": "Dirección" },
-      "fuel_level": { "name": "Nivel de combustible" },
+      "fuel_level": { "name": "Porcentaje de combustible" },
       "fuel_range": { "name": "Autonomía de combustible" },
       "fuel_consumption": { "name": "Consumo medio de combustible" },
       "fuel_type": { "name": "Tipo de combustible" },

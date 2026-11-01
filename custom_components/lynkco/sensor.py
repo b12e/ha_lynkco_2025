@@ -219,7 +219,7 @@ SENSOR_TYPES: list[dict] = [
     {
         "key": "fuel_level",
         "data_key": "fuel",
-        "name": "Fuel level",
+        "name": "Fuel percentage",
         "icon": "mdi:gas-station",
         "device_class": None,
         "unit": PERCENTAGE,

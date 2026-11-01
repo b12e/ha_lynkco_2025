@@ -65,7 +65,7 @@
       "heater_rear_right_seat": { "name": "Stoelverwarming rechtsachter" },
       "lock_status": { "name": "Centraal slot" },
       "address": { "name": "Adres" },
-      "fuel_level": { "name": "Brandstofniveau" },
+      "fuel_level": { "name": "Brandstofpercentage" },
       "fuel_range": { "name": "Brandstofbereik" },
       "fuel_consumption": { "name": "Gemiddeld brandstofverbruik" },
       "fuel_type": { "name": "Brandstoftype" },
