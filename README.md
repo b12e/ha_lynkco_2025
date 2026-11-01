@@ -100,7 +100,7 @@ Custom polling intervals can be configured using the gear icon after setting up 
 
 # Contributing
 
-Feature requests and bug reports are welcome as issues, using the templates; pull requests are welcome too. [CONTRIBUTING.md](CONTRIBUTING.md) has the details, including a note on using an LLM.
+Feature requests and bug reports are welcome as issues, using the templates; pull requests are welcome too. [CONTRIBUTING.md](CONTRIBUTING.md) has the details.
 
 # Credits
 
