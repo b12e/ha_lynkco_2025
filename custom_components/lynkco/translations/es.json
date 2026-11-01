@@ -48,27 +48,117 @@
     "sensor": {
       "battery_level": { "name": "Nivel de batería" },
       "battery_range": { "name": "Autonomía eléctrica" },
-      "charging_status": { "name": "Estado de carga" },
+      "charging_status": {
+        "name": "Estado de carga",
+        "state": {
+          "power_available_but_not_activated": "Energía disponible, no activada",
+          "fully_charged": "Carga completa",
+          "connected_without_power": "Conectado sin energía",
+          "ready_to_charge": "Listo para cargar",
+          "charging": "Cargando",
+          "fast_charging": "Carga rápida",
+          "disconnected": "Desconectado",
+          "error": "Error",
+          "outputting": "Suministrando energía"
+        }
+      },
       "charging_speed": { "name": "Velocidad de carga" },
       "charging_time_remaining": { "name": "Tiempo de carga restante" },
       "charge_limit": { "name": "Límite de carga" },
       "power_consumption": { "name": "Consumo eléctrico medio" },
       "interior_temperature": { "name": "Temperatura interior" },
       "target_temperature": { "name": "Temperatura objetivo" },
-      "climate_status": { "name": "Estado de la climatización" },
-      "heater_steering_wheel": { "name": "Calefacción del volante" },
-      "heater_windshield": { "name": "Calefacción del parabrisas" },
-      "heater_front_left_seat": { "name": "Calefacción asiento delantero izquierdo" },
-      "heater_front_right_seat": { "name": "Calefacción asiento delantero derecho" },
-      "heater_rear_left_seat": { "name": "Calefacción asiento trasero izquierdo" },
-      "heater_rear_center_seat": { "name": "Calefacción asiento trasero central" },
-      "heater_rear_right_seat": { "name": "Calefacción asiento trasero derecho" },
-      "lock_status": { "name": "Cierre centralizado" },
+      "climate_status": {
+        "name": "Estado de la climatización",
+        "state": {
+          "active": "Activa",
+          "active_cooling": "Enfriando",
+          "active_heating": "Calentando",
+          "active_defrost": "Desescarchando",
+          "inactive": "Inactiva",
+          "disconnected": "Desconectado",
+          "connected_without_power": "Conectado sin energía",
+          "charging_error": "Error de carga",
+          "out_of_fuel": "Sin combustible",
+          "battery_low": "Batería baja",
+          "drive_mode_enabled": "Modo de conducción activado",
+          "disabled_unlocked_car": "Desactivada (coche desbloqueado)"
+        }
+      },
+      "heater_steering_wheel": {
+        "name": "Calefacción del volante",
+        "state": {
+          "active": "Activa",
+          "inactive": "Inactiva",
+          "disabled": "Desactivada"
+        }
+      },
+      "heater_windshield": {
+        "name": "Calefacción del parabrisas",
+        "state": {
+          "active": "Activa",
+          "inactive": "Inactiva",
+          "disabled": "Desactivada"
+        }
+      },
+      "heater_front_left_seat": {
+        "name": "Calefacción asiento delantero izquierdo",
+        "state": {
+          "active": "Activa",
+          "inactive": "Inactiva",
+          "disabled": "Desactivada"
+        }
+      },
+      "heater_front_right_seat": {
+        "name": "Calefacción asiento delantero derecho",
+        "state": {
+          "active": "Activa",
+          "inactive": "Inactiva",
+          "disabled": "Desactivada"
+        }
+      },
+      "heater_rear_left_seat": {
+        "name": "Calefacción asiento trasero izquierdo",
+        "state": {
+          "active": "Activa",
+          "inactive": "Inactiva",
+          "disabled": "Desactivada"
+        }
+      },
+      "heater_rear_center_seat": {
+        "name": "Calefacción asiento trasero central",
+        "state": {
+          "active": "Activa",
+          "inactive": "Inactiva",
+          "disabled": "Desactivada"
+        }
+      },
+      "heater_rear_right_seat": {
+        "name": "Calefacción asiento trasero derecho",
+        "state": {
+          "active": "Activa",
+          "inactive": "Inactiva",
+          "disabled": "Desactivada"
+        }
+      },
+      "lock_status": {
+        "name": "Cierre centralizado",
+        "state": {
+          "locked": "Bloqueado",
+          "unlocked": "Desbloqueado"
+        }
+      },
       "address": { "name": "Dirección" },
       "fuel_level": { "name": "Porcentaje de combustible" },
       "fuel_range": { "name": "Autonomía de combustible" },
       "fuel_consumption": { "name": "Consumo medio de combustible" },
-      "fuel_type": { "name": "Tipo de combustible" },
+      "fuel_type": {
+        "name": "Tipo de combustible",
+        "state": {
+          "petrol": "Gasolina",
+          "diesel": "Diésel"
+        }
+      },
       "odometer": { "name": "Cuentakilómetros" },
       "battery_capacity": { "name": "Capacidad de la batería" },
       "battery_energy": { "name": "Energía de la batería" },

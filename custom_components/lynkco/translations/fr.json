@@ -48,27 +48,117 @@
     "sensor": {
       "battery_level": { "name": "Niveau de batterie" },
       "battery_range": { "name": "Autonomie électrique" },
-      "charging_status": { "name": "État de charge" },
+      "charging_status": {
+        "name": "État de charge",
+        "state": {
+          "power_available_but_not_activated": "Alimentation disponible, non activée",
+          "fully_charged": "Complètement chargée",
+          "connected_without_power": "Connecté sans alimentation",
+          "ready_to_charge": "Prêt à charger",
+          "charging": "En charge",
+          "fast_charging": "Charge rapide",
+          "disconnected": "Déconnecté",
+          "error": "Erreur",
+          "outputting": "Fournit de l'énergie"
+        }
+      },
       "charging_speed": { "name": "Vitesse de charge" },
       "charging_time_remaining": { "name": "Temps de charge restant" },
       "charge_limit": { "name": "Limite de charge" },
       "power_consumption": { "name": "Consommation électrique moyenne" },
       "interior_temperature": { "name": "Température intérieure" },
       "target_temperature": { "name": "Température cible" },
-      "climate_status": { "name": "État de la climatisation" },
-      "heater_steering_wheel": { "name": "Chauffage du volant" },
-      "heater_windshield": { "name": "Chauffage du pare-brise" },
-      "heater_front_left_seat": { "name": "Chauffage siège avant gauche" },
-      "heater_front_right_seat": { "name": "Chauffage siège avant droit" },
-      "heater_rear_left_seat": { "name": "Chauffage siège arrière gauche" },
-      "heater_rear_center_seat": { "name": "Chauffage siège arrière central" },
-      "heater_rear_right_seat": { "name": "Chauffage siège arrière droit" },
-      "lock_status": { "name": "Verrouillage central" },
+      "climate_status": {
+        "name": "État de la climatisation",
+        "state": {
+          "active": "Active",
+          "active_cooling": "Refroidissement",
+          "active_heating": "Chauffage",
+          "active_defrost": "Dégivrage",
+          "inactive": "Inactive",
+          "disconnected": "Déconnecté",
+          "connected_without_power": "Connecté sans alimentation",
+          "charging_error": "Erreur de charge",
+          "out_of_fuel": "Panne de carburant",
+          "battery_low": "Batterie faible",
+          "drive_mode_enabled": "Mode conduite activé",
+          "disabled_unlocked_car": "Désactivée (voiture déverrouillée)"
+        }
+      },
+      "heater_steering_wheel": {
+        "name": "Chauffage du volant",
+        "state": {
+          "active": "Actif",
+          "inactive": "Inactif",
+          "disabled": "Désactivé"
+        }
+      },
+      "heater_windshield": {
+        "name": "Chauffage du pare-brise",
+        "state": {
+          "active": "Actif",
+          "inactive": "Inactif",
+          "disabled": "Désactivé"
+        }
+      },
+      "heater_front_left_seat": {
+        "name": "Chauffage siège avant gauche",
+        "state": {
+          "active": "Actif",
+          "inactive": "Inactif",
+          "disabled": "Désactivé"
+        }
+      },
+      "heater_front_right_seat": {
+        "name": "Chauffage siège avant droit",
+        "state": {
+          "active": "Actif",
+          "inactive": "Inactif",
+          "disabled": "Désactivé"
+        }
+      },
+      "heater_rear_left_seat": {
+        "name": "Chauffage siège arrière gauche",
+        "state": {
+          "active": "Actif",
+          "inactive": "Inactif",
+          "disabled": "Désactivé"
+        }
+      },
+      "heater_rear_center_seat": {
+        "name": "Chauffage siège arrière central",
+        "state": {
+          "active": "Actif",
+          "inactive": "Inactif",
+          "disabled": "Désactivé"
+        }
+      },
+      "heater_rear_right_seat": {
+        "name": "Chauffage siège arrière droit",
+        "state": {
+          "active": "Actif",
+          "inactive": "Inactif",
+          "disabled": "Désactivé"
+        }
+      },
+      "lock_status": {
+        "name": "Verrouillage central",
+        "state": {
+          "locked": "Verrouillé",
+          "unlocked": "Déverrouillé"
+        }
+      },
       "address": { "name": "Adresse" },
       "fuel_level": { "name": "Pourcentage de carburant" },
       "fuel_range": { "name": "Autonomie carburant" },
       "fuel_consumption": { "name": "Consommation moyenne" },
-      "fuel_type": { "name": "Type de carburant" },
+      "fuel_type": {
+        "name": "Type de carburant",
+        "state": {
+          "petrol": "Essence",
+          "diesel": "Diesel"
+        }
+      },
       "odometer": { "name": "Compteur kilométrique" },
       "battery_capacity": { "name": "Capacité de la batterie" },
       "battery_energy": { "name": "Énergie de la batterie" },
