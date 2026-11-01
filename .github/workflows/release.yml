@@ -77,17 +77,25 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add custom_components/lynkco/manifest.json
-          git commit -m "chore(release): ${{ steps.version.outputs.version }}"
-          git push origin main
+          # A re-created release (version override after deleting the tag)
+          # finds the manifest already bumped; there is nothing to commit then.
+          if git diff --quiet -- custom_components/lynkco/manifest.json; then
+            echo "manifest.json already carries ${{ steps.version.outputs.version }}, nothing to commit"
+          else
+            git add custom_components/lynkco/manifest.json
+            git commit -m "chore(release): ${{ steps.version.outputs.version }}"
+            git push origin main
+          fi
 
-      - name: Delete all pre-releases
+      - name: Delete pre-release builds
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release list --json tagName,isPrerelease -q '.[] | select(.isPrerelease) | .tagName' | \
+          # Only builds whose tag carries a suffix (v2026.11.2-pr57, v2026.11.0-beta1).
+          # A plain version flagged as a pre-release for testing is kept.
+          gh release list --json tagName,isPrerelease -q '.[] | select(.isPrerelease) | .tagName | select(contains("-"))' | \
             while read -r tag; do
-              echo "Deleting pre-release $tag"
+              echo "Deleting pre-release build $tag"
               gh release delete "$tag" --yes --cleanup-tag || true
             done
 
