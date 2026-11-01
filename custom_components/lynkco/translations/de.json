@@ -415,6 +415,10 @@
     "unknown_model": {
       "title": "Unbekanntes Lynk & Co-Modell {model_code}",
       "description": "Dieses Fahrzeug meldet den Modellcode {model_code} und den Guide-Typ {guide_type}, für die diese Integration noch keine Funktionsdatei hat. Nur Funktionen, die bei jedem Lynk & Co-Modell funktionieren, sind aktiviert (Sensoren, Türverriegelung, Licht, Hupe und Klima). Bitte lade die Diagnosedaten über die Geräteseite herunter und erstelle einen Modellbericht, damit die übrigen Funktionen aktiviert werden können: {report_url}"
+    },
+    "duplicate_vehicle": {
+      "title": "Fahrzeug {vin} ist bereits über ein anderes Konto eingerichtet",
+      "description": "Der Lynk & Co-Eintrag {entry} führt ebenfalls das Fahrzeug {vin} auf, dieses Fahrzeug wird aber bereits vom Eintrag {other_entry} bedient. Ein Fahrzeug kann nur einmal eingerichtet werden; entferne einen der beiden Einträge, oder behalte diesen und entferne den anderen."
     }
   }
 }

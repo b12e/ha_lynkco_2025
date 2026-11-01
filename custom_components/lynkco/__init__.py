@@ -29,6 +29,10 @@ from .features import async_get_model_features
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["sensor", "binary_sensor", "device_tracker", "lock", "switch", "climate", "button"]
 
+# hass.data key of the VIN claims: VIN -> entry_id of the config entry that serves
+# the car. Kept outside hass.data[DOMAIN], whose values are the per-entry dicts.
+VEHICLE_CLAIMS = "lynkco_vehicle_claims"
+
 ATTR_VIN = "vin"
 ATTR_PERCENT = "percent"
 ATTR_TEMP = "temp"
@@ -191,6 +195,44 @@ def _update_unknown_model_issue(hass: HomeAssistant, coordinator: LynkCoCoordina
     )
 
 
+def _create_duplicate_vehicle_issue(
+    hass: HomeAssistant, entry: ConfigEntry, vin: str, owner_id: str
+) -> str:
+    """Raise the Repairs notice for a car that another entry already serves; returns its id."""
+    owner = hass.config_entries.async_get_entry(owner_id)
+    owner_title = owner.title if owner else owner_id
+    log_vin = redact_vin(vin)
+    _LOGGER.warning(
+        "Vehicle %s is already set up through the entry %s, skipping it for %s",
+        log_vin, owner_title, entry.title,
+    )
+    issue_id = f"duplicate_vehicle_{entry.entry_id}_{vin}"
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        issue_id,
+        is_fixable=False,
+        is_persistent=False,
+        severity=ir.IssueSeverity.WARNING,
+        translation_key="duplicate_vehicle",
+        translation_placeholders={"vin": log_vin, "entry": entry.title, "other_entry": owner_title},
+    )
+    return issue_id
+
+
+def _release_vehicles(hass: HomeAssistant, entry: ConfigEntry, duplicate_issues: list[str]) -> None:
+    """Give the entry's cars back and drop its duplicate-car notices.
+
+    Runs on unload and when the setup fails after claiming, so a retried
+    setup (or the entry the car is shared with) can claim the cars again.
+    """
+    claims: dict[str, str] = hass.data.get(VEHICLE_CLAIMS, {})
+    for vin in [vin for vin, owner in claims.items() if owner == entry.entry_id]:
+        del claims[vin]
+    for issue_id in duplicate_issues:
+        ir.async_delete_issue(hass, DOMAIN, issue_id)
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Lynk & Co from a config entry."""
     session = async_get_clientsession(hass)
@@ -228,53 +270,78 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.error("No vehicles found")
         return False
 
-    coordinators: dict[str, LynkCoCoordinator] = {}
+    # One car is one device. A car shared with a second Lynk & Co account is
+    # listed by both entries, and both would create the same entities (the
+    # unique ids are "<vin>_<key>"): the first entry to claim a VIN serves the
+    # car, a later one skips it and raises a Repairs notice instead. Entries of
+    # a domain are set up concurrently at startup, so the claims are made in
+    # one step on the event loop, without an await between check and claim.
+    claims: dict[str, str] = hass.data.setdefault(VEHICLE_CLAIMS, {})
+    skipped: dict[str, str] = {}  # VIN -> entry_id of the entry that serves the car
     for vehicle_entry in vehicles:
-        vehicle = vehicle_entry.get("vehicle") or {}
-        vin = vehicle.get("vin")
-        model = vehicle.get("model", "Unknown")
-        if not vin:
-            continue
-        log_vin = redact_vin(vin)
+        vin = (vehicle_entry.get("vehicle") or {}).get("vin")
+        if vin and claims.setdefault(vin, entry.entry_id) != entry.entry_id:
+            skipped[vin] = claims[vin]
 
-        # The guide type (model year for pre-2025 01s, Core/More for newer cars)
-        # is the most precise identity the API offers; it is fetched once.
-        try:
-            guide_type = await api.get_vehicle_guide(vin)
-        except LynkCoAuthError as err:
-            raise ConfigEntryAuthFailed(str(err)) from err
-        except (aiohttp.ClientConnectionError, TimeoutError, LynkCoTransientError) as err:
-            # No answer at all (unlike an answer without a guide): retry the setup
-            raise ConfigEntryNotReady(
-                "Lynk & Co API not available: "
-                f"{str(err).replace(vin, log_vin) or type(err).__name__}"
-            ) from err
-        except Exception as err:  # noqa: BLE001 - identity is best effort
-            # aiohttp puts the request URL, and with it the VIN, in the error text
-            _LOGGER.warning(
-                "Could not read the vehicle guide type for %s: %s",
-                log_vin, str(err).replace(vin, log_vin),
+    coordinators: dict[str, LynkCoCoordinator] = {}
+    duplicate_issues: list[str] = []
+    try:
+        for vehicle_entry in vehicles:
+            vehicle = vehicle_entry.get("vehicle") or {}
+            vin = vehicle.get("vin")
+            model = vehicle.get("model", "Unknown")
+            if not vin:
+                continue
+            if vin in skipped:
+                issue_id = _create_duplicate_vehicle_issue(hass, entry, vin, skipped[vin])
+                duplicate_issues.append(issue_id)
+                continue
+            log_vin = redact_vin(vin)
+
+            # The guide type (model year for pre-2025 01s, Core/More for newer cars)
+            # is the most precise identity the API offers; it is fetched once.
+            try:
+                guide_type = await api.get_vehicle_guide(vin)
+            except LynkCoAuthError as err:
+                raise ConfigEntryAuthFailed(str(err)) from err
+            except (aiohttp.ClientConnectionError, TimeoutError, LynkCoTransientError) as err:
+                # No answer at all (unlike an answer without a guide): retry the setup
+                raise ConfigEntryNotReady(
+                    "Lynk & Co API not available: "
+                    f"{str(err).replace(vin, log_vin) or type(err).__name__}"
+                ) from err
+            except Exception as err:  # noqa: BLE001 - identity is best effort
+                # aiohttp puts the request URL, and with it the VIN, in the error text
+                _LOGGER.warning(
+                    "Could not read the vehicle guide type for %s: %s",
+                    log_vin, str(err).replace(vin, log_vin),
+                )
+                guide_type = None
+            features = await async_get_model_features(hass, guide_type, model)
+            _LOGGER.info(
+                "Vehicle %s: model %s, guide type %s, features from %s",
+                log_vin, model, guide_type, features.file,
             )
-            guide_type = None
-        features = await async_get_model_features(hass, guide_type, model)
-        _LOGGER.info(
-            "Vehicle %s: model %s, guide type %s, features from %s",
-            log_vin, model, guide_type, features.file,
-        )
 
-        coordinator = LynkCoCoordinator(hass, entry, api, vin, model, guide_type, features)
-        await coordinator.async_config_entry_first_refresh()
-        coordinators[vin] = coordinator
-        _update_unknown_model_issue(hass, coordinator)
-        # Endpoint-specific fast polling (driving / climate active); stopped on unload
-        entry.async_on_unload(coordinator.start_fast_poll())
+            coordinator = LynkCoCoordinator(hass, entry, api, vin, model, guide_type, features)
+            await coordinator.async_config_entry_first_refresh()
+            coordinators[vin] = coordinator
+            _update_unknown_model_issue(hass, coordinator)
+            # Endpoint-specific fast polling (driving / climate active); stopped on unload
+            entry.async_on_unload(coordinator.start_fast_poll())
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
-        "api": api,
-        "coordinators": coordinators,
-    }
+        hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
+            "api": api,
+            "coordinators": coordinators,
+            "duplicate_issues": duplicate_issues,
+        }
 
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    except Exception:
+        # Not ready, a dead session or a platform error: the next attempt (or
+        # the entry the car is shared with) has to be able to claim the cars
+        _release_vehicles(hass, entry, duplicate_issues)
+        raise
 
     # Apply the (full-snapshot) scan interval when options change
     async def _options_updated(_hass, _entry):
@@ -439,7 +506,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
+        entry_data = hass.data[DOMAIN].pop(entry.entry_id)
+        _release_vehicles(hass, entry, entry_data["duplicate_issues"])
         if not hass.data.get(DOMAIN):
             for service in ALL_SERVICES:
                 hass.services.async_remove(DOMAIN, service)

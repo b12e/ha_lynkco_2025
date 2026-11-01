@@ -415,6 +415,10 @@
     "unknown_model": {
       "title": "Onbekend Lynk & Co-model {model_code}",
       "description": "Deze auto meldt modelcode {model_code} en guide type {guide_type}, waarvoor deze integratie nog geen functiebestand heeft. Alleen functies die op elk Lynk & Co-model werken zijn ingeschakeld (sensoren, deurslot, lichten, claxon en klimaat). Download de diagnostische gegevens via de apparaatpagina en open een modelrapport zodat de overige functies ingeschakeld kunnen worden: {report_url}"
+    },
+    "duplicate_vehicle": {
+      "title": "Auto {vin} is al ingesteld via een ander account",
+      "description": "De Lynk & Co-vermelding {entry} bevat ook auto {vin}, maar die auto wordt al bediend door de vermelding {other_entry}. Een auto kan maar één keer ingesteld worden; verwijder een van de twee vermeldingen, of houd deze en verwijder de andere."
     }
   }
 }
