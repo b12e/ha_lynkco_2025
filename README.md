@@ -63,10 +63,10 @@ Tokens are automatically refreshed. You should only need to re-authenticate if t
 > When the phone app logs in, the API answers every request from Home Assistant with 403 Forbidden until the integration takes the session back, which it does on its next request (within a minute while driving or while the climate is active, otherwise at the next poll) and which logs the phone out again. The shared-account workaround below avoids this tug of war, because each account has its own session.
 
 > [!TIP]
-> Since late September, Lynk&Co allows to share your car with up to 3 additional Lynk&Co accounts. If you want to use both the mobile app as well as the HA integration, follow the following steps:
+> Since late September, Lynk&Co allows to share your car with up to 2 additional Lynk&Co accounts. If you want to use both the mobile app as well as the HA integration, follow the following steps:
 > 1. In your "Primary" account, go to Car Settings and copy the invite link. Keep it somewhere safe (e.g. the notes app on your phone).
 > 2. Log out of your primary account.
-> 3. Create a new Lynk&Co account with another email address and go through the app onboarding until you're logged in with the secondary account
+> 3. Create a new Lynk&Co account with another email address and phone number (for 2FA) and go through the app onboarding until you're logged in with the secondary account
 > 4. Open the invite link from step 1. It should open the Lynk&Co app with a modal to accept the invitation
 >
 > You can use either your main (primary) or new (secondary) account in HA. Use the other account on your mobile phone for the app.
