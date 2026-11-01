@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: read  # release notes read the merged PR descriptions
 
     steps:
       - uses: actions/checkout@v7
@@ -58,21 +59,19 @@ jobs:
             custom_components/lynkco/manifest.json > manifest.tmp \
             && mv manifest.tmp custom_components/lynkco/manifest.json
 
-      - name: Build changelog from commits since last tag
-        id: changelog
+      - name: Build release notes
+        id: notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          if [ -z "$last_tag" ]; then
-            log=$(git log --pretty=format:"- %s (%h)" -- "custom_components/lynkco/")
-          else
-            log=$(git log "${last_tag}..HEAD" --pretty=format:"- %s (%h)" -- "custom_components/lynkco/")
-          fi
-          if [ -z "$log" ]; then
-            log="- Minor changes"
-          fi
-          echo "log<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$log" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+          # Change list since the last final release tag plus a [!CAUTION]
+          # block for every "Breaking:" line in the merged PR descriptions;
+          # see .github/scripts/release-notes.sh for the rules.
+          notes_file="$RUNNER_TEMP/release-notes.md"
+          bash .github/scripts/release-notes.sh > "$notes_file"
+          echo "file=$notes_file" >> "$GITHUB_OUTPUT"
+          cat "$notes_file"
 
       - name: Commit version bump and push
         run: |
@@ -99,5 +98,5 @@ jobs:
           tag="v${{ steps.version.outputs.version }}"
           gh release create "$tag" \
             --title "$tag" \
-            --notes "${{ steps.changelog.outputs.log }}" \
+            --notes-file "${{ steps.notes.outputs.file }}" \
             --target main
