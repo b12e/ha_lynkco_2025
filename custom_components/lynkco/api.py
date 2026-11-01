@@ -65,6 +65,17 @@ def redact(value: object, key: str = "") -> object:
     return value
 
 
+def redact_vin(vin: str) -> str:
+    """Return the VIN as log messages may show it: "***" plus its last four characters.
+
+    Enough to tell the cars of a multi-car account apart without identifying
+    the vehicle. An empty or shorter value comes back as just "***".
+    """
+    if not vin or len(vin) < 4:
+        return "***"
+    return f"***{vin[-4:]}"
+
+
 def _compute_signature(secret: str, nonce: str, path: str) -> str:
     return hashlib.sha256((secret + nonce + path).encode("utf-8")).hexdigest()
 
