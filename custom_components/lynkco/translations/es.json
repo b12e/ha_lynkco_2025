@@ -415,6 +415,10 @@
     "unknown_model": {
       "title": "Modelo Lynk & Co desconocido {model_code}",
       "description": "Este coche informa el código de modelo {model_code} y el tipo de guía {guide_type}, para los que esta integración aún no tiene un archivo de funciones. Solo están habilitadas las funciones que funcionan en todos los modelos Lynk & Co (sensores, cierre de puertas, luces, claxon y climatización). Descarga los diagnósticos desde la página del dispositivo y abre un informe de modelo para que se puedan habilitar las demás funciones: {report_url}"
+    },
+    "duplicate_vehicle": {
+      "title": "El coche {vin} ya está configurado a través de otra cuenta",
+      "description": "La entrada de Lynk & Co {entry} también incluye el coche {vin}, pero ese coche ya lo gestiona la entrada {other_entry}. Un coche solo se puede configurar una vez; elimina una de las dos entradas, o conserva esta y elimina la otra."
     }
   }
 }
