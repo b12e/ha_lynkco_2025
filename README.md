@@ -69,6 +69,8 @@ Tokens are automatically refreshed. You should only need to re-authenticate if t
 > 4. Open the invite link from step 1. It should open the Lynk&Co app with a modal to accept the invitation
 >
 > You can use either your main (primary) or new (secondary) account in HA. Use the other account on your mobile phone for the app.
+> 
+> <strong>Remark, Nov 1, 2026: It appears location data isn't available for secondary accounts. The API returns a 502 (server error).</strong>
 
 # Features
 
