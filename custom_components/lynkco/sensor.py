@@ -1,6 +1,7 @@
 """Sensor platform for Lynk & Co integration."""
 
 from datetime import datetime
+import logging
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -16,6 +17,40 @@ from homeassistant.util import dt as dt_util
 from .const import DOMAIN
 from .coordinator import LynkCoCoordinator
 from .entity import LynkCoEntity
+
+_LOGGER = logging.getLogger(__name__)
+
+# Enum options mirror the status enums of the official app's DTOs, lowercased
+# the way _lower and _heater_status report them. The app's UNKNOWN fallback is
+# left out on purpose: a value outside the list is reported as unknown.
+CHARGING_STATUS_OPTIONS = [
+    "power_available_but_not_activated",
+    "fully_charged",
+    "connected_without_power",
+    "ready_to_charge",
+    "charging",
+    "fast_charging",
+    "disconnected",
+    "error",
+    "outputting",
+]
+CLIMATE_STATUS_OPTIONS = [
+    "active",
+    "active_cooling",
+    "active_heating",
+    "active_defrost",
+    "inactive",
+    "disconnected",
+    "connected_without_power",
+    "charging_error",
+    "out_of_fuel",
+    "battery_low",
+    "drive_mode_enabled",
+    "disabled_unlocked_car",
+]
+HEATER_STATUS_OPTIONS = ["active", "inactive", "disabled"]
+LOCK_STATUS_OPTIONS = ["locked", "unlocked"]
+FUEL_TYPE_OPTIONS = ["petrol", "diesel"]
 
 
 SENSOR_TYPES: list[dict] = [
@@ -47,6 +82,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
+        "options": CHARGING_STATUS_OPTIONS,
         "value_fn": lambda d: _lower(_dig(d, "charge", "batteryState", "status")),
     },
     {
@@ -117,6 +153,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
+        "options": CLIMATE_STATUS_OPTIONS,
         "value_fn": lambda d: _lower(_dig(d, "climate", "status")),
     },
     {
@@ -127,6 +164,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
+        "options": HEATER_STATUS_OPTIONS,
         "value_fn": lambda d: _heater_status(d, "steeringWheel"),
         "heater_key": "steeringWheel",
     },
@@ -139,6 +177,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
+        "options": HEATER_STATUS_OPTIONS,
         "value_fn": lambda d: _heater_status(d, "windshield"),
     },
     {
@@ -150,6 +189,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
+        "options": HEATER_STATUS_OPTIONS,
         "value_fn": lambda d: _heater_status(d, "frontLeftSeat"),
     },
     {
@@ -161,6 +201,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
+        "options": HEATER_STATUS_OPTIONS,
         "value_fn": lambda d: _heater_status(d, "frontRightSeat"),
     },
     {
@@ -171,6 +212,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
+        "options": HEATER_STATUS_OPTIONS,
         "value_fn": lambda d: _heater_status(d, "rearLeftSeat"),
         "heater_key": "rearLeftSeat",
     },
@@ -182,6 +224,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
+        "options": HEATER_STATUS_OPTIONS,
         "value_fn": lambda d: _heater_status(d, "rearCenterSeat"),
         "heater_key": "rearCenterSeat",
     },
@@ -193,6 +236,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
+        "options": HEATER_STATUS_OPTIONS,
         "value_fn": lambda d: _heater_status(d, "rearRightSeat"),
         "heater_key": "rearRightSeat",
     },
@@ -204,6 +248,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
+        "options": LOCK_STATUS_OPTIONS,
         "value_fn": lambda d: _lower(_dig(d, "vehicle_data", "centralLock", "status")),
     },
     {
@@ -257,6 +302,7 @@ SENSOR_TYPES: list[dict] = [
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
+        "options": FUEL_TYPE_OPTIONS,
         "value_fn": lambda d: _lower(_dig(d, "fuel", "fuelInfo", "fuelType")),
         "fuel_only": True,
     },
@@ -275,7 +321,7 @@ SENSOR_TYPES: list[dict] = [
         "data_key": "metadata",
         "name": "Battery capacity",
         "icon": "mdi:battery-high",
-        "device_class": None,
+        "device_class": SensorDeviceClass.ENERGY_STORAGE,
         "unit": UnitOfEnergy.KILO_WATT_HOUR,
         "state_class": SensorStateClass.MEASUREMENT,
         "value_fn": lambda d: _round(_dig(d, "metadata", "batteryInfo", "batteryCapacity")),
@@ -285,7 +331,7 @@ SENSOR_TYPES: list[dict] = [
         "data_key": "charge",
         "name": "Battery energy",
         "icon": "mdi:battery-charging",
-        "device_class": None,
+        "device_class": SensorDeviceClass.ENERGY_STORAGE,
         "unit": UnitOfEnergy.KILO_WATT_HOUR,
         "state_class": SensorStateClass.MEASUREMENT,
         "value_fn": lambda d: _battery_kwh(d),
@@ -295,7 +341,7 @@ SENSOR_TYPES: list[dict] = [
         "data_key": "metadata",
         "name": "Tank capacity",
         "icon": "mdi:gas-station",
-        "device_class": None,
+        "device_class": SensorDeviceClass.VOLUME_STORAGE,
         "unit": UnitOfVolume.LITERS,
         "state_class": SensorStateClass.MEASUREMENT,
         "value_fn": lambda d: _dig(d, "metadata", "fuelInfo", "tankCapacity"),
@@ -306,7 +352,7 @@ SENSOR_TYPES: list[dict] = [
         "data_key": "fuel",
         "name": "Fuel level",
         "icon": "mdi:gas-station",
-        "device_class": None,
+        "device_class": SensorDeviceClass.VOLUME_STORAGE,
         "unit": UnitOfVolume.LITERS,
         "state_class": SensorStateClass.MEASUREMENT,
         "value_fn": lambda d: _fuel_liters(d),
@@ -442,6 +488,9 @@ class LynkCoSensor(LynkCoEntity, SensorEntity):
         self._attr_device_class = sensor_type.get("device_class")
         self._attr_native_unit_of_measurement = sensor_type.get("unit")
         self._attr_state_class = sensor_type.get("state_class")
+        if "options" in sensor_type:
+            self._attr_options = sensor_type["options"]
+        self._unexpected_values: set[str] = set()
         if "entity_registry_enabled_default" in sensor_type:
             self._attr_entity_registry_enabled_default = sensor_type["entity_registry_enabled_default"]
         if "entity_category" in sensor_type:
@@ -451,4 +500,17 @@ class LynkCoSensor(LynkCoEntity, SensorEntity):
     def native_value(self):
         if self.coordinator.data is None:
             return None
-        return self._sensor_type["value_fn"](self.coordinator.data)
+        value = self._sensor_type["value_fn"](self.coordinator.data)
+        options = self._sensor_type.get("options")
+        if options is None or value is None or value in options:
+            return value
+        # Home Assistant raises ValueError for an enum value outside the
+        # options list, so a value the list does not know (the app's UNKNOWN
+        # fallback, or one added since) is reported as unknown instead.
+        if value not in self._unexpected_values:
+            self._unexpected_values.add(value)
+            _LOGGER.debug(
+                "%s: unexpected %s value %r, reporting unknown",
+                self.entity_id, self._sensor_type["key"], value,
+            )
+        return None

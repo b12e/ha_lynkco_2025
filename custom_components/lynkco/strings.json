@@ -48,27 +48,117 @@
     "sensor": {
       "battery_level": { "name": "Battery level" },
       "battery_range": { "name": "Electric range" },
-      "charging_status": { "name": "Charging status" },
+      "charging_status": {
+        "name": "Charging status",
+        "state": {
+          "power_available_but_not_activated": "Power available, not activated",
+          "fully_charged": "Fully charged",
+          "connected_without_power": "Connected without power",
+          "ready_to_charge": "Ready to charge",
+          "charging": "Charging",
+          "fast_charging": "Fast charging",
+          "disconnected": "Disconnected",
+          "error": "Error",
+          "outputting": "Outputting power"
+        }
+      },
       "charging_speed": { "name": "Charging speed" },
       "charging_time_remaining": { "name": "Charging time remaining" },
       "charge_limit": { "name": "Charge limit" },
       "power_consumption": { "name": "Average electric consumption" },
       "interior_temperature": { "name": "Interior temperature" },
       "target_temperature": { "name": "Target temperature" },
-      "climate_status": { "name": "Climate status" },
-      "heater_steering_wheel": { "name": "Steering wheel heater" },
-      "heater_windshield": { "name": "Windshield heater" },
-      "heater_front_left_seat": { "name": "Front left seat heater" },
-      "heater_front_right_seat": { "name": "Front right seat heater" },
-      "heater_rear_left_seat": { "name": "Rear left seat heater" },
-      "heater_rear_center_seat": { "name": "Rear center seat heater" },
-      "heater_rear_right_seat": { "name": "Rear right seat heater" },
-      "lock_status": { "name": "Central lock" },
+      "climate_status": {
+        "name": "Climate status",
+        "state": {
+          "active": "Active",
+          "active_cooling": "Cooling",
+          "active_heating": "Heating",
+          "active_defrost": "Defrosting",
+          "inactive": "Inactive",
+          "disconnected": "Disconnected",
+          "connected_without_power": "Connected without power",
+          "charging_error": "Charging error",
+          "out_of_fuel": "Out of fuel",
+          "battery_low": "Battery low",
+          "drive_mode_enabled": "Drive mode enabled",
+          "disabled_unlocked_car": "Disabled (car unlocked)"
+        }
+      },
+      "heater_steering_wheel": {
+        "name": "Steering wheel heater",
+        "state": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "disabled": "Disabled"
+        }
+      },
+      "heater_windshield": {
+        "name": "Windshield heater",
+        "state": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "disabled": "Disabled"
+        }
+      },
+      "heater_front_left_seat": {
+        "name": "Front left seat heater",
+        "state": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "disabled": "Disabled"
+        }
+      },
+      "heater_front_right_seat": {
+        "name": "Front right seat heater",
+        "state": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "disabled": "Disabled"
+        }
+      },
+      "heater_rear_left_seat": {
+        "name": "Rear left seat heater",
+        "state": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "disabled": "Disabled"
+        }
+      },
+      "heater_rear_center_seat": {
+        "name": "Rear center seat heater",
+        "state": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "disabled": "Disabled"
+        }
+      },
+      "heater_rear_right_seat": {
+        "name": "Rear right seat heater",
+        "state": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "disabled": "Disabled"
+        }
+      },
+      "lock_status": {
+        "name": "Central lock",
+        "state": {
+          "locked": "Locked",
+          "unlocked": "Unlocked"
+        }
+      },
       "address": { "name": "Address" },
       "fuel_level": { "name": "Fuel percentage" },
       "fuel_range": { "name": "Fuel range" },
       "fuel_consumption": { "name": "Average fuel consumption" },
-      "fuel_type": { "name": "Fuel type" },
+      "fuel_type": {
+        "name": "Fuel type",
+        "state": {
+          "petrol": "Petrol",
+          "diesel": "Diesel"
+        }
+      },
       "odometer": { "name": "Odometer" },
       "battery_capacity": { "name": "Battery capacity" },
       "battery_energy": { "name": "Battery energy" },
