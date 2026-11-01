@@ -1,7 +1,7 @@
 # Lynk & Co Home Assistant Integration
 ![Usage counter](https://img.shields.io/badge/dynamic/json?color=41BDF5&logo=home-assistant&label=integration%20usage&suffix=%20installs&cacheSeconds=15600&url=https://raw.githubusercontent.com/b12e/hacs-b12e-usage-stats/refs/heads/main/usage.json&query=$.integrations.lynkco.total_usage) 
 
-Custom [Home Assistant](https://www.home-assistant.io/) integration for Lynk & Co vehicles (>MY25 01, 02 and 08), installable from the Home Assistant [Marketplace](https://www.home-assistant.io/integrations/marketplace/) (Home Assistant 2026.11 and newer) or [HACS](https://hacs.xyz/) (2026.10 and older).
+Custom [Home Assistant](https://www.home-assistant.io/) integration for Lynk & Co vehicles (01, 02 and 08), installable from the Home Assistant [Marketplace](https://www.home-assistant.io/integrations/marketplace/) (Home Assistant 2026.11 and newer) or [HACS](https://hacs.xyz/) (2026.10 and older).
 
 If you like the integration, make sure to show your love by giving it a ⭐. 
 
@@ -10,19 +10,15 @@ If you have any feature requests or issues, please [create an issue](https://git
 ## Supported Models
 
 Tested on the following vehicles:
+- Pre-2025 Lynk & Co 01: sensors plus the actions owners have confirmed, see the note below
 - 2025 (New/Facelift) Lynk & Co 01 (PHEV) and newer
 - Lynk & Co 02 (BEV)
 - Lynk & Co 08 (PHEV)
-- Pre-2025 Lynk & Co 01: sensors plus the actions owners have confirmed, see below
-
-Other models are currently not available on the EU market, although it is likely when they do become available they are on the same platform and will work. The documentation will be updated accordingly as soon as this happens.
-
-The integration identifies your car by its model code (`CX11_A3`, `E335`, `DX11`, `CX11_A1`) and by the car guide type the API reports (model year for pre-2025 01s, Core/More for newer cars). Both are shown on the device page and in the diagnostics download. Remote actions are only enabled for models where they are confirmed to work; everything the API itself tells us (BEV vs PHEV, which heater zones exist, whether the glovebox can be locked) is detected automatically.
 
 > [!NOTE]
 > Pre-2025 01s run on a different vehicle platform, but [owners report](https://github.com/b12e/ha_lynkco_2025/issues/33) that the same API serves them. On these cars the integration exposes all sensors the API returns data for, plus the actions owners have confirmed; everything else stays disabled until confirmed. See the [pre-2025 01 wiki page](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-01-(pre-2025)) for the full list and how to confirm a feature. [Hass-Lynk-Co](https://github.com/Donkie/Hass-Lynk-Co) remains an alternative for these cars.
 
-A car with a model code the integration has never seen gets the same treatment, plus a notice under Settings → Repairs that links straight to the model report form.
+Other models are currently not available on the EU market, although it is likely when they do become available they are on the same platform and will work. The documentation will be updated accordingly as soon as this happens.
 
 # Installation
 
@@ -33,17 +29,11 @@ Starting with Home Assistant 2026.11, HACS ships as part of Home Assistant itsel
 1. Go to Settings → Marketplace
 2. Search for "Lynk & Co" and click Install. You should be prompted with the setup wizard. If not, you can go to Settings → Devices & services → + Add Integration → Lynk & Co.
 
-> [!NOTE]
-> If you installed the integration through HACS before upgrading to 2026.11, nothing changes: it stays installed and keeps receiving updates through the Marketplace.
-
 ## HACS (Home Assistant 2026.10 and older)
 1. Make sure [HACS](https://hacs.xyz) is installed in your Home Assistant installation
 2. Search for "Lynk & Co" and click Download. Follow the on-screen instructions.
 3. Restart Home Assistant
 4. Go to Settings → Devices & services → + Add Integration → Lynk & Co
-
-## Manual
-Copy `custom_components/lynkco/` to your Home Assistant `custom_components` directory.
 
 # Setup
 
@@ -51,18 +41,19 @@ The integration uses Azure AD B2C authentication with MFA in the same way the mo
 
 1. Add the integration in Home Assistant
 2. A login URL is generated - open it in your browser
-3. Open DevTools (F12) → Network tab
+3. Open DevTools in your browser (F12) → Network tab
 4. Log in with your Lynk & Co email + password + SMS MFA code
 5. After MFA, the browser will fail to open `msauth://...`
 6. In the network tab of your developer tools, find the last request → copy the `Location` header value
 7. Paste the full `msauth://...` URL back in Home Assistant
 
 > [!TIP]
-> Firefox dev tools don't show the entire header. Right click on the request and copy the response headers instead, and then get the `msauth://` header from there.
+> - Firefox dev tools don't show the entire header. Right click on the request and copy the response header's value that way, which will get you the entire `msauth://` header.
+> - I recommend to use either Google Chrome or Firefox for this. It might be more complicated in other browsers (e.g. Safari).
 
-This process should be similar to the HACS integration for pre-2025 Lynk&Co cars such as the [Donkie](https://github.com/Donkie/Hass-Lynk-Co) one. 
+This process is the same as for the HACS integration for pre-2025 Lynk&Co cars such as the [Donkie](https://github.com/Donkie/Hass-Lynk-Co) one. 
 
-Tokens are automatically refreshed. You should only need to re-authenticate if the refresh token expires (e.g. if your Home Assistant instance has been offline for an extended period of time).
+Tokens are automatically refreshed. You should only need to re-authenticate if the refresh token expires (e.g. if your Home Assistant instance has been offline for an extended period of time, or when Lynk&Co invalidates the tokens).
 
 ## Limitations
 
@@ -72,7 +63,13 @@ Tokens are automatically refreshed. You should only need to re-authenticate if t
 > When the phone app logs in, the API answers every request from Home Assistant with 403 Forbidden until the integration takes the session back, which it does on its next request (within a minute while driving or while the climate is active, otherwise at the next poll) and which logs the phone out again. The shared-account workaround below avoids this tug of war, because each account has its own session.
 
 > [!TIP]
-> Since late September, Lynk&Co allows to share your car with up to 3 additional Lynk&Co accounts. You could potentially create a new account, share the car with this account, and then use that account with HA or on your mobile phone. I've so far not tested this functionality. If there are issues, please open an issue.
+> Since late September, Lynk&Co allows to share your car with up to 3 additional Lynk&Co accounts. If you want to use both the mobile app as well as the HA integration, follow the following steps:
+> 1. In your "Primary" account, go to Car Settings and copy the invite link. Keep it somewhere safe (e.g. the notes app on your phone).
+> 2. Log out of your primary account.
+> 3. Create a new Lynk&Co account with another email address and go through the app onboarding until you're logged in with the secondary account
+> 4. Open the invite link from step 1. It should open the Lynk&Co app with a modal to accept the invitation
+>
+> You can use either your main (primary) or new (secondary) account in HA. Use the other account on your mobile phone for the app.
 
 # Features
 
@@ -83,7 +80,7 @@ Every sensor, entity and action is documented per car model in the wiki, with it
 - [Lynk & Co 08](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-%26-Co-08)
 - [Lynk & Co 01 (pre-2025)](https://github.com/b12e/ha_lynkco_2025/wiki/Lynk-&-Co-01-(2021%E2%80%902024))
 
-In short: battery, fuel (PHEV), climate and heater sensors, odometer and address, grouped door and window sensors, a GPS device tracker, door and glovebox locks, a charging switch, a climate entity, refresh and update-location buttons, and `lynkco.*` actions for everything the official app can do remotely (lock, lights, horn, sunroof, charging, charge limit, climate, ventilation, heaters, glovebox, location request). The [wiki home page](https://github.com/b12e/ha_lynkco_2025/wiki) explains how a feature gets its status on a model and how to confirm one.
+In short: battery, fuel (PHEV), climate and heater sensors, odometer and address, door and window sensors, a GPS device tracker, door and glovebox locks, a charging switch, a climate entity, refresh and update-location buttons, and `lynkco.*` actions for everything the official app can do remotely (lock, lights, horn, sunroof, charging, charge limit, climate, ventilation, heaters, glovebox, location request). The [wiki home page](https://github.com/b12e/ha_lynkco_2025/wiki) explains how a feature gets its status on a model and how to confirm one.
 
 A redacted diagnostics download (device page → ⋮ → Download diagnostics) shows model code, guide type, enabled features, failing endpoints and all raw payloads; attach it to issues.
 
