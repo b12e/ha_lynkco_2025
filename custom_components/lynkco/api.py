@@ -5,6 +5,7 @@ import hashlib
 import json
 import logging
 import re
+import time
 import urllib.parse
 import uuid
 
@@ -29,6 +30,10 @@ _LOGGER = logging.getLogger(__name__)
 
 # Every request gives up after this long instead of hanging on a stalled connection
 REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=30)
+
+# A 403 on an endpoint that worked before means another device took over the
+# account's single session; one re-claim covers every 403 in this many seconds
+SESSION_RECLAIM_INTERVAL = 60
 
 # The authorization code in a pasted redirect ends at the next query parameter
 # or at whitespace, so a whole pasted response-headers block works as well
@@ -132,7 +137,12 @@ class LynkCoAPI:
         self._refresh_token = refresh_token
         self._device_id = device_id
         self._on_token_refresh = on_token_refresh
-        self._refresh_lock = asyncio.Lock()  # one token refresh at a time, see _request
+        self._refresh_lock = asyncio.Lock()  # one token refresh or session re-claim at a time
+        # Paths that answered 2xx before: a 403 on one of them means the session
+        # went to another device, see _request. The time of the last re-claim
+        # keeps the other 403s of the same poll from repeating it.
+        self._working_paths: set[str] = set()
+        self._last_reclaim: float | None = None
         self._claims: dict = {}
         self._update_claims()
 
@@ -194,30 +204,44 @@ class LynkCoAPI:
 
     async def _request(self, method: str, url: str, **kwargs) -> dict:
         token = self._access_token
+        path = _extract_path(url)
         headers = self._build_headers(url)
         async with self._session.request(
             method, url, headers=headers, timeout=REQUEST_TIMEOUT, **kwargs
         ) as resp:
-            if resp.status != 401:
+            # A 403 on an endpoint that worked before means the session went to
+            # another device; on any other endpoint it is raised as is, since a
+            # re-claim would log that device out at every poll
+            taken = resp.status == 403 and path in self._working_paths
+            if resp.status != 401 and not taken:
                 return await self._read_json(url, resp)
 
-        _LOGGER.debug("Got 401, attempting token refresh")
-        async with self._refresh_lock:
-            # Another task may have refreshed the token while this request was
-            # in flight or while waiting for the lock: then a retry is enough.
-            if self._access_token == token:
-                await self._refresh_tokens_locked()
+        if taken:
+            await self._reclaim_session()
+        else:
+            _LOGGER.debug("Got 401, attempting token refresh")
+            async with self._refresh_lock:
+                # Another task may have refreshed the token while this request was
+                # in flight or while waiting for the lock: then a retry is enough.
+                if self._access_token == token:
+                    await self._refresh_tokens_locked()
         headers = self._build_headers(url)
         async with self._session.request(
             method, url, headers=headers, timeout=REQUEST_TIMEOUT, **kwargs
         ) as retry:
-            if retry.status == 401:
+            if retry.status == 401 and not taken:
                 raise LynkCoAuthError("Still unauthorized after refreshing the token")
+            if retry.status == 403 and taken:
+                # Still forbidden with the session back: this endpoint is simply
+                # not permitted for the account, so stop re-claiming for it. A new
+                # login would not help either; the coordinator isolates the endpoint.
+                self._working_paths.discard(path)
             return await self._read_json(url, retry)
 
     async def _read_json(self, url: str, resp: aiohttp.ClientResponse) -> dict:
         """Return the JSON body of a successful response ({} for an empty one)."""
         resp.raise_for_status()
+        self._working_paths.add(_extract_path(url))  # a later 403 here is a takeover, see _request
         if resp.content_length == 0:
             return {}
         data = await resp.json()
@@ -300,7 +324,39 @@ class LynkCoAPI:
         )
         return error
 
+    async def _reclaim_session(self) -> None:
+        """Claim the account's single device session back from the device that took it.
+
+        Lynk & Co keeps one device session per account: when the phone app logs
+        in, it takes the session and every endpoint answers 403 for this client
+        until validate-session (which the setup also calls before the first
+        poll) claims it back, logging the phone out again. Refreshing the tokens
+        does not help, they are still valid. One re-claim per
+        SESSION_RECLAIM_INTERVAL serves every 403 of a poll: the other requests
+        only retry, and concurrent 403s wait for the lock instead of each
+        calling validate-session.
+        """
+        async with self._refresh_lock:
+            if (
+                self._last_reclaim is not None
+                and time.monotonic() - self._last_reclaim < SESSION_RECLAIM_INTERVAL
+            ):
+                return
+            _LOGGER.warning(
+                "The Lynk & Co session was taken by another device (probably the phone app); "
+                "claiming it back"
+            )
+            await self.validate_session()
+            self._last_reclaim = time.monotonic()
+
     async def validate_session(self) -> bool:
+        """Claim the account's device session for this client; True when the session is valid.
+
+        The official app makes this call at every start. A 200 whose body (the
+        app's ValidateSessionResponse: "valid" and "cccToken") says the session
+        is not valid counts as False; a 200 without a readable body counts as
+        valid. Network errors propagate.
+        """
         url = f"{IAM_BASE}/validate-session"
         headers = self._build_headers(url)
         async with self._session.post(
@@ -309,7 +365,16 @@ class LynkCoAPI:
             json={"deviceUuid": self._device_id, "isLogin": True},
             timeout=REQUEST_TIMEOUT,
         ) as resp:
-            return resp.status == 200
+            if resp.status != 200:
+                return False
+            try:
+                body = await resp.json(content_type=None)
+            except (aiohttp.ClientError, ValueError):
+                body = None
+            if isinstance(body, dict) and body.get("valid") is False:
+                _LOGGER.debug("validate-session answered 200 but reports the session as not valid")
+                return False
+            return True
 
     async def get_vehicles(self) -> list[dict]:
         url = f"{LOVE_BASE}/list/vehicles"
