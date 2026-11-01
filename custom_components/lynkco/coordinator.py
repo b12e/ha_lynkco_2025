@@ -236,21 +236,21 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         """
         return async_track_time_interval(self.hass, self._async_fast_poll, FAST_POLL_BASE_INTERVAL)
 
-    def _fast_poll_targets(self) -> list[tuple[str, str, timedelta]]:
-        """(data_key, api_method, period) for each endpoint to fast-poll right now."""
+    def _fast_poll_targets(self) -> list[tuple[str, timedelta]]:
+        """(data_key, period) for each endpoint to fast-poll right now."""
         data = self.data or {}
-        targets: list[tuple[str, str, timedelta]] = []
+        targets: list[tuple[str, timedelta]] = []
         if (data.get("vehicle_data") or {}).get("driveModeEnabled", False):
             drive = timedelta(
                 minutes=self.entry.options.get(CONF_DRIVING_INTERVAL, DRIVING_SCAN_INTERVAL // 60)
             )
             # vehicle_data polls at the base cadence so drive-end is detected promptly
-            targets.append(("vehicle_data", "get_vehicle_data", FAST_POLL_BASE_INTERVAL))
-            targets.append(("location", "get_location", drive))
-            targets.append(("charge", "get_charge_state", drive))
+            targets.append(("vehicle_data", FAST_POLL_BASE_INTERVAL))
+            targets.append(("location", drive))
+            targets.append(("charge", drive))
         status = (data.get("climate") or {}).get("status")
         if str(status or "").upper().startswith("ACTIVE"):
-            targets.append(("climate", "get_climate_state", FAST_POLL_BASE_INTERVAL))
+            targets.append(("climate", FAST_POLL_BASE_INTERVAL))
         return targets
 
     async def _async_fast_poll(self, now: datetime) -> None:
@@ -259,20 +259,20 @@ class LynkCoCoordinator(DataUpdateCoordinator):
             return
 
         slack = timedelta(seconds=1)  # tolerate timer jitter so a 60s target fires each 60s tick
-        due: dict[str, str] = {}
-        for key, fn_name, period in self._fast_poll_targets():
+        due: list[str] = []
+        for key, period in self._fast_poll_targets():
             last = self._last_fast_poll.get(key)
             if last is None or (now - last) >= (period - slack):
-                due[key] = fn_name
+                due.append(key)
         if not due:
             return
 
         was_driving = (self.data.get("vehicle_data") or {}).get("driveModeEnabled", False)
         errors_before = dict(self.endpoint_errors)
         updates: dict[str, Any] = {}
-        for key, fn_name in due.items():
+        for key in due:
             try:
-                value = await self._fetch_endpoint(key, getattr(self.api, fn_name))
+                value = await self._fetch_endpoint(key, self._endpoints()[key])
             except LynkCoAuthError as err:
                 self._start_reauth(err)
                 return

@@ -7,6 +7,7 @@ import importlib.util
 import json
 import os
 import pathlib
+import sys
 
 import pytest
 
@@ -14,6 +15,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1] / "custom_components" / "lynk
 
 spec = importlib.util.spec_from_file_location("lynkco_features", ROOT / "features.py")
 features = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = features  # dataclass() looks the module up here on Python 3.14
 spec.loader.exec_module(features)
 
 ALL_ACTIONS = {
