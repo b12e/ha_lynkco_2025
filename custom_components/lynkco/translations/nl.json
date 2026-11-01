@@ -48,27 +48,117 @@
     "sensor": {
       "battery_level": { "name": "Batterijniveau" },
       "battery_range": { "name": "Elektrisch bereik" },
-      "charging_status": { "name": "Oplaadstatus" },
+      "charging_status": {
+        "name": "Oplaadstatus",
+        "state": {
+          "power_available_but_not_activated": "Stroom beschikbaar, niet geactiveerd",
+          "fully_charged": "Volledig opgeladen",
+          "connected_without_power": "Verbonden zonder stroom",
+          "ready_to_charge": "Klaar om op te laden",
+          "charging": "Opladen",
+          "fast_charging": "Snelladen",
+          "disconnected": "Niet verbonden",
+          "error": "Fout",
+          "outputting": "Levert stroom"
+        }
+      },
       "charging_speed": { "name": "Oplaadsnelheid" },
       "charging_time_remaining": { "name": "Resterende oplaadtijd" },
       "charge_limit": { "name": "Oplaadlimiet" },
       "power_consumption": { "name": "Gemiddeld stroomverbruik" },
       "interior_temperature": { "name": "Interieurtemperatuur" },
       "target_temperature": { "name": "Doeltemperatuur" },
-      "climate_status": { "name": "Klimaatstatus" },
-      "heater_steering_wheel": { "name": "Stuurverwarming" },
-      "heater_windshield": { "name": "Voorruitverwarming" },
-      "heater_front_left_seat": { "name": "Stoelverwarming linksvoor" },
-      "heater_front_right_seat": { "name": "Stoelverwarming rechtsvoor" },
-      "heater_rear_left_seat": { "name": "Stoelverwarming linksachter" },
-      "heater_rear_center_seat": { "name": "Stoelverwarming midden achter" },
-      "heater_rear_right_seat": { "name": "Stoelverwarming rechtsachter" },
-      "lock_status": { "name": "Centraal slot" },
+      "climate_status": {
+        "name": "Klimaatstatus",
+        "state": {
+          "active": "Actief",
+          "active_cooling": "Koelen",
+          "active_heating": "Verwarmen",
+          "active_defrost": "Ontdooien",
+          "inactive": "Inactief",
+          "disconnected": "Niet verbonden",
+          "connected_without_power": "Verbonden zonder stroom",
+          "charging_error": "Laadfout",
+          "out_of_fuel": "Geen brandstof",
+          "battery_low": "Accu bijna leeg",
+          "drive_mode_enabled": "Rijmodus ingeschakeld",
+          "disabled_unlocked_car": "Uitgeschakeld (auto ontgrendeld)"
+        }
+      },
+      "heater_steering_wheel": {
+        "name": "Stuurverwarming",
+        "state": {
+          "active": "Actief",
+          "inactive": "Inactief",
+          "disabled": "Uitgeschakeld"
+        }
+      },
+      "heater_windshield": {
+        "name": "Voorruitverwarming",
+        "state": {
+          "active": "Actief",
+          "inactive": "Inactief",
+          "disabled": "Uitgeschakeld"
+        }
+      },
+      "heater_front_left_seat": {
+        "name": "Stoelverwarming linksvoor",
+        "state": {
+          "active": "Actief",
+          "inactive": "Inactief",
+          "disabled": "Uitgeschakeld"
+        }
+      },
+      "heater_front_right_seat": {
+        "name": "Stoelverwarming rechtsvoor",
+        "state": {
+          "active": "Actief",
+          "inactive": "Inactief",
+          "disabled": "Uitgeschakeld"
+        }
+      },
+      "heater_rear_left_seat": {
+        "name": "Stoelverwarming linksachter",
+        "state": {
+          "active": "Actief",
+          "inactive": "Inactief",
+          "disabled": "Uitgeschakeld"
+        }
+      },
+      "heater_rear_center_seat": {
+        "name": "Stoelverwarming midden achter",
+        "state": {
+          "active": "Actief",
+          "inactive": "Inactief",
+          "disabled": "Uitgeschakeld"
+        }
+      },
+      "heater_rear_right_seat": {
+        "name": "Stoelverwarming rechtsachter",
+        "state": {
+          "active": "Actief",
+          "inactive": "Inactief",
+          "disabled": "Uitgeschakeld"
+        }
+      },
+      "lock_status": {
+        "name": "Centraal slot",
+        "state": {
+          "locked": "Vergrendeld",
+          "unlocked": "Ontgrendeld"
+        }
+      },
       "address": { "name": "Adres" },
       "fuel_level": { "name": "Brandstofpercentage" },
       "fuel_range": { "name": "Brandstofbereik" },
       "fuel_consumption": { "name": "Gemiddeld brandstofverbruik" },
-      "fuel_type": { "name": "Brandstoftype" },
+      "fuel_type": {
+        "name": "Brandstoftype",
+        "state": {
+          "petrol": "Benzine",
+          "diesel": "Diesel"
+        }
+      },
       "odometer": { "name": "Kilometerteller" },
       "battery_capacity": { "name": "Batterijcapaciteit" },
       "battery_energy": { "name": "Batterijenergie" },
