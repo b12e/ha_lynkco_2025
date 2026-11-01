@@ -65,7 +65,7 @@
       "heater_rear_right_seat": { "name": "Chauffage siège arrière droit" },
       "lock_status": { "name": "Verrouillage central" },
       "address": { "name": "Adresse" },
-      "fuel_level": { "name": "Niveau de carburant" },
+      "fuel_level": { "name": "Pourcentage de carburant" },
       "fuel_range": { "name": "Autonomie carburant" },
       "fuel_consumption": { "name": "Consommation moyenne" },
       "fuel_type": { "name": "Type de carburant" },
