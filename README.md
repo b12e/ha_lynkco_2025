@@ -98,6 +98,10 @@ Custom polling intervals can be configured using the gear icon after setting up 
 
 <img width="1260" height="871" alt="image" src="https://github.com/user-attachments/assets/bc763f0a-7b3a-44d6-917f-8ea24ba05ce2" />
 
+# Contributing
+
+Feature requests and bug reports are welcome as issues, using the templates; pull requests are welcome too. [CONTRIBUTING.md](CONTRIBUTING.md) has the details.
+
 # Credits
 
 API reverse-engineered from the Lynk & Co Android app v2.55.0 and v2.63.0, and verified against v2.67.0.
