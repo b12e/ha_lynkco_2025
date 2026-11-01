@@ -14,7 +14,7 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
-from .api import LynkCoAPI, LynkCoAuthError
+from .api import LynkCoAPI, LynkCoAuthError, redact_vin
 from .const import (
     CLIMATE_SCAN_INTERVAL,
     CONF_DRIVING_INTERVAL,
@@ -62,14 +62,17 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         features: ModelFeatures,
     ) -> None:
         scan_minutes = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL // 60)
+        log_vin = redact_vin(vin)
         super().__init__(
             hass,
             _LOGGER,
-            name=f"{DOMAIN}_{vin}",
+            # Home Assistant puts this name in its own log lines ("Error fetching ... data")
+            name=f"{DOMAIN}_{log_vin}",
             update_interval=timedelta(minutes=scan_minutes),
         )
         self.api = api
         self.vin = vin
+        self.log_vin = log_vin  # what log messages show instead of the VIN
         self.model = model
         self.guide_type = guide_type
         self.features = features
@@ -165,14 +168,16 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         except LynkCoAuthError:
             raise
         except Exception as err:  # noqa: BLE001 - any API error isolates this endpoint only
+            # aiohttp puts the request URL, and with it the VIN, in the error text
+            message = str(err).replace(self.vin, self.log_vin)
             if key not in self.endpoint_errors:
-                _LOGGER.warning("Lynk & Co endpoint %s failed for %s: %s", key, self.vin, err)
+                _LOGGER.warning("Lynk & Co endpoint %s failed for %s: %s", key, self.log_vin, message)
             else:
-                _LOGGER.debug("Lynk & Co endpoint %s still failing for %s: %s", key, self.vin, err)
-            self.endpoint_errors[key] = str(err)
+                _LOGGER.debug("Lynk & Co endpoint %s still failing for %s: %s", key, self.log_vin, message)
+            self.endpoint_errors[key] = message
             return None
         if key in self.endpoint_errors:
-            _LOGGER.info("Lynk & Co endpoint %s recovered for %s", key, self.vin)
+            _LOGGER.info("Lynk & Co endpoint %s recovered for %s", key, self.log_vin)
             self.endpoint_errors.pop(key, None)
         return value
 
@@ -222,7 +227,7 @@ class LynkCoCoordinator(DataUpdateCoordinator):
 
     def _start_reauth(self, err: LynkCoAuthError) -> None:
         """Ask Home Assistant for a new login outside the regular update cycle."""
-        _LOGGER.warning("Lynk & Co session for %s expired (%s); re-authentication required", self.vin, err)
+        _LOGGER.warning("Lynk & Co session for %s expired (%s); re-authentication required", self.log_vin, err)
         self.last_update_success = False
         self.async_update_listeners()
         self.entry.async_start_reauth(self.hass)
@@ -288,7 +293,7 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         self.data = {**self.data, **updates, "last_updated": dt_util.now()}
         if changed or self.endpoint_errors != errors_before:
             self.async_update_listeners()
-        _LOGGER.debug("Fast-polled %s for %s (changed=%s)", list(updates), self.vin, changed)
+        _LOGGER.debug("Fast-polled %s for %s (changed=%s)", list(updates), self.log_vin, changed)
 
         # LynkOS 1.4.0+ only refreshes location when the car stops, so when
         # driving has just ended, chase the final (destination) location.

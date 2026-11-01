@@ -50,13 +50,13 @@ class LynkCoLock(LynkCoEntity, LockEntity):
 
     async def async_lock(self, **kwargs) -> None:
         self.coordinator.require_action("lock_door")
-        _LOGGER.info("Locking %s", self.coordinator.vin)
+        _LOGGER.info("Locking %s", self.coordinator.log_vin)
         await self._api.lock_door(self.coordinator.vin)
         self._refresh_vehicle_data()
 
     async def async_unlock(self, **kwargs) -> None:
         self.coordinator.require_action("unlock_door")
-        _LOGGER.info("Unlocking %s", self.coordinator.vin)
+        _LOGGER.info("Unlocking %s", self.coordinator.log_vin)
         await self._api.unlock_door(self.coordinator.vin)
         self._refresh_vehicle_data()
 
@@ -93,13 +93,13 @@ class LynkCoGloveboxLock(LynkCoEntity, LockEntity):
         code = kwargs.get("code")
         if not code:
             raise ValueError("A PIN code is required to lock the glovebox")
-        _LOGGER.info("Locking glovebox %s", self.coordinator.vin)
+        _LOGGER.info("Locking glovebox %s", self.coordinator.log_vin)
         await self._api.lock_glovebox(self.coordinator.vin, code)
         self._refresh_vehicle_data()
 
     async def async_unlock(self, **kwargs) -> None:
         self.coordinator.require_action("unlock_glovebox")
-        _LOGGER.info("Unlocking glovebox %s", self.coordinator.vin)
+        _LOGGER.info("Unlocking glovebox %s", self.coordinator.log_vin)
         await self._api.unlock_glovebox(self.coordinator.vin)
         self._refresh_vehicle_data()
 

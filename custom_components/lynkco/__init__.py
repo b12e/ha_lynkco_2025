@@ -12,7 +12,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import LynkCoAPI, LynkCoAuthError
+from .api import LynkCoAPI, LynkCoAuthError, redact_vin
 from .const import (
     CONF_ACCESS_TOKEN,
     CONF_DEVICE_ID,
@@ -228,6 +228,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         model = vehicle.get("model", "Unknown")
         if not vin:
             continue
+        log_vin = redact_vin(vin)
 
         # The guide type (model year for pre-2025 01s, Core/More for newer cars)
         # is the most precise identity the API offers; it is fetched once.
@@ -236,12 +237,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         except LynkCoAuthError as err:
             raise ConfigEntryAuthFailed(str(err)) from err
         except Exception as err:  # noqa: BLE001 - identity is best effort
-            _LOGGER.warning("Could not read the vehicle guide type for %s: %s", vin, err)
+            # aiohttp puts the request URL, and with it the VIN, in the error text
+            _LOGGER.warning(
+                "Could not read the vehicle guide type for %s: %s",
+                log_vin, str(err).replace(vin, log_vin),
+            )
             guide_type = None
         features = await async_get_model_features(hass, guide_type, model)
         _LOGGER.info(
             "Vehicle %s: model %s, guide type %s, features from %s",
-            vin, model, guide_type, features.file,
+            log_vin, model, guide_type, features.file,
         )
 
         coordinator = LynkCoCoordinator(hass, entry, api, vin, model, guide_type, features)
