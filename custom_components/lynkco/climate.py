@@ -39,7 +39,7 @@ class LynkCoClimate(LynkCoEntity, RestoreEntity, ClimateEntity):
     _data_key = "climate"
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_target_temperature_step = 1
-    _attr_hvac_modes = [HVACMode.OFF, HVACMode.AUTO]
+    _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT_COOL]
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.TURN_ON
@@ -96,7 +96,7 @@ class LynkCoClimate(LynkCoEntity, RestoreEntity, ClimateEntity):
         # Running states are ACTIVE_COOLING / ACTIVE_HEATING; everything else
         # (INACTIVE, DISABLED_UNLOCKED_CAR, DRIVE_MODE_ENABLED, ...) is off.
         if str(status).upper().startswith("ACTIVE"):
-            return HVACMode.AUTO
+            return HVACMode.HEAT_COOL
         return HVACMode.OFF
 
     @property
@@ -116,7 +116,7 @@ class LynkCoClimate(LynkCoEntity, RestoreEntity, ClimateEntity):
         if temp is None:
             return
         self.coordinator.require_action("start_conditioning")
-        _LOGGER.info("Setting climate temperature to %s for %s", temp, self.coordinator.vin)
+        _LOGGER.info("Setting climate temperature to %s for %s", temp, self.coordinator.log_vin)
         self._target_temp = float(temp)
         self.async_write_ha_state()
         await self._api.start_conditioning(self.coordinator.vin, int(round(temp)))
@@ -131,13 +131,13 @@ class LynkCoClimate(LynkCoEntity, RestoreEntity, ClimateEntity):
     async def async_turn_on(self) -> None:
         self.coordinator.require_action("start_conditioning")
         temp = self.target_temperature or DEFAULT_TARGET_TEMP
-        _LOGGER.info("Starting climate for %s", self.coordinator.vin)
+        _LOGGER.info("Starting climate for %s", self.coordinator.log_vin)
         await self._api.start_conditioning(self.coordinator.vin, int(round(temp)))
         self._refresh_climate()
 
     async def async_turn_off(self) -> None:
         self.coordinator.require_action("stop_conditioning")
-        _LOGGER.info("Stopping climate for %s", self.coordinator.vin)
+        _LOGGER.info("Stopping climate for %s", self.coordinator.log_vin)
         await self._api.stop_conditioning(self.coordinator.vin)
         self._refresh_climate()
 

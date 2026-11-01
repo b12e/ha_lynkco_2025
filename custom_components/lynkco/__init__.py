@@ -3,16 +3,17 @@
 import logging
 from datetime import timedelta
 
+import aiohttp
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import LynkCoAPI, LynkCoAuthError
+from .api import LynkCoAPI, LynkCoAuthError, LynkCoTransientError, redact_vin
 from .const import (
     CONF_ACCESS_TOKEN,
     CONF_DEVICE_ID,
@@ -210,12 +211,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # An expired session that cannot be refreshed raises ConfigEntryAuthFailed:
     # Home Assistant then shows a Repairs entry that opens the login flow again.
+    # An API that cannot be reached (Home Assistant often boots before the
+    # network is up) raises ConfigEntryNotReady instead: the setup is retried.
     try:
-        if not await api.validate_session() and not await api.refresh_tokens():
-            raise ConfigEntryAuthFailed("Lynk & Co session expired; log in again")
+        if not await api.validate_session():
+            await api.refresh_tokens()
         vehicles = await api.get_vehicles()
     except LynkCoAuthError as err:
         raise ConfigEntryAuthFailed(str(err)) from err
+    except (aiohttp.ClientError, TimeoutError, LynkCoTransientError) as err:
+        raise ConfigEntryNotReady(
+            f"Lynk & Co API not available: {str(err) or type(err).__name__}"
+        ) from err
 
     if not vehicles:
         _LOGGER.error("No vehicles found")
@@ -228,6 +235,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         model = vehicle.get("model", "Unknown")
         if not vin:
             continue
+        log_vin = redact_vin(vin)
 
         # The guide type (model year for pre-2025 01s, Core/More for newer cars)
         # is the most precise identity the API offers; it is fetched once.
@@ -235,13 +243,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             guide_type = await api.get_vehicle_guide(vin)
         except LynkCoAuthError as err:
             raise ConfigEntryAuthFailed(str(err)) from err
+        except (aiohttp.ClientConnectionError, TimeoutError, LynkCoTransientError) as err:
+            # No answer at all (unlike an answer without a guide): retry the setup
+            raise ConfigEntryNotReady(
+                "Lynk & Co API not available: "
+                f"{str(err).replace(vin, log_vin) or type(err).__name__}"
+            ) from err
         except Exception as err:  # noqa: BLE001 - identity is best effort
-            _LOGGER.warning("Could not read the vehicle guide type for %s: %s", vin, err)
+            # aiohttp puts the request URL, and with it the VIN, in the error text
+            _LOGGER.warning(
+                "Could not read the vehicle guide type for %s: %s",
+                log_vin, str(err).replace(vin, log_vin),
+            )
             guide_type = None
         features = await async_get_model_features(hass, guide_type, model)
         _LOGGER.info(
             "Vehicle %s: model %s, guide type %s, features from %s",
-            vin, model, guide_type, features.file,
+            log_vin, model, guide_type, features.file,
         )
 
         coordinator = LynkCoCoordinator(hass, entry, api, vin, model, guide_type, features)

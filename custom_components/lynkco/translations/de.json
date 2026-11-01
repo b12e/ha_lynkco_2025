@@ -48,27 +48,117 @@
     "sensor": {
       "battery_level": { "name": "Batteriestand" },
       "battery_range": { "name": "Elektrische Reichweite" },
-      "charging_status": { "name": "Ladestatus" },
+      "charging_status": {
+        "name": "Ladestatus",
+        "state": {
+          "power_available_but_not_activated": "Strom verfügbar, nicht aktiviert",
+          "fully_charged": "Vollständig geladen",
+          "connected_without_power": "Verbunden ohne Strom",
+          "ready_to_charge": "Bereit zum Laden",
+          "charging": "Lädt",
+          "fast_charging": "Schnellladen",
+          "disconnected": "Nicht verbunden",
+          "error": "Fehler",
+          "outputting": "Gibt Strom ab"
+        }
+      },
       "charging_speed": { "name": "Ladegeschwindigkeit" },
       "charging_time_remaining": { "name": "Verbleibende Ladezeit" },
       "charge_limit": { "name": "Ladelimit" },
       "power_consumption": { "name": "Durchschnittlicher Stromverbrauch" },
       "interior_temperature": { "name": "Innentemperatur" },
       "target_temperature": { "name": "Zieltemperatur" },
-      "climate_status": { "name": "Klimastatus" },
-      "heater_steering_wheel": { "name": "Lenkradheizung" },
-      "heater_windshield": { "name": "Frontscheibenheizung" },
-      "heater_front_left_seat": { "name": "Sitzheizung vorne links" },
-      "heater_front_right_seat": { "name": "Sitzheizung vorne rechts" },
-      "heater_rear_left_seat": { "name": "Sitzheizung hinten links" },
-      "heater_rear_center_seat": { "name": "Sitzheizung hinten Mitte" },
-      "heater_rear_right_seat": { "name": "Sitzheizung hinten rechts" },
-      "lock_status": { "name": "Zentralverriegelung" },
+      "climate_status": {
+        "name": "Klimastatus",
+        "state": {
+          "active": "Aktiv",
+          "active_cooling": "Kühlt",
+          "active_heating": "Heizt",
+          "active_defrost": "Enteist",
+          "inactive": "Inaktiv",
+          "disconnected": "Nicht verbunden",
+          "connected_without_power": "Verbunden ohne Strom",
+          "charging_error": "Ladefehler",
+          "out_of_fuel": "Kein Kraftstoff",
+          "battery_low": "Batterie schwach",
+          "drive_mode_enabled": "Fahrmodus aktiv",
+          "disabled_unlocked_car": "Deaktiviert (Auto entriegelt)"
+        }
+      },
+      "heater_steering_wheel": {
+        "name": "Lenkradheizung",
+        "state": {
+          "active": "Aktiv",
+          "inactive": "Inaktiv",
+          "disabled": "Deaktiviert"
+        }
+      },
+      "heater_windshield": {
+        "name": "Frontscheibenheizung",
+        "state": {
+          "active": "Aktiv",
+          "inactive": "Inaktiv",
+          "disabled": "Deaktiviert"
+        }
+      },
+      "heater_front_left_seat": {
+        "name": "Sitzheizung vorne links",
+        "state": {
+          "active": "Aktiv",
+          "inactive": "Inaktiv",
+          "disabled": "Deaktiviert"
+        }
+      },
+      "heater_front_right_seat": {
+        "name": "Sitzheizung vorne rechts",
+        "state": {
+          "active": "Aktiv",
+          "inactive": "Inaktiv",
+          "disabled": "Deaktiviert"
+        }
+      },
+      "heater_rear_left_seat": {
+        "name": "Sitzheizung hinten links",
+        "state": {
+          "active": "Aktiv",
+          "inactive": "Inaktiv",
+          "disabled": "Deaktiviert"
+        }
+      },
+      "heater_rear_center_seat": {
+        "name": "Sitzheizung hinten Mitte",
+        "state": {
+          "active": "Aktiv",
+          "inactive": "Inaktiv",
+          "disabled": "Deaktiviert"
+        }
+      },
+      "heater_rear_right_seat": {
+        "name": "Sitzheizung hinten rechts",
+        "state": {
+          "active": "Aktiv",
+          "inactive": "Inaktiv",
+          "disabled": "Deaktiviert"
+        }
+      },
+      "lock_status": {
+        "name": "Zentralverriegelung",
+        "state": {
+          "locked": "Verriegelt",
+          "unlocked": "Entriegelt"
+        }
+      },
       "address": { "name": "Adresse" },
       "fuel_level": { "name": "Kraftstoff in Prozent" },
       "fuel_range": { "name": "Kraftstoffreichweite" },
       "fuel_consumption": { "name": "Durchschnittsverbrauch" },
-      "fuel_type": { "name": "Kraftstoffart" },
+      "fuel_type": {
+        "name": "Kraftstoffart",
+        "state": {
+          "petrol": "Benzin",
+          "diesel": "Diesel"
+        }
+      },
       "odometer": { "name": "Kilometerstand" },
       "battery_capacity": { "name": "Batteriekapazität" },
       "battery_energy": { "name": "Batterieenergie" },

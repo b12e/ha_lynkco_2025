@@ -1,8 +1,10 @@
 """API client for Lynk & Co vehicles."""
 
+import asyncio
 import hashlib
 import json
 import logging
+import re
 import urllib.parse
 import uuid
 
@@ -24,6 +26,14 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+# Every request gives up after this long instead of hanging on a stalled connection
+REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=30)
+
+# The authorization code in a pasted redirect ends at the next query parameter
+# or at whitespace, so a whole pasted response-headers block works as well
+_CODE_IN_URL = re.compile(r"[?&]code=([^&\s]+)")
+_BARE_CODE = re.compile(r"^\s*code=([^&\s]+)")  # just "code=..." pasted
 
 # Lower-cased fragments of JSON keys whose values never reach the debug log.
 REDACT_KEY_PARTS = (
@@ -54,6 +64,16 @@ class LynkCoAuthError(Exception):
     """
 
 
+class LynkCoTransientError(Exception):
+    """A token refresh failed for a reason that does not call for a new login.
+
+    The token endpoint could not be reached, timed out or answered 429 or 5xx:
+    the refresh token may well still be valid, so the caller should try again
+    later instead of sending the user through the browser login (which also
+    logs their phone out of the official app).
+    """
+
+
 def redact(value: object, key: str = "") -> object:
     """Return a copy of an API payload with sensitive values replaced."""
     if any(part in key.lower() for part in REDACT_KEY_PARTS):
@@ -63,6 +83,17 @@ def redact(value: object, key: str = "") -> object:
     if isinstance(value, list):
         return [redact(item, key) for item in value]
     return value
+
+
+def redact_vin(vin: str) -> str:
+    """Return the VIN as log messages may show it: "***" plus its last four characters.
+
+    Enough to tell the cars of a multi-car account apart without identifying
+    the vehicle. An empty or shorter value comes back as just "***".
+    """
+    if not vin or len(vin) < 4:
+        return "***"
+    return f"***{vin[-4:]}"
 
 
 def _compute_signature(secret: str, nonce: str, path: str) -> str:
@@ -101,6 +132,7 @@ class LynkCoAPI:
         self._refresh_token = refresh_token
         self._device_id = device_id
         self._on_token_refresh = on_token_refresh
+        self._refresh_lock = asyncio.Lock()  # one token refresh at a time, see _request
         self._claims: dict = {}
         self._update_claims()
 
@@ -161,28 +193,36 @@ class LynkCoAPI:
         }
 
     async def _request(self, method: str, url: str, **kwargs) -> dict:
+        token = self._access_token
         headers = self._build_headers(url)
-        async with self._session.request(method, url, headers=headers, **kwargs) as resp:
-            if resp.status == 401:
-                _LOGGER.debug("Got 401, attempting token refresh")
-                if not await self.refresh_tokens():
-                    raise LynkCoAuthError("Session expired and the refresh token was rejected")
-                headers = self._build_headers(url)
-                async with self._session.request(
-                    method, url, headers=headers, **kwargs
-                ) as retry:
-                    if retry.status == 401:
-                        raise LynkCoAuthError("Still unauthorized after refreshing the token")
-                    retry.raise_for_status()
-                    retry_data = await retry.json()
-                    self._log_response(url, retry_data)
-                    return retry_data if retry_data is not None else {}
-            resp.raise_for_status()
-            if resp.content_length == 0:
-                return {}
-            data = await resp.json()
-            self._log_response(url, data)
-            return data if data is not None else {}
+        async with self._session.request(
+            method, url, headers=headers, timeout=REQUEST_TIMEOUT, **kwargs
+        ) as resp:
+            if resp.status != 401:
+                return await self._read_json(url, resp)
+
+        _LOGGER.debug("Got 401, attempting token refresh")
+        async with self._refresh_lock:
+            # Another task may have refreshed the token while this request was
+            # in flight or while waiting for the lock: then a retry is enough.
+            if self._access_token == token:
+                await self._refresh_tokens_locked()
+        headers = self._build_headers(url)
+        async with self._session.request(
+            method, url, headers=headers, timeout=REQUEST_TIMEOUT, **kwargs
+        ) as retry:
+            if retry.status == 401:
+                raise LynkCoAuthError("Still unauthorized after refreshing the token")
+            return await self._read_json(url, retry)
+
+    async def _read_json(self, url: str, resp: aiohttp.ClientResponse) -> dict:
+        """Return the JSON body of a successful response ({} for an empty one)."""
+        resp.raise_for_status()
+        if resp.content_length == 0:
+            return {}
+        data = await resp.json()
+        self._log_response(url, data)
+        return data if data is not None else {}
 
     @staticmethod
     def _log_response(url: str, data: object) -> None:
@@ -190,32 +230,75 @@ class LynkCoAPI:
             _LOGGER.debug("API response %s: %s", _extract_path(url), redact(data))
 
     async def refresh_tokens(self) -> bool:
+        """Trade the refresh token for a new token pair; True once they are in place.
+
+        A refresh that fails raises instead: LynkCoAuthError when the token
+        endpoint rejects the refresh token for good (a 4xx other than 429;
+        Azure B2C answers 400 invalid_grant for an expired or revoked one), so
+        the user has to log in again, or LynkCoTransientError when the endpoint
+        could not be reached, timed out or answered 429 or 5xx, which is no
+        reason for a new login.
+        """
+        async with self._refresh_lock:
+            return await self._refresh_tokens_locked()
+
+    async def _refresh_tokens_locked(self) -> bool:
+        """refresh_tokens for a caller that already holds the refresh lock."""
         url = f"{LOGIN_B2C_URL}oauth2/v2.0/token"
-        async with self._session.post(
-            url,
-            headers={
-                "Accept": "application/json",
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            data={
-                "client_id": CLIENT_ID,
-                "grant_type": "refresh_token",
-                "refresh_token": self._refresh_token,
-                "scope": SCOPE,
-                "redirect_uri": REDIRECT_URI,
-            },
-        ) as resp:
-            if resp.status != 200:
-                _LOGGER.error("Token refresh failed: %d", resp.status)
-                return False
-            data = await resp.json()
-            self._access_token = data["access_token"]
-            self._refresh_token = data.get("refresh_token", self._refresh_token)
-            self._update_claims()
-            _LOGGER.debug("Tokens refreshed successfully")
-            if self._on_token_refresh:
-                self._on_token_refresh(self._access_token, self._refresh_token)
-            return True
+        try:
+            async with self._session.post(
+                url,
+                headers={
+                    "Accept": "application/json",
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                data={
+                    "client_id": CLIENT_ID,
+                    "grant_type": "refresh_token",
+                    "refresh_token": self._refresh_token,
+                    "scope": SCOPE,
+                    "redirect_uri": REDIRECT_URI,
+                },
+                timeout=REQUEST_TIMEOUT,
+            ) as resp:
+                if resp.status != 200:
+                    error = await self._log_token_error(resp)
+                    if 400 <= resp.status < 500 and resp.status != 429:
+                        detail = f"{resp.status} {error}".strip()
+                        raise LynkCoAuthError(f"The refresh token was rejected ({detail})")
+                    raise LynkCoTransientError(f"Token refresh failed temporarily ({resp.status})")
+                data = await resp.json()
+        except (aiohttp.ClientError, TimeoutError) as err:
+            raise LynkCoTransientError(
+                f"Token endpoint not reachable: {str(err) or type(err).__name__}"
+            ) from err
+        self._access_token = data["access_token"]
+        self._refresh_token = data.get("refresh_token", self._refresh_token)
+        self._update_claims()
+        _LOGGER.debug("Tokens refreshed successfully")
+        if self._on_token_refresh:
+            self._on_token_refresh(self._access_token, self._refresh_token)
+        return True
+
+    @staticmethod
+    async def _log_token_error(resp: aiohttp.ClientResponse) -> str:
+        """Log the B2C error fields of a failed token answer at debug level; returns the error code.
+
+        Only "error" and "error_description" are read from the body, never a token.
+        """
+        try:
+            body = await resp.json(content_type=None)
+        except (aiohttp.ClientError, ValueError):
+            body = None
+        if not isinstance(body, dict):
+            _LOGGER.debug("Token endpoint answered %d without a JSON body", resp.status)
+            return ""
+        error = str(body.get("error") or "")
+        _LOGGER.debug(
+            "Token endpoint answered %d: %s (%s)",
+            resp.status, error or "no error code", body.get("error_description") or "",
+        )
+        return error
 
     async def validate_session(self) -> bool:
         url = f"{IAM_BASE}/validate-session"
@@ -224,6 +307,7 @@ class LynkCoAPI:
             url,
             headers=headers,
             json={"deviceUuid": self._device_id, "isLogin": True},
+            timeout=REQUEST_TIMEOUT,
         ) as resp:
             return resp.status == 200
 
@@ -389,14 +473,17 @@ class LynkCoAPI:
 
     @staticmethod
     def extract_code_from_url(url: str) -> str | None:
-        """Extract authorization code from msauth:// redirect URL."""
-        if "code=" in url:
-            if "?" in url:
-                query = url.split("?", 1)[1]
-            else:
-                query = url
-            return urllib.parse.parse_qs(query).get("code", [None])[0]
-        return None
+        """Extract the authorization code from the pasted msauth:// redirect.
+
+        Accepts the bare URL, a "Location: msauth://..." header line and a whole
+        pasted response-headers block (the README's Firefox tip): the code ends
+        at the next query parameter or at whitespace, so the header lines after
+        it are left out. A pasted "code=..." on its own works too.
+        """
+        match = _CODE_IN_URL.search(url) or _BARE_CODE.match(url)
+        if match is None:
+            return None
+        return urllib.parse.unquote(match.group(1))
 
     @staticmethod
     async def exchange_code(
@@ -419,6 +506,7 @@ class LynkCoAPI:
                 "redirect_uri": REDIRECT_URI,
                 "client_id": CLIENT_ID,
             },
+            timeout=REQUEST_TIMEOUT,
         ) as resp:
             if resp.status != 200:
                 _LOGGER.error("Token exchange failed: %d", resp.status)

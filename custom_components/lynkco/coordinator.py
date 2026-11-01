@@ -6,6 +6,8 @@ from collections.abc import Callable, Coroutine
 from datetime import datetime, timedelta
 from typing import Any
 
+import aiohttp
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ServiceValidationError
@@ -14,7 +16,7 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
-from .api import LynkCoAPI, LynkCoAuthError
+from .api import LynkCoAPI, LynkCoAuthError, LynkCoTransientError, redact_vin
 from .const import (
     CLIMATE_SCAN_INTERVAL,
     CONF_DRIVING_INTERVAL,
@@ -62,20 +64,25 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         features: ModelFeatures,
     ) -> None:
         scan_minutes = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL // 60)
+        log_vin = redact_vin(vin)
         super().__init__(
             hass,
             _LOGGER,
-            name=f"{DOMAIN}_{vin}",
+            config_entry=entry,
+            # Home Assistant puts this name in its own log lines ("Error fetching ... data")
+            name=f"{DOMAIN}_{log_vin}",
             update_interval=timedelta(minutes=scan_minutes),
         )
         self.api = api
         self.vin = vin
+        self.log_vin = log_vin  # what log messages show instead of the VIN
         self.model = model
         self.guide_type = guide_type
         self.features = features
         self.propulsion: str | None = None  # Set after first fetch (e.g. "PHEV", "BEV")
         self.entry = entry
         self._last_fast_poll: dict[str, datetime] = {}
+        self._fast_poll_lock = asyncio.Lock()  # held by a running tick, see _async_fast_poll
         # data key -> last error message, for endpoints that failed on the latest poll
         self.endpoint_errors: dict[str, str] = {}
 
@@ -155,24 +162,27 @@ class LynkCoCoordinator(DataUpdateCoordinator):
     async def _fetch_endpoint(
         self, key: str, fetch_fn: Callable[[], Coroutine[Any, Any, dict]]
     ) -> dict | None:
-        """Fetch one endpoint; a failure is recorded instead of failing the whole poll.
+        """Fetch one endpoint; an API failure is recorded instead of failing the whole poll.
 
         An expired session (LynkCoAuthError) is not isolated: it affects every
-        endpoint and needs the user to log in again, so it propagates.
+        endpoint and needs the user to log in again, so it propagates. So does
+        anything that is not an API failure, such as a programming error:
+        recording it as one is how #45 stayed hidden for months.
         """
         try:
             value = await fetch_fn()
-        except LynkCoAuthError:
-            raise
-        except Exception as err:  # noqa: BLE001 - any API error isolates this endpoint only
+        except (aiohttp.ClientError, TimeoutError, ValueError, LynkCoTransientError) as err:
+            # Unreachable, an HTTP error, a malformed body or a failed token refresh.
+            # aiohttp puts the request URL, and with it the VIN, in the error text
+            message = str(err).replace(self.vin, self.log_vin) or type(err).__name__
             if key not in self.endpoint_errors:
-                _LOGGER.warning("Lynk & Co endpoint %s failed for %s: %s", key, self.vin, err)
+                _LOGGER.warning("Lynk & Co endpoint %s failed for %s: %s", key, self.log_vin, message)
             else:
-                _LOGGER.debug("Lynk & Co endpoint %s still failing for %s: %s", key, self.vin, err)
-            self.endpoint_errors[key] = str(err)
+                _LOGGER.debug("Lynk & Co endpoint %s still failing for %s: %s", key, self.log_vin, message)
+            self.endpoint_errors[key] = message
             return None
         if key in self.endpoint_errors:
-            _LOGGER.info("Lynk & Co endpoint %s recovered for %s", key, self.vin)
+            _LOGGER.info("Lynk & Co endpoint %s recovered for %s", key, self.log_vin)
             self.endpoint_errors.pop(key, None)
         return value
 
@@ -202,9 +212,15 @@ class LynkCoCoordinator(DataUpdateCoordinator):
             if data is None:
                 # Everything failed at once: most likely an expired session, so try
                 # one token refresh before giving up on this cycle. A rejected
-                # refresh means the user has to log in again.
-                if not await self.api.refresh_tokens():
-                    raise LynkCoAuthError("Session expired and the refresh token was rejected")
+                # refresh means the user has to log in again; a token endpoint
+                # that merely failed temporarily only costs this cycle.
+                try:
+                    await self.api.refresh_tokens()
+                except LynkCoTransientError as err:
+                    raise UpdateFailed(
+                        f"All Lynk & Co API endpoints failed: {self.endpoint_errors} "
+                        f"(token refresh: {err})"
+                    ) from err
                 data = await self._async_fetch_all()
             if data is None:
                 raise UpdateFailed(f"All Lynk & Co API endpoints failed: {self.endpoint_errors}")
@@ -222,7 +238,7 @@ class LynkCoCoordinator(DataUpdateCoordinator):
 
     def _start_reauth(self, err: LynkCoAuthError) -> None:
         """Ask Home Assistant for a new login outside the regular update cycle."""
-        _LOGGER.warning("Lynk & Co session for %s expired (%s); re-authentication required", self.vin, err)
+        _LOGGER.warning("Lynk & Co session for %s expired (%s); re-authentication required", self.log_vin, err)
         self.last_update_success = False
         self.async_update_listeners()
         self.entry.async_start_reauth(self.hass)
@@ -254,10 +270,22 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         return targets
 
     async def _async_fast_poll(self, now: datetime) -> None:
-        """Refresh only the endpoints relevant to the active trigger(s)."""
-        if self.data is None:
-            return
+        """Refresh only the endpoints relevant to the active trigger(s).
 
+        Pauses while a login is required or the last full poll failed (the
+        reauth or the backstop poll has to succeed first) and never overlaps
+        itself: the timer does not wait for a slow tick to finish.
+        """
+        if self.data is None or not self.last_update_success:
+            return
+        if self._fast_poll_lock.locked():
+            _LOGGER.debug("Fast poll for %s skipped: the previous one is still running", self.log_vin)
+            return
+        async with self._fast_poll_lock:
+            await self._async_fast_poll_locked(now)
+
+    async def _async_fast_poll_locked(self, now: datetime) -> None:
+        """_async_fast_poll for a caller that already holds the fast-poll lock."""
         slack = timedelta(seconds=1)  # tolerate timer jitter so a 60s target fires each 60s tick
         due: list[str] = []
         for key, period in self._fast_poll_targets():
@@ -288,7 +316,7 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         self.data = {**self.data, **updates, "last_updated": dt_util.now()}
         if changed or self.endpoint_errors != errors_before:
             self.async_update_listeners()
-        _LOGGER.debug("Fast-polled %s for %s (changed=%s)", list(updates), self.vin, changed)
+        _LOGGER.debug("Fast-polled %s for %s (changed=%s)", list(updates), self.log_vin, changed)
 
         # LynkOS 1.4.0+ only refreshes location when the car stops, so when
         # driving has just ended, chase the final (destination) location.
