@@ -58,9 +58,8 @@ Tokens are automatically refreshed. You should only need to re-authenticate if t
 ## Limitations
 
 > [!WARNING]
-> Lynk&Co only allows 1 device to be logged in to the app at all times. This sadly also means that, when you log in to Home Assistant, your mobile app will automatically be logged out and vice versa. The workaround is to create a Home Assistant dashboard that replaces the Lynk&Co mobile app.
->
-> When the phone app logs in, the API answers every request from Home Assistant with 403 Forbidden until the integration takes the session back, which it does on its next request (within a minute while driving or while the climate is active, otherwise at the next poll) and which logs the phone out again. The shared-account workaround below avoids this tug of war, because each account has its own session.
+> Lynk&Co only allows 1 device to be logged in to the app at all times. This sadly also means that, when you log in to Home Assistant, your mobile app will automatically be logged out and vice versa. The workaround is to create a Home Assistant dashboard that replaces the Lynk&Co mobile app, or to share your car with a secondary account (see below).
+
 
 > [!TIP]
 > Since late September, Lynk&Co allows to share your car with up to 2 additional Lynk&Co accounts. If you want to use both the mobile app as well as the HA integration, follow the following steps:
