@@ -11,8 +11,10 @@ from homeassistant.components.climate import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
+from homeassistant.util.unit_conversion import TemperatureConverter
 
 from .const import DOMAIN
 from .coordinator import LynkCoCoordinator
@@ -23,6 +25,11 @@ _LOGGER = logging.getLogger(__name__)
 DEFAULT_MIN_TEMP = 16
 DEFAULT_MAX_TEMP = 28
 DEFAULT_TARGET_TEMP = 21
+
+# Home Assistant 2026.11 reads temperatures through the native_* members and
+# warns about an entity that still provides the old names; earlier versions
+# only know the old names. The old ones are defined only where needed.
+_LEGACY_TEMPERATURE_API = not hasattr(ClimateEntity, "native_temperature_unit")
 
 
 async def async_setup_entry(
@@ -37,7 +44,7 @@ async def async_setup_entry(
 
 class LynkCoClimate(LynkCoEntity, RestoreEntity, ClimateEntity):
     _data_key = "climate"
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS  # what the car reports and accepts
     _attr_target_temperature_step = 1
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT_COOL]
     _attr_supported_features = (
@@ -58,11 +65,17 @@ class LynkCoClimate(LynkCoEntity, RestoreEntity, ClimateEntity):
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
         last_state = await self.async_get_last_state()
-        if last_state and last_state.attributes.get("temperature") is not None:
-            try:
-                self._target_temp = float(last_state.attributes["temperature"])
-            except (ValueError, TypeError):
-                self._target_temp = None
+        if last_state is None or last_state.attributes.get(ATTR_TEMPERATURE) is None:
+            return
+        # State attributes are in the unit of the Home Assistant instance (newer
+        # versions record it as temperature_unit); the car speaks Celsius.
+        unit = last_state.attributes.get("temperature_unit") or self.hass.config.units.temperature_unit
+        try:
+            self._target_temp = TemperatureConverter.convert(
+                float(last_state.attributes[ATTR_TEMPERATURE]), unit, UnitOfTemperature.CELSIUS
+            )
+        except (ValueError, TypeError, HomeAssistantError):
+            self._target_temp = None
 
     @property
     def _climate(self) -> dict:
@@ -71,14 +84,25 @@ class LynkCoClimate(LynkCoEntity, RestoreEntity, ClimateEntity):
         return self.coordinator.data.get("climate") or {}
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         return self._climate.get("interiorTemperature")
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         if self._target_temp is not None:
             return self._target_temp
         return self._climate.get("targetTemperature")
+
+    if _LEGACY_TEMPERATURE_API:
+        _attr_temperature_unit = UnitOfTemperature.CELSIUS
+
+        @property
+        def current_temperature(self) -> float | None:
+            return self.native_current_temperature
+
+        @property
+        def target_temperature(self) -> float | None:
+            return self.native_target_temperature
 
     @property
     def min_temp(self) -> float:
@@ -130,7 +154,7 @@ class LynkCoClimate(LynkCoEntity, RestoreEntity, ClimateEntity):
 
     async def async_turn_on(self) -> None:
         self.coordinator.require_action("start_conditioning")
-        temp = self.target_temperature or DEFAULT_TARGET_TEMP
+        temp = self.native_target_temperature or DEFAULT_TARGET_TEMP
         _LOGGER.info("Starting climate for %s", self.coordinator.log_vin)
         await self._api.start_conditioning(self.coordinator.vin, int(round(temp)))
         self._refresh_climate()
