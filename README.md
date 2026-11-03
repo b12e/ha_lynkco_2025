@@ -31,40 +31,40 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/car-card.svg" alt="Mock-up of a dashboard card built from the integration's entities" width="880">
+  <img src="https://github.com/user-attachments/assets/0ba429e0-1788-4b11-820d-eb6fe864d47f" alt="Mock-up of a dashboard card built from the integration's entities" width="880">
 </p>
 
 <table align="center">
   <tr>
     <td align="center" width="33%">
-      <img src="docs/icons/battery-charging-80.svg" width="32" alt=""><br>
+      <img src="https://github.com/user-attachments/assets/4caf8fca-4369-4756-9b16-2a9ae19e880b" width="32" alt=""><br>
       <b>Battery and charging</b><br>
       <sub>Level, range, charging speed and time left, charge limit, start and stop charging</sub>
     </td>
     <td align="center" width="33%">
-      <img src="docs/icons/air-conditioner.svg" width="32" alt=""><br>
+      <img src="https://github.com/user-attachments/assets/a0adf448-ba88-4539-8bab-940441c05695" width="32" alt=""><br>
       <b>Climate</b><br>
       <sub>Pre-conditioning with a target temperature, seat, steering wheel and windshield heaters, ventilation</sub>
     </td>
     <td align="center" width="33%">
-      <img src="docs/icons/car-door-lock.svg" width="32" alt=""><br>
+      <img src="https://github.com/user-attachments/assets/77cde8b0-184c-4618-afbb-0cc23498c438" width="32" alt=""><br>
       <b>Doors and locks</b><br>
       <sub>Central lock, glovebox lock with a PIN, door, window, hood, trunk and sunroof sensors</sub>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="docs/icons/map-marker-radius.svg" width="32" alt=""><br>
+      <img src="https://github.com/user-attachments/assets/127a12da-d96d-4add-95b1-a97229163dfc" width="32" alt=""><br>
       <b>Location</b><br>
       <sub>A GPS device tracker and the address, refreshed while driving and on demand</sub>
     </td>
     <td align="center">
-      <img src="docs/icons/gas-station.svg" width="32" alt=""><br>
+      <img src="https://github.com/user-attachments/assets/88936426-14e1-4be6-a8db-60c9b728c718" width="32" alt=""><br>
       <b>Fuel and trip data</b><br>
       <sub>Fuel level, range and consumption on hybrids, odometer, electric consumption</sub>
     </td>
     <td align="center">
-      <img src="docs/icons/lightning-bolt.svg" width="32" alt=""><br>
+      <img src="https://github.com/user-attachments/assets/75342005-89ee-4881-8ae6-8aabb8230e58" width="32" alt=""><br>
       <b>Remote actions</b><br>
       <sub>Lock, lights, horn, sunroof, charging, climate, heaters, ventilation, glovebox, location request</sub>
     </td>
@@ -155,11 +155,11 @@ Every sensor, entity and action is documented per model in the wiki, with its st
 
 | | Entities | Actions |
 | --- | --- | --- |
-| <img src="docs/icons/battery-charging-80.svg" width="20" alt=""> | Battery level, electric range, charging status, speed and time remaining, charge limit, battery capacity and energy, electric consumption, charging switch | `start_charging`, `stop_charging`, `set_charge_limit` |
-| <img src="docs/icons/gas-station.svg" width="20" alt=""> | Fuel level and percentage, fuel range, fuel consumption, fuel type, tank capacity, odometer | |
-| <img src="docs/icons/air-conditioner.svg" width="20" alt=""> | Climate entity, climate status, interior and target temperature, a sensor per heater zone | `start_conditioning`, `stop_conditioning`, `start_heaters`, `stop_heaters`, `start_ventilate`, `stop_ventilate` |
-| <img src="docs/icons/car-door-lock.svg" width="20" alt=""> | Door lock, glovebox lock, central lock status, doors, windows, hood, trunk, sunroof, car running | `lock_door`, `unlock_door`, `lock_glovebox`, `unlock_glovebox`, `open_sunroof`, `close_sunroof` |
-| <img src="docs/icons/map-marker-radius.svg" width="20" alt=""> | GPS device tracker, address, last-updated timestamps, refresh and update-location buttons | `request_location`, `refresh`, `flash_lights`, `honk_horn` |
+| <img src="https://github.com/user-attachments/assets/4caf8fca-4369-4756-9b16-2a9ae19e880b" width="20" alt=""> | Battery level, electric range, charging status, speed and time remaining, charge limit, battery capacity and energy, electric consumption, charging switch | `start_charging`, `stop_charging`, `set_charge_limit` |
+| <img src="https://github.com/user-attachments/assets/88936426-14e1-4be6-a8db-60c9b728c718" width="20" alt=""> | Fuel level and percentage, fuel range, fuel consumption, fuel type, tank capacity, odometer | |
+| <img src="https://github.com/user-attachments/assets/a0adf448-ba88-4539-8bab-940441c05695" width="20" alt=""> | Climate entity, climate status, interior and target temperature, a sensor per heater zone | `start_conditioning`, `stop_conditioning`, `start_heaters`, `stop_heaters`, `start_ventilate`, `stop_ventilate` |
+| <img src="https://github.com/user-attachments/assets/77cde8b0-184c-4618-afbb-0cc23498c438" width="20" alt=""> | Door lock, glovebox lock, central lock status, doors, windows, hood, trunk, sunroof, car running | `lock_door`, `unlock_door`, `lock_glovebox`, `unlock_glovebox`, `open_sunroof`, `close_sunroof` |
+| <img src="https://github.com/user-attachments/assets/127a12da-d96d-4add-95b1-a97229163dfc" width="20" alt=""> | GPS device tracker, address, last-updated timestamps, refresh and update-location buttons | `request_location`, `refresh`, `flash_lights`, `honk_horn` |
 
 All actions live under `lynkco.*` and take an optional `vin` for accounts with more than one car.
 
@@ -172,7 +172,7 @@ A redacted diagnostics download (device page → ⋮ → Download diagnostics) s
 ## Polling
 
 <p align="center">
-  <img src="docs/images/polling.svg" alt="Timeline of the full poll every 15 minutes, the fast poll while driving or while climate is active, and the targeted refresh after an action" width="880">
+  <img src="https://github.com/user-attachments/assets/c34e64d2-e575-430a-b604-e3b2714f5ac6" alt="Timeline of the full poll every 15 minutes, the fast poll while driving or while climate is active, and the targeted refresh after an action" width="880">
 </p>
 
 The full vehicle data is polled every 15 minutes. On top of that, only the endpoints relevant to what is happening are fast-polled, about every 60 seconds, instead of refetching everything:
