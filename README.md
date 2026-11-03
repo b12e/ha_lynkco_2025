@@ -31,7 +31,7 @@
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/0ba429e0-1788-4b11-820d-eb6fe864d47f" alt="Mock-up of a dashboard card built from the integration's entities" width="880">
+  <img src="https://github.com/user-attachments/assets/184aa864-c625-482a-b342-fee780f978b9" alt="Mock-up of a dashboard card built from the integration's entities" width="880">
 </p>
 
 <table align="center">
