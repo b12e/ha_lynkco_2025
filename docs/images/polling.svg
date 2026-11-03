@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="250" viewBox="0 0 880 250" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <rect x="0.5" y="0.5" width="879" height="249" rx="16" fill="#1c1c1c" stroke="#2e2e2e"/>
+  <text x="28" y="36" fill="#e1e1e1" font-size="16" font-weight="600">What gets polled, and when</text>
+  <!-- axis -->
+  <line x1="40" y1="200" x2="840" y2="200" stroke="#555" stroke-width="2"/>
+  <g fill="#9e9e9e" font-size="11" text-anchor="middle">
+    <text x="40" y="222">0</text><text x="240" y="222">15 min</text><text x="440" y="222">30 min</text><text x="640" y="222">45 min</text><text x="840" y="222">60 min</text>
+  </g>
+  <!-- full polls -->
+  <g fill="#41bdf5">
+    <circle cx="40" cy="200" r="7"/><circle cx="240" cy="200" r="7"/><circle cx="440" cy="200" r="7"/><circle cx="640" cy="200" r="7"/><circle cx="840" cy="200" r="7"/>
+  </g>
+  <text x="40" y="178" fill="#41bdf5" font-size="12" font-weight="600">Full snapshot every 15 min</text>
+  <!-- driving window -->
+  <rect x="300" y="70" width="240" height="60" rx="8" fill="#1e3a4d" stroke="#41bdf5" stroke-opacity="0.6"/>
+  <text x="312" y="90" fill="#e1e1e1" font-size="12" font-weight="600">Driving</text>
+  <text x="312" y="108" fill="#9e9e9e" font-size="11">drive state, location, charge</text>
+  <text x="312" y="123" fill="#9e9e9e" font-size="11">every 60 s, final location at arrival</text>
+  <g stroke="#41bdf5" stroke-width="2">
+    <line x1="300" y1="190" x2="300" y2="200"/><line x1="313" y1="190" x2="313" y2="200"/><line x1="327" y1="190" x2="327" y2="200"/><line x1="340" y1="190" x2="340" y2="200"/><line x1="353" y1="190" x2="353" y2="200"/><line x1="367" y1="190" x2="367" y2="200"/><line x1="380" y1="190" x2="380" y2="200"/><line x1="393" y1="190" x2="393" y2="200"/><line x1="407" y1="190" x2="407" y2="200"/><line x1="420" y1="190" x2="420" y2="200"/><line x1="433" y1="190" x2="433" y2="200"/><line x1="447" y1="190" x2="447" y2="200"/><line x1="460" y1="190" x2="460" y2="200"/><line x1="473" y1="190" x2="473" y2="200"/><line x1="487" y1="190" x2="487" y2="200"/><line x1="500" y1="190" x2="500" y2="200"/><line x1="513" y1="190" x2="513" y2="200"/><line x1="527" y1="190" x2="527" y2="200"/><line x1="540" y1="190" x2="540" y2="200"/>
+  </g>
+  <line x1="420" y1="130" x2="420" y2="186" stroke="#41bdf5" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <!-- climate window -->
+  <rect x="640" y="70" width="160" height="60" rx="8" fill="#3d2a14" stroke="#ffb74d" stroke-opacity="0.6"/>
+  <text x="652" y="90" fill="#e1e1e1" font-size="12" font-weight="600">Climate active</text>
+  <text x="652" y="108" fill="#9e9e9e" font-size="11">climate state only</text>
+  <text x="652" y="123" fill="#9e9e9e" font-size="11">every 60 s</text>
+  <g stroke="#ffb74d" stroke-width="2">
+    <line x1="660" y1="190" x2="660" y2="200"/><line x1="673" y1="190" x2="673" y2="200"/><line x1="687" y1="190" x2="687" y2="200"/><line x1="700" y1="190" x2="700" y2="200"/><line x1="713" y1="190" x2="713" y2="200"/><line x1="727" y1="190" x2="727" y2="200"/><line x1="740" y1="190" x2="740" y2="200"/><line x1="753" y1="190" x2="753" y2="200"/><line x1="767" y1="190" x2="767" y2="200"/><line x1="780" y1="190" x2="780" y2="200"/><line x1="793" y1="190" x2="793" y2="200"/>
+  </g>
+  <line x1="720" y1="130" x2="720" y2="186" stroke="#ffb74d" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <!-- action -->
+  <polygon points="597,166 605,180 589,180" fill="#4caf50"/>
+  <text x="597" y="156" fill="#4caf50" font-size="12" font-weight="600" text-anchor="middle">Lock doors</text>
+  <text x="597" y="142" fill="#9e9e9e" font-size="11" text-anchor="middle">only vehicle data, after 3 s, 5 s, 10 s</text>
+  <g stroke="#4caf50" stroke-width="2"><line x1="592" y1="190" x2="592" y2="200"/><line x1="596" y1="190" x2="596" y2="200"/><line x1="603" y1="190" x2="603" y2="200"/></g>
+  <text x="28" y="60" fill="#9e9e9e" font-size="12">An idle, parked car is polled once every 15 minutes and nothing else. The intervals are minimums, to stay as quiet as the official app on Lynk &amp; Co's backend.</text>
+</svg>
