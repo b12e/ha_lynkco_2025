@@ -184,6 +184,9 @@
     "switch": {
       "charging": { "name": "Opladen" }
     },
+    "number": {
+      "charge_limit": { "name": "Oplaadlimiet" }
+    },
     "climate": {
       "climate": { "name": "Klimaatregeling" }
     },
