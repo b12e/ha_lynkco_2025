@@ -27,7 +27,7 @@ from .coordinator import LynkCoCoordinator
 from .features import async_get_model_features
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS = ["sensor", "binary_sensor", "device_tracker", "lock", "switch", "climate", "button"]
+PLATFORMS = ["sensor", "binary_sensor", "device_tracker", "lock", "switch", "number", "climate", "button"]
 
 # hass.data key of the VIN claims: VIN -> entry_id of the config entry that serves
 # the car. Kept outside hass.data[DOMAIN], whose values are the per-entry dicts.

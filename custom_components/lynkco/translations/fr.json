@@ -184,6 +184,9 @@
     "switch": {
       "charging": { "name": "Charge" }
     },
+    "number": {
+      "charge_limit": { "name": "Limite de charge" }
+    },
     "climate": {
       "climate": { "name": "Climatisation" }
     },
