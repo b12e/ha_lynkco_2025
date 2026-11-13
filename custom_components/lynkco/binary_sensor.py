@@ -96,9 +96,12 @@ async def async_setup_entry(
 
 
 def _is_open(value) -> bool | None:
-    if value is None:
-        return None
-    return value != "CLOSED"
+    # The app knows OPEN, CLOSED and UNKNOWN; only the first two say anything
+    if value == "OPEN":
+        return True
+    if value == "CLOSED":
+        return False
+    return None
 
 
 class LynkCoGroupedBinarySensor(LynkCoEntity, BinarySensorEntity):
