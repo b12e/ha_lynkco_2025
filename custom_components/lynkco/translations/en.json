@@ -170,13 +170,13 @@
       "last_updated_climate": { "name": "Last updated (climate)" },
       "last_updated_doors": { "name": "Last updated (doors)" },
       "last_updated_charging": { "name": "Last updated (charging)" },
-      "engine_status": {
-        "name": "Engine status",
+      "climate_engine_status": {
+        "name": "Climate engine status",
         "state": {
-          "started": "Running",
-          "stopped": "Off",
-          "will_start": "Will start with the climate",
-          "wont_start": "Will not start with the climate"
+          "started": "Started",
+          "not_started": "Not started",
+          "will_start": "Will start",
+          "will_not_start": "Will not start"
         }
       }
     },

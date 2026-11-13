@@ -170,13 +170,13 @@
       "last_updated_climate": { "name": "Dernière mise à jour (climatisation)" },
       "last_updated_doors": { "name": "Dernière mise à jour (portes)" },
       "last_updated_charging": { "name": "Dernière mise à jour (recharge)" },
-      "engine_status": {
-        "name": "État du moteur",
+      "climate_engine_status": {
+        "name": "État du moteur (climatisation)",
         "state": {
-          "started": "En marche",
-          "stopped": "Arrêté",
-          "will_start": "Démarrera avec la climatisation",
-          "wont_start": "Ne démarrera pas avec la climatisation"
+          "started": "Démarré",
+          "not_started": "Non démarré",
+          "will_start": "Démarrera",
+          "will_not_start": "Ne démarrera pas"
         }
       }
     },

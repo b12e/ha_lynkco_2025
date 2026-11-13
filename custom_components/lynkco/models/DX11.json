@@ -17,7 +17,6 @@
     "request_location": true
   },
   "entities": {
-    "sunroof": true,
-    "charge_flap": true
+    "sunroof": true
   }
 }

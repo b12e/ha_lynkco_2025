@@ -44,7 +44,7 @@ def test_model_files_are_valid_json_with_known_keys():
             data = json.load(fh)
         assert set(data) <= {"_comment", "name", "source", "actions", "entities"}, name
         assert set(data.get("actions", {})) <= ALL_ACTIONS, name
-        assert set(data.get("entities", {})) <= {"sunroof", "charge_flap"}, name
+        assert set(data.get("entities", {})) <= {"sunroof"}, name
 
 
 def test_default_lists_every_action_and_only_basics_are_on():
@@ -106,9 +106,3 @@ def test_guide_type_wins_over_model_code():
 
 def test_unsafe_names_never_touch_the_filesystem():
     assert features.resolve_features("../etc", "../../x").is_default
-
-
-def test_charge_flap_is_only_enabled_where_an_owner_confirmed_it():
-    assert features.resolve_features(None, "DX11").entity_enabled("charge_flap") is True
-    for model in ("CX11_A3", "CX11_A1", "E335", "XY99"):
-        assert features.resolve_features(None, model).entity_enabled("charge_flap") is False, model

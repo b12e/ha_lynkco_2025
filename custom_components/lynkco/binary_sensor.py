@@ -42,11 +42,11 @@ DOORS_SENSOR_TYPES: list[dict] = [
     {"key": "sunroof", "field": "sunroofStatus", "device_class": BinarySensorDeviceClass.WINDOW, "entity_key": "sunroof"},
     {"key": "hood", "field": "hoodStatus", "device_class": BinarySensorDeviceClass.DOOR},
     {"key": "trunk", "field": "trunkStatus", "device_class": BinarySensorDeviceClass.DOOR},
-    # A flap the car has no sensor for is reported as null (the 01 has none on its
-    # charge lid), so "requires_value" only creates these when a state is reported.
-    # A BEV has no tank; the charge flap also needs a confirmed model.
+    # Inferable from the API: a flap the car has no sensor for is reported as null
+    # (the 01 has none on its charge lid), so "requires_value" only creates these
+    # when a state is reported, whatever the model. A BEV has no tank.
     {"key": "fuel_flap", "field": "tankFlapStatus", "device_class": BinarySensorDeviceClass.DOOR, "fuel_only": True, "requires_value": True},
-    {"key": "charge_flap", "field": "chargeLidStatus", "device_class": BinarySensorDeviceClass.DOOR, "entity_key": "charge_flap", "requires_value": True},
+    {"key": "charge_flap", "field": "chargeLidStatus", "device_class": BinarySensorDeviceClass.DOOR, "requires_value": True},
 ]
 
 VEHICLE_DATA_BINARY_SENSORS: list[dict] = [

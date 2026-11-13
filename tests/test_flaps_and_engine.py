@@ -10,7 +10,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.lynkco.api import LynkCoAPI
 from custom_components.lynkco.const import CONF_ACCESS_TOKEN, CONF_DEVICE_ID, CONF_REFRESH_TOKEN, DOMAIN
-from custom_components.lynkco.sensor import ENGINE_STATUS_OPTIONS, _engine_status
+from custom_components.lynkco.sensor import CLIMATE_ENGINE_STATUS_OPTIONS, _climate_engine_status
 
 EMAIL = "user@example.com"
 VIN = "TESTVIN0000000001"
@@ -79,23 +79,37 @@ async def test_01_without_a_charge_lid_sensor_only_gets_the_fuel_flap(
         assert entity_id(registry, "binary_sensor", "charge_flap") is None
 
 
-async def test_charge_flap_waits_for_confirmation_on_other_models(
+@pytest.mark.parametrize(
+    ("model", "guide_type"),
+    [("CX11_A3", "CX11_MORE"), ("CX11_A1", "CX11_2023"), ("XY99", "XY99_MORE")],
+    ids=["01", "pre-2025 01", "unknown model"],
+)
+async def test_charge_flap_follows_the_api_on_any_model(
+    hass: HomeAssistant, entry: MockConfigEntry, model: str, guide_type: str
+) -> None:
+    # Whether the car has the sensor is read from the payload, not from the model
+    doors = {"tankFlapStatus": "CLOSED", "chargeLidStatus": "CLOSED"}
+    with api(model, guide_type, "PHEV", doors, {"engineStatus": "OFF"}):
+        registry = await set_up(hass, entry)
+        assert hass.states.get(entity_id(registry, "binary_sensor", "charge_flap")).state == "off"
+
+
+async def test_02_gets_its_charge_flap_but_no_fuel_flap_or_climate_engine_status(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
-    # A populated field is not enough: the 01 is not a confirmed model for it
-    doors = {"tankFlapStatus": "CLOSED", "chargeLidStatus": "CLOSED"}
-    with api("CX11_A3", "CX11_MORE", "PHEV", doors, {"engineStatus": "OFF"}):
-        registry = await set_up(hass, entry)
-        assert entity_id(registry, "binary_sensor", "charge_flap") is None
-
-
-async def test_02_gets_no_flaps_and_no_engine_status(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     doors = {"tankFlapStatus": "CLOSED", "chargeLidStatus": "CLOSED"}
     with api("E335", "E335_MORE", "BEV", doors, {"engineStatus": "NOT_APPLICABLE"}):
         registry = await set_up(hass, entry)
+        assert entity_id(registry, "binary_sensor", "charge_flap") is not None
         assert entity_id(registry, "binary_sensor", "fuel_flap") is None
+        assert entity_id(registry, "sensor", "climate_engine_status") is None
+
+
+async def test_02_without_a_charge_lid_sensor_gets_no_flaps(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    with api("E335", "E335_MORE", "BEV", {"chargeLidStatus": None}, {}):
+        registry = await set_up(hass, entry)
         assert entity_id(registry, "binary_sensor", "charge_flap") is None
-        assert entity_id(registry, "sensor", "engine_status") is None
+        assert entity_id(registry, "binary_sensor", "fuel_flap") is None
 
 
 @pytest.mark.parametrize(
@@ -103,42 +117,42 @@ async def test_02_gets_no_flaps_and_no_engine_status(hass: HomeAssistant, entry:
     [
         ({"engineStatus": "RUNNING", "status": "ACTIVE_HEATING"}, "started"),
         ({"engineStatus": "RUNNING", "status": "DRIVE_MODE_ENABLED", "isEngineStartedWhenActive": False}, "started"),
-        ({"engineStatus": "OFF", "status": "ACTIVE_HEATING", "isEngineStartedWhenActive": True}, "stopped"),
+        ({"engineStatus": "OFF", "status": "ACTIVE_HEATING", "isEngineStartedWhenActive": True}, "not_started"),
         ({"engineStatus": "OFF", "status": "INACTIVE", "isEngineStartedWhenActive": True}, "will_start"),
-        ({"engineStatus": "OFF", "status": "INACTIVE", "isEngineStartedWhenActive": False}, "wont_start"),
-        ({"engineStatus": "OFF", "status": "INACTIVE"}, "stopped"),  # no forecast reported
+        ({"engineStatus": "OFF", "status": "INACTIVE", "isEngineStartedWhenActive": False}, "will_not_start"),
+        ({"engineStatus": "OFF", "status": "INACTIVE"}, "not_started"),  # no forecast reported
         ({"engineStatus": "NOT_APPLICABLE", "status": "INACTIVE"}, None),
         ({"engineStatus": "UNKNOWN"}, None),
         ({}, None),
     ],
 )
-def test_engine_status_combines_the_engine_state_with_the_climate_forecast(climate, expected) -> None:
-    assert _engine_status({"climate": climate}) == expected
-    assert expected is None or expected in ENGINE_STATUS_OPTIONS
-    assert _engine_status({"climate": None}) is None
+def test_climate_engine_status_combines_the_engine_state_with_the_forecast(climate, expected) -> None:
+    assert _climate_engine_status({"climate": climate}) == expected
+    assert expected is None or expected in CLIMATE_ENGINE_STATUS_OPTIONS
+    assert _climate_engine_status({"climate": None}) is None
 
 
-async def test_engine_status_entity_on_a_hybrid(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+async def test_climate_engine_status_entity_on_a_hybrid(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     climate = {
         "engineStatus": "OFF", "status": "INACTIVE",
         "isEngineStartedWhenActive": False, "engineStartingForLowBattery": True,
     }
     with api("DX11", "DX11_MORE", "PHEV", {}, climate):
         registry = await set_up(hass, entry)
-        state = hass.states.get(entity_id(registry, "sensor", "engine_status"))
-        assert state.state == "wont_start"
-        assert state.attributes["options"] == ENGINE_STATUS_OPTIONS
+        state = hass.states.get(entity_id(registry, "sensor", "climate_engine_status"))
+        assert state.state == "will_not_start"
+        assert state.attributes["options"] == CLIMATE_ENGINE_STATUS_OPTIONS
         assert state.attributes["starts_when_climate_active"] is False
         assert state.attributes["starts_for_low_battery"] is True
 
 
 @pytest.mark.parametrize("climate", [{"status": "INACTIVE"}, {"engineStatus": "NOT_APPLICABLE"}])
-async def test_no_engine_status_entity_when_the_car_has_none_to_report(
+async def test_no_climate_engine_status_entity_when_the_car_has_none_to_report(
     hass: HomeAssistant, entry: MockConfigEntry, climate: dict
 ) -> None:
     with api("CX11_A1", "CX11_2023", "PHEV", {}, climate):
         registry = await set_up(hass, entry)
-        assert entity_id(registry, "sensor", "engine_status") is None
+        assert entity_id(registry, "sensor", "climate_engine_status") is None
 
 
 async def test_a_flap_the_car_cannot_tell_is_unknown_rather_than_open(

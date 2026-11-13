@@ -51,8 +51,8 @@ CLIMATE_STATUS_OPTIONS = [
 HEATER_STATUS_OPTIONS = ["active", "inactive", "disabled"]
 LOCK_STATUS_OPTIONS = ["locked", "unlocked"]
 FUEL_TYPE_OPTIONS = ["petrol", "diesel"]
-# Not an app enum: the engine status combined with the climate flags, see _engine_status
-ENGINE_STATUS_OPTIONS = ["started", "stopped", "will_start", "wont_start"]
+# Not an app enum: the engine status combined with the climate flags, see _climate_engine_status
+CLIMATE_ENGINE_STATUS_OPTIONS = ["started", "not_started", "will_start", "will_not_start"]
 
 
 SENSOR_TYPES: list[dict] = [
@@ -361,15 +361,15 @@ SENSOR_TYPES: list[dict] = [
         "fuel_only": True,
     },
     {
-        "key": "engine_status",
+        "key": "climate_engine_status",
         "data_key": "climate",
-        "name": "Engine status",
+        "name": "Climate engine status",
         "icon": "mdi:engine",
         "device_class": SensorDeviceClass.ENUM,
         "unit": None,
         "state_class": None,
-        "options": ENGINE_STATUS_OPTIONS,
-        "value_fn": lambda d: _engine_status(d),
+        "options": CLIMATE_ENGINE_STATUS_OPTIONS,
+        "value_fn": lambda d: _climate_engine_status(d),
         "attributes_fn": lambda d: _engine_attributes(d),
         "fuel_only": True,
         "requires": ("climate", "engineStatus"),
@@ -492,14 +492,16 @@ def _parse_ts(val):
     except (ValueError, TypeError):
         return None
 
-def _engine_status(d):
-    """One state for the combustion engine's part in climate control.
+def _climate_engine_status(d):
+    """Whether the combustion engine is, or would be, started to run the climate.
 
-    The app's engine status is RUNNING or OFF (NOT_APPLICABLE and UNKNOWN are
-    reported as unknown). While the engine is off and the climate is not
-    running, isEngineStartedWhenActive is read as the forecast: whether starting
-    the climate now would start the engine, which happens when the battery is
-    too low. That reading fits the cars seen so far but is not confirmed.
+    A hybrid starts its engine for the climate when the battery is too low.
+    The climate payload reports the engine as RUNNING or OFF; the app's other
+    two values, NOT_APPLICABLE (no engine) and UNKNOWN, are reported as unknown.
+    While the climate runs the state is started or not started. While it does
+    not, isEngineStartedWhenActive is read as the forecast for starting it now:
+    will start or will not start. That reading fits the cars seen so far but
+    is not confirmed.
     """
     climate = d.get("climate") or {}
     engine = climate.get("engineStatus")
@@ -509,8 +511,8 @@ def _engine_status(d):
         return None
     forecast = climate.get("isEngineStartedWhenActive")
     if forecast is None or str(climate.get("status") or "").upper().startswith("ACTIVE"):
-        return "stopped"
-    return "will_start" if forecast else "wont_start"
+        return "not_started"
+    return "will_start" if forecast else "will_not_start"
 
 def _engine_attributes(d):
     # The raw flags behind the forecast, so their meaning can be checked in the history

@@ -170,13 +170,13 @@
       "last_updated_climate": { "name": "Laatst bijgewerkt (klimaat)" },
       "last_updated_doors": { "name": "Laatst bijgewerkt (deuren)" },
       "last_updated_charging": { "name": "Laatst bijgewerkt (laden)" },
-      "engine_status": {
-        "name": "Motorstatus",
+      "climate_engine_status": {
+        "name": "Motorstatus (klimaat)",
         "state": {
-          "started": "Draait",
-          "stopped": "Uit",
-          "will_start": "Start mee met de klimaatregeling",
-          "wont_start": "Start niet mee met de klimaatregeling"
+          "started": "Gestart",
+          "not_started": "Niet gestart",
+          "will_start": "Zal starten",
+          "will_not_start": "Zal niet starten"
         }
       }
     },
