@@ -62,6 +62,7 @@ PRE_2025_GUIDE_TYPES = {"CX11_2021_HEV", "CX11_2021_PHEV", "CX11_2022", "CX11_20
 
 ISSUE_TRACKER = "https://github.com/b12e/ha_lynkco_2025"
 MODEL_REPORT_URL = f"{ISSUE_TRACKER}/issues/new?template=model_report.yml"
+LOCATION_FAQ_URL = f"{ISSUE_TRACKER}/wiki/FAQ#my-cars-location-isnt-being-updated"
 
 # Live permission flags in vehicle_data that gate an action at call time
 LIVE_PERMISSION_FLAGS = {

@@ -435,6 +435,14 @@
     "duplicate_vehicle": {
       "title": "Car {vin} is already set up through another account",
       "description": "The Lynk & Co entry {entry} also lists car {vin}, but that car is already served by the entry {other_entry}. One car can only be set up once; remove one of the two entries, or keep this one and remove the other."
+    },
+    "location_sharing_off": {
+      "title": "{model}: automatic location sharing is turned off",
+      "description": "This car ({vin}) reports that automatic location sharing is turned off in its privacy settings. Since LynkOS 1.4 the car then no longer sends its position when you park, so its location in Home Assistant stops updating by itself.\n\nTo turn it on, allow location sharing in the privacy settings on the car's infotainment screen; the [FAQ]({faq_url}) shows where to find them. Until then, the \"Update location\" button on the device page, or the `lynkco.request_location` action, asks the car for its position on demand.\n\nIf you keep it off on purpose, you can ignore this notice."
+    },
+    "location_sharing_off_no_request": {
+      "title": "{model}: automatic location sharing is turned off",
+      "description": "This car ({vin}) reports that automatic location sharing is turned off in its privacy settings. Since LynkOS 1.4 the car then no longer sends its position when you park, so its location in Home Assistant stops updating by itself.\n\nTo turn it on, allow location sharing in the privacy settings on the car's infotainment screen; the [FAQ]({faq_url}) shows where to find them.\n\nIf you keep it off on purpose, you can ignore this notice."
     }
   }
 }
