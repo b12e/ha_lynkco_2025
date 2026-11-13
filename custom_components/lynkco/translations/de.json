@@ -435,6 +435,14 @@
     "duplicate_vehicle": {
       "title": "Fahrzeug {vin} ist bereits über ein anderes Konto eingerichtet",
       "description": "Der Lynk & Co-Eintrag {entry} führt ebenfalls das Fahrzeug {vin} auf, dieses Fahrzeug wird aber bereits vom Eintrag {other_entry} bedient. Ein Fahrzeug kann nur einmal eingerichtet werden; entferne einen der beiden Einträge, oder behalte diesen und entferne den anderen."
+    },
+    "location_sharing_off": {
+      "title": "{model}: Automatische Standortfreigabe ist ausgeschaltet",
+      "description": "Dieses Fahrzeug ({vin}) meldet, dass die automatische Standortfreigabe in den Datenschutzeinstellungen ausgeschaltet ist. Seit LynkOS 1.4 sendet das Fahrzeug dann beim Parken keine Position mehr, sodass der Standort in Home Assistant nicht mehr von selbst aktualisiert wird.\n\nZum Einschalten die Standortfreigabe in den Datenschutzeinstellungen auf dem Infotainment-Bildschirm des Fahrzeugs erlauben; die [FAQ]({faq_url}) zeigt, wo sie zu finden sind. Bis dahin lässt sich die Position mit der Schaltfläche \"Standort aktualisieren\" auf der Geräteseite oder mit der Aktion `lynkco.request_location` abfragen.\n\nBleibt sie absichtlich ausgeschaltet, kann dieser Hinweis ignoriert werden."
+    },
+    "location_sharing_off_no_request": {
+      "title": "{model}: Automatische Standortfreigabe ist ausgeschaltet",
+      "description": "Dieses Fahrzeug ({vin}) meldet, dass die automatische Standortfreigabe in den Datenschutzeinstellungen ausgeschaltet ist. Seit LynkOS 1.4 sendet das Fahrzeug dann beim Parken keine Position mehr, sodass der Standort in Home Assistant nicht mehr von selbst aktualisiert wird.\n\nZum Einschalten die Standortfreigabe in den Datenschutzeinstellungen auf dem Infotainment-Bildschirm des Fahrzeugs erlauben; die [FAQ]({faq_url}) zeigt, wo sie zu finden sind.\n\nBleibt sie absichtlich ausgeschaltet, kann dieser Hinweis ignoriert werden."
     }
   }
 }

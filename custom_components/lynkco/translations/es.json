@@ -435,6 +435,14 @@
     "duplicate_vehicle": {
       "title": "El coche {vin} ya está configurado a través de otra cuenta",
       "description": "La entrada de Lynk & Co {entry} también incluye el coche {vin}, pero ese coche ya lo gestiona la entrada {other_entry}. Un coche solo se puede configurar una vez; elimina una de las dos entradas, o conserva esta y elimina la otra."
+    },
+    "location_sharing_off": {
+      "title": "{model}: el uso compartido automático de la ubicación está desactivado",
+      "description": "Este coche ({vin}) indica que el uso compartido automático de la ubicación está desactivado en sus ajustes de privacidad. Desde LynkOS 1.4 el coche deja entonces de enviar su posición al aparcar, por lo que su ubicación en Home Assistant ya no se actualiza sola.\n\nPara activarlo, permite compartir la ubicación en los ajustes de privacidad de la pantalla de infoentretenimiento del coche; las [preguntas frecuentes]({faq_url}) muestran dónde encontrarlos. Mientras tanto, el botón \"Actualizar ubicación\" de la página del dispositivo, o la acción `lynkco.request_location`, pide al coche su posición.\n\nSi lo mantienes desactivado a propósito, puedes ignorar este aviso."
+    },
+    "location_sharing_off_no_request": {
+      "title": "{model}: el uso compartido automático de la ubicación está desactivado",
+      "description": "Este coche ({vin}) indica que el uso compartido automático de la ubicación está desactivado en sus ajustes de privacidad. Desde LynkOS 1.4 el coche deja entonces de enviar su posición al aparcar, por lo que su ubicación en Home Assistant ya no se actualiza sola.\n\nPara activarlo, permite compartir la ubicación en los ajustes de privacidad de la pantalla de infoentretenimiento del coche; las [preguntas frecuentes]({faq_url}) muestran dónde encontrarlos.\n\nSi lo mantienes desactivado a propósito, puedes ignorar este aviso."
     }
   }
 }

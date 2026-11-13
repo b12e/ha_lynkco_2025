@@ -203,3 +203,124 @@ async def test_concurrent_startup_gives_a_shared_car_to_one_entry(
     skipped = next(entry for entry in entries if entry is not serving[0])
     assert hass.data[DOMAIN][skipped.entry_id]["coordinators"] == {}
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"duplicate_vehicle_{skipped.entry_id}_{VIN}")
+
+
+SHARING_ISSUE = f"location_sharing_off_{VIN}"
+
+
+def vehicle_data(sharing: bool | None) -> AsyncMock:
+    """The vehicle data getter of a car with the given location sharing setting."""
+    payload = {} if sharing is None else {"vehicleAutoShareLocationDataEnabled": sharing}
+    return AsyncMock(return_value=payload)
+
+
+async def test_location_sharing_turned_off_raises_a_notice_with_the_faq(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    with healthy_api(VEHICLES), patch.object(LynkCoAPI, "get_vehicle_data", vehicle_data(False)):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, SHARING_ISSUE)
+    assert issue is not None
+    # The 02 is a confirmed model for request_location, so the text offers it
+    assert issue.translation_key == "location_sharing_off"
+    assert issue.is_fixable is False
+    assert issue.severity is ir.IssueSeverity.WARNING
+    assert issue.learn_more_url.endswith("/wiki/FAQ#my-cars-location-isnt-being-updated")
+    assert issue.translation_placeholders["faq_url"] == issue.learn_more_url
+    assert VIN not in issue.translation_placeholders["vin"]
+
+
+async def test_location_sharing_notice_leaves_out_the_request_on_an_unconfirmed_model(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    unknown_car = [{"vehicle": {"vin": VIN, "model": "XY99"}}]
+    with healthy_api(unknown_car), patch.object(LynkCoAPI, "get_vehicle_data", vehicle_data(False)):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, SHARING_ISSUE)
+    assert issue.translation_key == "location_sharing_off_no_request"
+
+
+@pytest.mark.parametrize("sharing", [True, None], ids=["on", "not reported"])
+async def test_no_location_sharing_notice_when_it_is_on_or_unknown(
+    hass: HomeAssistant, entry: MockConfigEntry, sharing: bool | None
+) -> None:
+    with healthy_api(VEHICLES), patch.object(LynkCoAPI, "get_vehicle_data", vehicle_data(sharing)):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, SHARING_ISSUE) is None
+
+
+async def test_location_sharing_notice_follows_the_car(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    getter = vehicle_data(True)
+    with healthy_api(VEHICLES), patch.object(LynkCoAPI, "get_vehicle_data", getter):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+        coordinator = hass.data[DOMAIN][entry.entry_id]["coordinators"][VIN]
+        registry = ir.async_get(hass)
+        assert registry.async_get_issue(DOMAIN, SHARING_ISSUE) is None
+
+        # Turned off in the car: the next poll raises the notice
+        getter.return_value = {"vehicleAutoShareLocationDataEnabled": False}
+        await coordinator.async_refresh()
+        assert registry.async_get_issue(DOMAIN, SHARING_ISSUE) is not None
+
+        # A poll in which the endpoint fails says nothing about the setting
+        getter.side_effect = aiohttp.ClientConnectionError("network is down")
+        await coordinator.async_refresh()
+        assert registry.async_get_issue(DOMAIN, SHARING_ISSUE) is not None
+
+        # Turned on again: the notice goes away
+        getter.side_effect = None
+        getter.return_value = {"vehicleAutoShareLocationDataEnabled": True}
+        await coordinator.async_refresh()
+        assert registry.async_get_issue(DOMAIN, SHARING_ISSUE) is None
+
+
+async def test_an_ignored_location_sharing_notice_stays_ignored_across_a_reload(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    getter = vehicle_data(False)
+    with healthy_api(VEHICLES), patch.object(LynkCoAPI, "get_vehicle_data", getter):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+        registry = ir.async_get(hass)
+        ir.async_ignore_issue(hass, DOMAIN, SHARING_ISSUE, True)
+        assert registry.async_get_issue(DOMAIN, SHARING_ISSUE).dismissed_version is not None
+
+        assert await hass.config_entries.async_reload(entry.entry_id)
+        await hass.async_block_till_done()
+        assert registry.async_get_issue(DOMAIN, SHARING_ISSUE).dismissed_version is not None
+
+        # Even when the reload cannot read the setting (endpoint down)
+        getter.side_effect = aiohttp.ClientConnectionError("network is down")
+        assert await hass.config_entries.async_reload(entry.entry_id)
+        await hass.async_block_till_done()
+        assert entry.state is ConfigEntryState.LOADED
+        assert registry.async_get_issue(DOMAIN, SHARING_ISSUE).dismissed_version is not None
+
+
+async def test_removing_the_entry_clears_its_location_sharing_notice(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    with healthy_api(VEHICLES), patch.object(LynkCoAPI, "get_vehicle_data", vehicle_data(False)):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+        registry = ir.async_get(hass)
+        assert registry.async_get_issue(DOMAIN, SHARING_ISSUE) is not None
+
+        # Unloading keeps it (and with it a user's choice to ignore it) ...
+        assert await hass.config_entries.async_unload(entry.entry_id)
+        await hass.async_block_till_done()
+        assert registry.async_get_issue(DOMAIN, SHARING_ISSUE) is not None
+
+        # ... removing the entry does not leave it behind
+        assert await hass.config_entries.async_remove(entry.entry_id)
+        await hass.async_block_till_done()
+        assert registry.async_get_issue(DOMAIN, SHARING_ISSUE) is None
