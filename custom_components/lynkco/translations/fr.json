@@ -422,6 +422,14 @@
     "duplicate_vehicle": {
       "title": "La voiture {vin} est déjà configurée via un autre compte",
       "description": "L'entrée Lynk & Co {entry} liste aussi la voiture {vin}, mais cette voiture est déjà gérée par l'entrée {other_entry}. Une voiture ne peut être configurée qu'une seule fois ; supprimez l'une des deux entrées, ou conservez celle-ci et supprimez l'autre."
+    },
+    "location_sharing_off": {
+      "title": "{model} : le partage automatique de la position est désactivé",
+      "description": "Cette voiture ({vin}) indique que le partage automatique de la position est désactivé dans ses paramètres de confidentialité. Depuis LynkOS 1.4, la voiture n'envoie alors plus sa position lorsque vous vous garez, et sa position dans Home Assistant ne se met plus à jour d'elle-même.\n\nPour l'activer, autorisez le partage de la position dans les paramètres de confidentialité sur l'écran d'infodivertissement de la voiture ; la [FAQ]({faq_url}) montre où les trouver. En attendant, le bouton \"Actualiser la position\" sur la page de l'appareil, ou l'action `lynkco.request_location`, demande sa position à la voiture.\n\nSi vous le laissez désactivé volontairement, vous pouvez ignorer cet avis."
+    },
+    "location_sharing_off_no_request": {
+      "title": "{model} : le partage automatique de la position est désactivé",
+      "description": "Cette voiture ({vin}) indique que le partage automatique de la position est désactivé dans ses paramètres de confidentialité. Depuis LynkOS 1.4, la voiture n'envoie alors plus sa position lorsque vous vous garez, et sa position dans Home Assistant ne se met plus à jour d'elle-même.\n\nPour l'activer, autorisez le partage de la position dans les paramètres de confidentialité sur l'écran d'infodivertissement de la voiture ; la [FAQ]({faq_url}) montre où les trouver.\n\nSi vous le laissez désactivé volontairement, vous pouvez ignorer cet avis."
     }
   }
 }

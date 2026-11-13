@@ -422,6 +422,14 @@
     "duplicate_vehicle": {
       "title": "Auto {vin} is al ingesteld via een ander account",
       "description": "De Lynk & Co-vermelding {entry} bevat ook auto {vin}, maar die auto wordt al bediend door de vermelding {other_entry}. Een auto kan maar één keer ingesteld worden; verwijder een van de twee vermeldingen, of houd deze en verwijder de andere."
+    },
+    "location_sharing_off": {
+      "title": "{model}: automatisch delen van de locatie staat uit",
+      "description": "Deze auto ({vin}) meldt dat het automatisch delen van de locatie is uitgeschakeld in de privacy-instellingen. Sinds LynkOS 1.4 stuurt de auto dan geen positie meer door wanneer je parkeert, waardoor de locatie in Home Assistant niet meer vanzelf wordt bijgewerkt.\n\nOm het in te schakelen sta je het delen van de locatie toe in de privacy-instellingen op het infotainmentscherm van de auto; de [FAQ]({faq_url}) toont waar je ze vindt. Tot dan kun je met de knop \"Locatie bijwerken\" op de apparaatpagina, of met de actie `lynkco.request_location`, de positie van de auto opvragen.\n\nLaat je het bewust uit, dan kun je deze melding negeren."
+    },
+    "location_sharing_off_no_request": {
+      "title": "{model}: automatisch delen van de locatie staat uit",
+      "description": "Deze auto ({vin}) meldt dat het automatisch delen van de locatie is uitgeschakeld in de privacy-instellingen. Sinds LynkOS 1.4 stuurt de auto dan geen positie meer door wanneer je parkeert, waardoor de locatie in Home Assistant niet meer vanzelf wordt bijgewerkt.\n\nOm het in te schakelen sta je het delen van de locatie toe in de privacy-instellingen op het infotainmentscherm van de auto; de [FAQ]({faq_url}) toont waar je ze vindt.\n\nLaat je het bewust uit, dan kun je deze melding negeren."
     }
   }
 }
