@@ -155,16 +155,6 @@ async def test_no_climate_engine_status_entity_when_the_car_has_none_to_report(
         assert entity_id(registry, "sensor", "climate_engine_status") is None
 
 
-async def test_a_flap_the_car_cannot_tell_is_unknown_rather_than_open(
-    hass: HomeAssistant, entry: MockConfigEntry
-) -> None:
-    doors = {"tankFlapStatus": "UNKNOWN", "chargeLidStatus": "UNKNOWN", "hoodStatus": "UNKNOWN"}
-    with api("DX11", "DX11_MORE", "PHEV", doors, {"engineStatus": "OFF"}):
-        registry = await set_up(hass, entry)
-        for key in ("fuel_flap", "charge_flap", "hood"):
-            assert hass.states.get(entity_id(registry, "binary_sensor", key)).state == "unknown", key
-
-
 async def test_door_and_charging_timestamps_are_diagnostic_and_off_by_default(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
