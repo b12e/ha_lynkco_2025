@@ -167,7 +167,18 @@
       "last_updated": { "name": "Zuletzt aktualisiert" },
       "last_updated_fuel": { "name": "Zuletzt aktualisiert (Kraftstoff)" },
       "last_updated_location": { "name": "Zuletzt aktualisiert (Standort)" },
-      "last_updated_climate": { "name": "Zuletzt aktualisiert (Klima)" }
+      "last_updated_climate": { "name": "Zuletzt aktualisiert (Klima)" },
+      "last_updated_doors": { "name": "Zuletzt aktualisiert (Türen)" },
+      "last_updated_charging": { "name": "Zuletzt aktualisiert (Laden)" },
+      "engine_status": {
+        "name": "Motorstatus",
+        "state": {
+          "started": "Läuft",
+          "stopped": "Aus",
+          "will_start": "Startet mit der Klimatisierung",
+          "wont_start": "Startet nicht mit der Klimatisierung"
+        }
+      }
     },
     "binary_sensor": {
       "doors": { "name": "Türen" },
@@ -175,6 +186,8 @@
       "sunroof": { "name": "Schiebedach" },
       "hood": { "name": "Motorhaube" },
       "trunk": { "name": "Kofferraum" },
+      "fuel_flap": { "name": "Tankklappe" },
+      "charge_flap": { "name": "Ladeklappe" },
       "car_running": { "name": "Auto aktiv" }
     },
     "lock": {

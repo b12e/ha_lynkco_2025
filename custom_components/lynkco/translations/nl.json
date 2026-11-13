@@ -167,7 +167,18 @@
       "last_updated": { "name": "Laatst bijgewerkt" },
       "last_updated_fuel": { "name": "Laatst bijgewerkt (brandstof)" },
       "last_updated_location": { "name": "Laatst bijgewerkt (locatie)" },
-      "last_updated_climate": { "name": "Laatst bijgewerkt (klimaat)" }
+      "last_updated_climate": { "name": "Laatst bijgewerkt (klimaat)" },
+      "last_updated_doors": { "name": "Laatst bijgewerkt (deuren)" },
+      "last_updated_charging": { "name": "Laatst bijgewerkt (laden)" },
+      "engine_status": {
+        "name": "Motorstatus",
+        "state": {
+          "started": "Draait",
+          "stopped": "Uit",
+          "will_start": "Start mee met de klimaatregeling",
+          "wont_start": "Start niet mee met de klimaatregeling"
+        }
+      }
     },
     "binary_sensor": {
       "doors": { "name": "Deuren" },
@@ -175,6 +186,8 @@
       "sunroof": { "name": "Schuifdak" },
       "hood": { "name": "Motorkap" },
       "trunk": { "name": "Kofferbak" },
+      "fuel_flap": { "name": "Tankklep" },
+      "charge_flap": { "name": "Laadklep" },
       "car_running": { "name": "Auto actief" }
     },
     "lock": {
