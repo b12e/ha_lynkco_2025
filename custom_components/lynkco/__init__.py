@@ -1,15 +1,17 @@
 """Lynk & Co integration for Home Assistant."""
 
 import logging
+from collections.abc import Callable
 from datetime import timedelta
 
 import aiohttp
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -21,9 +23,10 @@ from .const import (
     CONF_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    LOCATION_FAQ_URL,
     MODEL_REPORT_URL,
 )
-from .coordinator import LynkCoCoordinator
+from .coordinator import LynkCoCoordinator, dig
 from .features import async_get_model_features
 
 _LOGGER = logging.getLogger(__name__)
@@ -195,6 +198,56 @@ def _update_unknown_model_issue(hass: HomeAssistant, coordinator: LynkCoCoordina
     )
 
 
+def _update_location_sharing_issue(
+    hass: HomeAssistant, coordinator: LynkCoCoordinator, enabled: bool | None
+) -> None:
+    """Raise (or clear) the Repairs notice for a car that does not share its location by itself.
+
+    Since LynkOS 1.4 the car only reports where it is parked when location
+    sharing is allowed in its privacy settings. The notice is cleared when the
+    car reports the setting as on and deliberately not on unload: deleting it
+    would also forget that the user chose to ignore it. A missing value (the
+    endpoint failed) leaves the notice as it is.
+    """
+    issue_id = f"location_sharing_off_{coordinator.vin}"
+    if enabled is True:
+        ir.async_delete_issue(hass, DOMAIN, issue_id)
+    elif enabled is False:
+        # Asking for a position on demand only helps where that action is confirmed
+        can_request = coordinator.action_enabled("request_location")
+        ir.async_create_issue(
+            hass,
+            DOMAIN,
+            issue_id,
+            is_fixable=False,
+            is_persistent=False,
+            severity=ir.IssueSeverity.WARNING,
+            learn_more_url=LOCATION_FAQ_URL,
+            translation_key="location_sharing_off" if can_request else "location_sharing_off_no_request",
+            translation_placeholders={
+                "model": coordinator.model_name,
+                "vin": coordinator.log_vin,
+                "faq_url": LOCATION_FAQ_URL,
+            },
+        )
+
+
+def _watch_location_sharing(hass: HomeAssistant, coordinator: LynkCoCoordinator) -> Callable[[], None]:
+    """Keep the location sharing notice in step with the car; returns an unsub callable."""
+    seen: list[bool | None] = []  # the last reported value, empty before the first check
+
+    @callback
+    def _check() -> None:
+        enabled = dig(coordinator.data, "vehicle_data", "vehicleAutoShareLocationDataEnabled")
+        if seen and seen[0] is enabled:
+            return  # polls rarely change it; only touch the registry when it does
+        seen[:] = [enabled]
+        _update_location_sharing_issue(hass, coordinator, enabled)
+
+    _check()
+    return coordinator.async_add_listener(_check)
+
+
 def _create_duplicate_vehicle_issue(
     hass: HomeAssistant, entry: ConfigEntry, vin: str, owner_id: str
 ) -> str:
@@ -327,6 +380,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             await coordinator.async_config_entry_first_refresh()
             coordinators[vin] = coordinator
             _update_unknown_model_issue(hass, coordinator)
+            entry.async_on_unload(_watch_location_sharing(hass, coordinator))
             # Endpoint-specific fast polling (driving / climate active); stopped on unload
             entry.async_on_unload(coordinator.start_fast_poll())
 
@@ -512,3 +566,16 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             for service in ALL_SERVICES:
                 hass.services.async_remove(DOMAIN, service)
     return unload_ok
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Drop the location sharing notices of a removed entry.
+
+    They are kept on unload so an ignored one stays ignored; once the entry
+    is gone for good nothing would ever clear them.
+    """
+    registry = dr.async_get(hass)
+    for device in dr.async_entries_for_config_entry(registry, entry.entry_id):
+        for domain, vin in device.identifiers:
+            if domain == DOMAIN:
+                ir.async_delete_issue(hass, DOMAIN, f"location_sharing_off_{vin}")
