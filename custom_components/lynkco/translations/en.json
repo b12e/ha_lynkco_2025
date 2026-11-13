@@ -167,7 +167,18 @@
       "last_updated": { "name": "Last updated" },
       "last_updated_fuel": { "name": "Last updated (fuel)" },
       "last_updated_location": { "name": "Last updated (location)" },
-      "last_updated_climate": { "name": "Last updated (climate)" }
+      "last_updated_climate": { "name": "Last updated (climate)" },
+      "last_updated_doors": { "name": "Last updated (doors)" },
+      "last_updated_charging": { "name": "Last updated (charging)" },
+      "climate_engine_status": {
+        "name": "Climate engine status",
+        "state": {
+          "started": "Started",
+          "not_started": "Not started",
+          "will_start": "Will start",
+          "will_not_start": "Will not start"
+        }
+      }
     },
     "binary_sensor": {
       "doors": { "name": "Doors" },
@@ -175,6 +186,8 @@
       "sunroof": { "name": "Sunroof" },
       "hood": { "name": "Hood" },
       "trunk": { "name": "Trunk" },
+      "fuel_flap": { "name": "Fuel flap" },
+      "charge_flap": { "name": "Charge flap" },
       "car_running": { "name": "Car running" }
     },
     "lock": {

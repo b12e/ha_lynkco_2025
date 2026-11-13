@@ -167,7 +167,18 @@
       "last_updated": { "name": "Última actualización" },
       "last_updated_fuel": { "name": "Última actualización (combustible)" },
       "last_updated_location": { "name": "Última actualización (ubicación)" },
-      "last_updated_climate": { "name": "Última actualización (climatización)" }
+      "last_updated_climate": { "name": "Última actualización (climatización)" },
+      "last_updated_doors": { "name": "Última actualización (puertas)" },
+      "last_updated_charging": { "name": "Última actualización (carga)" },
+      "climate_engine_status": {
+        "name": "Estado del motor (climatización)",
+        "state": {
+          "started": "Arrancado",
+          "not_started": "No arrancado",
+          "will_start": "Arrancará",
+          "will_not_start": "No arrancará"
+        }
+      }
     },
     "binary_sensor": {
       "doors": { "name": "Puertas" },
@@ -175,6 +186,8 @@
       "sunroof": { "name": "Techo solar" },
       "hood": { "name": "Capó" },
       "trunk": { "name": "Maletero" },
+      "fuel_flap": { "name": "Tapa del depósito" },
+      "charge_flap": { "name": "Tapa de carga" },
       "car_running": { "name": "Coche en marcha" }
     },
     "lock": {

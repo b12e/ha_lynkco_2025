@@ -51,6 +51,8 @@ CLIMATE_STATUS_OPTIONS = [
 HEATER_STATUS_OPTIONS = ["active", "inactive", "disabled"]
 LOCK_STATUS_OPTIONS = ["locked", "unlocked"]
 FUEL_TYPE_OPTIONS = ["petrol", "diesel"]
+# Not an app enum: the engine status combined with the climate flags, see _climate_engine_status
+CLIMATE_ENGINE_STATUS_OPTIONS = ["started", "not_started", "will_start", "will_not_start"]
 
 
 SENSOR_TYPES: list[dict] = [
@@ -359,6 +361,20 @@ SENSOR_TYPES: list[dict] = [
         "fuel_only": True,
     },
     {
+        "key": "climate_engine_status",
+        "data_key": "climate",
+        "name": "Climate engine status",
+        "icon": "mdi:engine",
+        "device_class": SensorDeviceClass.ENUM,
+        "unit": None,
+        "state_class": None,
+        "options": CLIMATE_ENGINE_STATUS_OPTIONS,
+        "value_fn": lambda d: _climate_engine_status(d),
+        "attributes_fn": lambda d: _engine_attributes(d),
+        "fuel_only": True,
+        "requires": ("climate", "engineStatus"),
+    },
+    {
         "key": "last_updated",
         "name": "Last updated",
         "icon": "mdi:clock-outline",
@@ -403,6 +419,30 @@ SENSOR_TYPES: list[dict] = [
         "unit": None,
         "state_class": None,
         "value_fn": lambda d: _parse_ts(_dig(d, "climate", "updatedAt")),
+        "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
+    },
+    {
+        "key": "last_updated_doors",
+        "data_key": "doors",
+        "name": "Last updated (doors)",
+        "icon": "mdi:clock-outline",
+        "device_class": SensorDeviceClass.TIMESTAMP,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _parse_ts(_dig(d, "doors", "updatedAt")),
+        "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
+    },
+    {
+        "key": "last_updated_charging",
+        "data_key": "charge",
+        "name": "Last updated (charging)",
+        "icon": "mdi:clock-outline",
+        "device_class": SensorDeviceClass.TIMESTAMP,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _parse_ts(_dig(d, "charge", "batteryState", "updatedAt")),
         "entity_category": EntityCategory.DIAGNOSTIC,
         "entity_registry_enabled_default": False,
     },
@@ -452,6 +492,36 @@ def _parse_ts(val):
     except (ValueError, TypeError):
         return None
 
+def _climate_engine_status(d):
+    """Whether the combustion engine is, or would be, started to run the climate.
+
+    A hybrid starts its engine for the climate when the battery is too low.
+    The climate payload reports the engine as RUNNING or OFF; the app's other
+    two values, NOT_APPLICABLE (no engine) and UNKNOWN, are reported as unknown.
+    While the climate runs the state is started or not started. While it does
+    not, isEngineStartedWhenActive is read as the forecast for starting it now:
+    will start or will not start. That reading fits the cars seen so far but
+    is not confirmed.
+    """
+    climate = d.get("climate") or {}
+    engine = climate.get("engineStatus")
+    if engine == "RUNNING":
+        return "started"
+    if engine != "OFF":
+        return None
+    forecast = climate.get("isEngineStartedWhenActive")
+    if forecast is None or str(climate.get("status") or "").upper().startswith("ACTIVE"):
+        return "not_started"
+    return "will_start" if forecast else "will_not_start"
+
+def _engine_attributes(d):
+    # The raw flags behind the forecast, so their meaning can be checked in the history
+    climate = d.get("climate") or {}
+    return {
+        "starts_when_climate_active": climate.get("isEngineStartedWhenActive"),
+        "starts_for_low_battery": climate.get("engineStartingForLowBattery"),
+    }
+
 def _fuel_liters(d):
     capacity = _dig(d, "metadata", "fuelInfo", "tankCapacity")
     pct = _dig(d, "fuel", "fuelState", "percentageOfRemainingFuel")
@@ -469,12 +539,15 @@ async def async_setup_entry(
         is_bev = coordinator.propulsion == "BEV"
         heaters = _dig(coordinator.data, "climate", "heaters") or {}
         for sensor_type in SENSOR_TYPES:
-            # Both inferable from the API: a BEV has no fuel state, and a heater
-            # zone the car lacks is reported as null.
+            # All inferable from the API: a BEV has no fuel state or engine, and
+            # a heater zone or value the car lacks is reported as null.
             if sensor_type.get("fuel_only") and is_bev:
                 continue
             heater_key = sensor_type.get("heater_key")
             if heater_key and heaters.get(heater_key) is None:
+                continue
+            requires = sensor_type.get("requires")
+            if requires and _dig(coordinator.data, *requires) in (None, "NOT_APPLICABLE"):
                 continue
             entities.append(LynkCoSensor(coordinator, sensor_type))
     async_add_entities(entities)
@@ -514,3 +587,10 @@ class LynkCoSensor(LynkCoEntity, SensorEntity):
                 self.entity_id, self._sensor_type["key"], value,
             )
         return None
+
+    @property
+    def extra_state_attributes(self):
+        attributes_fn = self._sensor_type.get("attributes_fn")
+        if attributes_fn is None or self.coordinator.data is None:
+            return None
+        return attributes_fn(self.coordinator.data)
