@@ -496,21 +496,26 @@ def _climate_engine_status(d):
     """Whether the combustion engine is, or would be, started to run the climate.
 
     A hybrid starts its engine for the climate when the battery is too low.
-    The climate payload reports the engine as RUNNING or OFF; the app's other
-    two values, NOT_APPLICABLE (no engine) and UNKNOWN, are reported as unknown.
-    While the climate runs the state is started or not started. While it does
-    not, isEngineStartedWhenActive is read as the forecast for starting it now:
-    will start or will not start. That reading fits the cars seen so far but
-    is not confirmed.
+    The engine status in the climate payload is only about that while the
+    climate runs: the car also reports RUNNING on every drive, electric ones
+    included (confirmed on an 08), so outside a climate session it says the
+    car is switched on, not that the engine is.
+
+    - Climate running: started or not started, from the engine status.
+    - Climate not running, car parked: will start or will not start, from
+      isEngineStartedWhenActive, read as the forecast for starting it now.
+      That reading fits the cars seen so far but is not confirmed.
+    - Driving, or a status that says nothing (NOT_APPLICABLE, UNKNOWN): unknown.
     """
     climate = d.get("climate") or {}
     engine = climate.get("engineStatus")
-    if engine == "RUNNING":
-        return "started"
-    if engine != "OFF":
+    driving = (d.get("vehicle_data") or {}).get("driveModeEnabled") is True
+    if str(climate.get("status") or "").upper().startswith("ACTIVE") and not driving:
+        return {"RUNNING": "started", "OFF": "not_started"}.get(engine)
+    if engine != "OFF" or driving:
         return None
     forecast = climate.get("isEngineStartedWhenActive")
-    if forecast is None or str(climate.get("status") or "").upper().startswith("ACTIVE"):
+    if forecast is None:
         return "not_started"
     return "will_start" if forecast else "will_not_start"
 

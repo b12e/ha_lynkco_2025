@@ -113,23 +113,44 @@ async def test_02_without_a_charge_lid_sensor_gets_no_flaps(hass: HomeAssistant,
 
 
 @pytest.mark.parametrize(
-    ("climate", "expected"),
+    ("climate", "driving", "expected"),
     [
-        ({"engineStatus": "RUNNING", "status": "ACTIVE_HEATING"}, "started"),
-        ({"engineStatus": "RUNNING", "status": "DRIVE_MODE_ENABLED", "isEngineStartedWhenActive": False}, "started"),
-        ({"engineStatus": "OFF", "status": "ACTIVE_HEATING", "isEngineStartedWhenActive": True}, "not_started"),
-        ({"engineStatus": "OFF", "status": "INACTIVE", "isEngineStartedWhenActive": True}, "will_start"),
-        ({"engineStatus": "OFF", "status": "INACTIVE", "isEngineStartedWhenActive": False}, "will_not_start"),
-        ({"engineStatus": "OFF", "status": "INACTIVE"}, "not_started"),  # no forecast reported
-        ({"engineStatus": "NOT_APPLICABLE", "status": "INACTIVE"}, None),
-        ({"engineStatus": "UNKNOWN"}, None),
-        ({}, None),
+        # climate running: the engine status says whether the engine was started for it
+        ({"engineStatus": "RUNNING", "status": "ACTIVE_HEATING"}, False, "started"),
+        ({"engineStatus": "OFF", "status": "ACTIVE_COOLING", "isEngineStartedWhenActive": True}, False, "not_started"),
+        ({"engineStatus": "UNKNOWN", "status": "ACTIVE"}, False, None),
+        # parked, climate not running: the forecast
+        ({"engineStatus": "OFF", "status": "INACTIVE", "isEngineStartedWhenActive": True}, False, "will_start"),
+        ({"engineStatus": "OFF", "status": "INACTIVE", "isEngineStartedWhenActive": False}, False, "will_not_start"),
+        ({"engineStatus": "OFF", "status": "INACTIVE"}, False, "not_started"),  # no forecast reported
+        # driving: the car reports RUNNING on every drive, electric ones included
+        ({"engineStatus": "RUNNING", "status": "DRIVE_MODE_ENABLED", "isEngineStartedWhenActive": False}, True, None),
+        ({"engineStatus": "RUNNING", "status": "DRIVE_MODE_ENABLED"}, False, None),  # vehicle data not there yet
+        ({"engineStatus": "RUNNING", "status": "ACTIVE_HEATING"}, True, None),
+        ({"engineStatus": "OFF", "status": "INACTIVE", "isEngineStartedWhenActive": True}, True, None),
+        # nothing to go on
+        ({"engineStatus": "NOT_APPLICABLE", "status": "INACTIVE"}, False, None),
+        ({"engineStatus": "UNKNOWN"}, False, None),
+        ({}, False, None),
     ],
 )
-def test_climate_engine_status_combines_the_engine_state_with_the_forecast(climate, expected) -> None:
-    assert _climate_engine_status({"climate": climate}) == expected
+def test_climate_engine_status_combines_the_engine_state_with_the_forecast(climate, driving, expected) -> None:
+    data = {"climate": climate, "vehicle_data": {"driveModeEnabled": driving}}
+    assert _climate_engine_status(data) == expected
     assert expected is None or expected in CLIMATE_ENGINE_STATUS_OPTIONS
     assert _climate_engine_status({"climate": None}) is None
+
+
+async def test_climate_engine_status_is_unknown_on_an_electric_drive(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    # What an 08 reports while driving on battery: RUNNING without any climate session
+    climate = {"engineStatus": "RUNNING", "status": "DRIVE_MODE_ENABLED", "isEngineStartedWhenActive": False}
+    with api("DX11", "DX11_MORE", "PHEV", {}, climate), patch.object(
+        LynkCoAPI, "get_vehicle_data", AsyncMock(return_value={"driveModeEnabled": True})
+    ):
+        registry = await set_up(hass, entry)
+        assert hass.states.get(entity_id(registry, "sensor", "climate_engine_status")).state == "unknown"
 
 
 async def test_climate_engine_status_entity_on_a_hybrid(hass: HomeAssistant, entry: MockConfigEntry) -> None:
