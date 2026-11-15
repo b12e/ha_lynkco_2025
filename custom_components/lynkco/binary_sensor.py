@@ -42,6 +42,11 @@ DOORS_SENSOR_TYPES: list[dict] = [
     {"key": "sunroof", "field": "sunroofStatus", "device_class": BinarySensorDeviceClass.WINDOW, "entity_key": "sunroof"},
     {"key": "hood", "field": "hoodStatus", "device_class": BinarySensorDeviceClass.DOOR},
     {"key": "trunk", "field": "trunkStatus", "device_class": BinarySensorDeviceClass.DOOR},
+    # Inferable from the API: a flap the car has no sensor for is reported as null
+    # (the 01 has none on its charge lid), so "requires_value" only creates these
+    # when a state is reported, whatever the model. A BEV has no tank.
+    {"key": "fuel_flap", "field": "tankFlapStatus", "device_class": BinarySensorDeviceClass.DOOR, "fuel_only": True, "requires_value": True},
+    {"key": "charge_flap", "field": "chargeLidStatus", "device_class": BinarySensorDeviceClass.DOOR, "requires_value": True},
 ]
 
 VEHICLE_DATA_BINARY_SENSORS: list[dict] = [
@@ -72,11 +77,17 @@ async def async_setup_entry(
     data = hass.data[DOMAIN][entry.entry_id]
     entities = []
     for coordinator in data["coordinators"].values():
+        is_bev = coordinator.propulsion == "BEV"
+        doors = (coordinator.data or {}).get("doors") or {}
         for sensor_type in GROUPED_SENSOR_TYPES:
             entities.append(LynkCoGroupedBinarySensor(coordinator, sensor_type))
         for sensor_type in DOORS_SENSOR_TYPES:
             entity_key = sensor_type.get("entity_key")
             if entity_key and not coordinator.features.entity_enabled(entity_key):
+                continue
+            if sensor_type.get("fuel_only") and is_bev:
+                continue
+            if sensor_type.get("requires_value") and doors.get(sensor_type["field"]) is None:
                 continue
             entities.append(LynkCoBinarySensor(coordinator, sensor_type))
         for sensor_type in VEHICLE_DATA_BINARY_SENSORS:
