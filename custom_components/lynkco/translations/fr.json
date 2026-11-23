@@ -167,7 +167,18 @@
       "last_updated": { "name": "Dernière mise à jour" },
       "last_updated_fuel": { "name": "Dernière mise à jour (carburant)" },
       "last_updated_location": { "name": "Dernière mise à jour (position)" },
-      "last_updated_climate": { "name": "Dernière mise à jour (climatisation)" }
+      "last_updated_climate": { "name": "Dernière mise à jour (climatisation)" },
+      "last_updated_doors": { "name": "Dernière mise à jour (portes)" },
+      "last_updated_charging": { "name": "Dernière mise à jour (recharge)" },
+      "climate_engine_status": {
+        "name": "État du moteur (climatisation)",
+        "state": {
+          "started": "Démarré",
+          "not_started": "Non démarré",
+          "will_start": "Démarrera",
+          "will_not_start": "Ne démarrera pas"
+        }
+      }
     },
     "binary_sensor": {
       "doors": { "name": "Portes" },
@@ -175,6 +186,8 @@
       "sunroof": { "name": "Toit ouvrant" },
       "hood": { "name": "Capot" },
       "trunk": { "name": "Coffre" },
+      "fuel_flap": { "name": "Trappe à carburant" },
+      "charge_flap": { "name": "Trappe de recharge" },
       "car_running": { "name": "Voiture en marche" }
     },
     "lock": {
