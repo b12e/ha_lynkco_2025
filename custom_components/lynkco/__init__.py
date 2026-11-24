@@ -270,6 +270,30 @@ def _watch_location_sharing(hass: HomeAssistant, coordinator: LynkCoCoordinator)
     return coordinator.async_add_listener(_check)
 
 
+def _watch_software_version(
+    hass: HomeAssistant, entry: ConfigEntry, coordinator: LynkCoCoordinator
+) -> Callable[[], None]:
+    """Keep the device page's firmware in step with the car; returns an unsub callable.
+
+    Entities hand the version to the device registry once, when they are set
+    up, so without this an over-the-air update would only show after a restart.
+    """
+    seen = [dig(coordinator.data, "metadata", "vehicle", "softwareVersion")]
+
+    @callback
+    def _check() -> None:
+        version = dig(coordinator.data, "metadata", "vehicle", "softwareVersion")
+        if not version or version == seen[0]:
+            return  # a poll without metadata keeps the last known version
+        seen[0] = version
+        registry = dr.async_get(hass)
+        for device in dr.async_entries_for_config_entry(registry, entry.entry_id):
+            if (DOMAIN, coordinator.vin) in device.identifiers:
+                registry.async_update_device(device.id, sw_version=version)
+
+    return coordinator.async_add_listener(_check)
+
+
 def _create_duplicate_vehicle_issue(
     hass: HomeAssistant, entry: ConfigEntry, vin: str, owner_id: str
 ) -> str:
@@ -403,6 +427,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             coordinators[vin] = coordinator
             _update_unknown_model_issue(hass, coordinator)
             entry.async_on_unload(_watch_location_sharing(hass, coordinator))
+            entry.async_on_unload(_watch_software_version(hass, entry, coordinator))
             # Endpoint-specific fast polling (driving / climate active); stopped on unload
             entry.async_on_unload(coordinator.start_fast_poll())
 
