@@ -65,7 +65,7 @@ body:
         - label: "`lynkco.set_charge_limit`"
         - label: "`lynkco.start_charging`"
         - label: "`lynkco.stop_charging`"
-        - label: "`lynkco.start_ventilate` / `lynkco.stop_ventilate`"
+        - label: "`lynkco.start_ventilate` / `lynkco.close_windows`"
         - label: "`lynkco.start_heaters` / `lynkco.stop_heaters` (with conditioning active)"
         - label: "`lynkco.lock_glovebox` / `lynkco.unlock_glovebox`"
 
@@ -80,7 +80,7 @@ body:
         - label: "`lynkco.set_charge_limit`"
         - label: "`lynkco.start_charging`"
         - label: "`lynkco.stop_charging`"
-        - label: "`lynkco.start_ventilate` / `lynkco.stop_ventilate`"
+        - label: "`lynkco.start_ventilate` / `lynkco.close_windows`"
         - label: "`lynkco.start_heaters` / `lynkco.stop_heaters`"
         - label: "`lynkco.lock_glovebox` / `lynkco.unlock_glovebox`"
         - label: "Something in the basics (lock/unlock, lights, horn, climate) does NOT work either (describe below)"

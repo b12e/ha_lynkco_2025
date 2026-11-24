@@ -66,7 +66,7 @@ SERVICE_SET_CHARGE_LIMIT = "set_charge_limit"
 SERVICE_START_CHARGING = "start_charging"
 SERVICE_STOP_CHARGING = "stop_charging"
 SERVICE_START_VENTILATE = "start_ventilate"
-SERVICE_STOP_VENTILATE = "stop_ventilate"
+SERVICE_CLOSE_WINDOWS = "close_windows"
 SERVICE_START_HEATERS = "start_heaters"
 SERVICE_STOP_HEATERS = "stop_heaters"
 SERVICE_START_CONDITIONING = "start_conditioning"
@@ -83,7 +83,7 @@ ALL_SERVICES = [
     SERVICE_OPEN_SUNROOF, SERVICE_CLOSE_SUNROOF,
     SERVICE_SET_CHARGE_LIMIT,
     SERVICE_START_CHARGING, SERVICE_STOP_CHARGING,
-    SERVICE_START_VENTILATE, SERVICE_STOP_VENTILATE,
+    SERVICE_START_VENTILATE, SERVICE_CLOSE_WINDOWS,
     SERVICE_START_HEATERS, SERVICE_STOP_HEATERS,
     SERVICE_START_CONDITIONING, SERVICE_STOP_CONDITIONING,
     SERVICE_REFRESH, SERVICE_REQUEST_LOCATION,
@@ -500,10 +500,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             await _get_api(hass, vin).start_ventilate(vin)
             _targeted_refresh(hass, vin, "doors", "get_doors_windows")
 
-        async def handle_stop_ventilate(call: ServiceCall) -> None:
+        async def handle_close_windows(call: ServiceCall) -> None:
             vin = _resolve_vin(hass, call)
-            _require_action(hass, vin, SERVICE_STOP_VENTILATE)
-            await _get_api(hass, vin).stop_ventilate(vin)
+            _require_action(hass, vin, SERVICE_CLOSE_WINDOWS)
+            await _get_api(hass, vin).close_windows(vin)
             _targeted_refresh(hass, vin, "doors", "get_doors_windows")
 
         def _validate_heaters(hass: HomeAssistant, vin: str, heaters: list[str]) -> list[str]:
@@ -588,7 +588,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.services.async_register(DOMAIN, SERVICE_START_CHARGING, handle_start_charging, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_STOP_CHARGING, handle_stop_charging, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_START_VENTILATE, handle_start_ventilate, VIN_SCHEMA)
-        hass.services.async_register(DOMAIN, SERVICE_STOP_VENTILATE, handle_stop_ventilate, VIN_SCHEMA)
+        hass.services.async_register(DOMAIN, SERVICE_CLOSE_WINDOWS, handle_close_windows, VIN_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_START_HEATERS, handle_start_heaters, HEATERS_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_STOP_HEATERS, handle_stop_heaters, HEATERS_SCHEMA)
         hass.services.async_register(DOMAIN, SERVICE_START_CONDITIONING, handle_start_conditioning, CONDITIONING_SCHEMA)

@@ -22,7 +22,7 @@ ALL_ACTIONS = {
     "lock_door", "unlock_door", "flash_lights", "honk_horn",
     "start_conditioning", "stop_conditioning",
     "open_sunroof", "close_sunroof", "set_charge_limit",
-    "start_charging", "stop_charging", "start_ventilate", "stop_ventilate",
+    "start_charging", "stop_charging", "start_ventilate", "close_windows",
     "start_heaters", "stop_heaters", "lock_glovebox", "unlock_glovebox",
     "request_location",
 }

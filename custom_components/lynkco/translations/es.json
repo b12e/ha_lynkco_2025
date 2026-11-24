@@ -317,9 +317,9 @@
         }
       }
     },
-    "stop_ventilate": {
-      "name": "Detener ventilación",
-      "description": "Cerrar las ventanillas abiertas para la ventilación.",
+    "close_windows": {
+      "name": "Cerrar ventanillas",
+      "description": "Cerrar todas las ventanillas. Así también se finaliza la ventilación.",
       "fields": {
         "vin": {
           "name": "VIN",

@@ -317,9 +317,9 @@
         }
       }
     },
-    "stop_ventilate": {
-      "name": "Ventilatie stoppen",
-      "description": "Sluit de ramen die voor ventilatie geopend zijn.",
+    "close_windows": {
+      "name": "Ramen sluiten",
+      "description": "Sluit alle ramen. Zo wordt ook de ventilatie beëindigd.",
       "fields": {
         "vin": {
           "name": "VIN",
