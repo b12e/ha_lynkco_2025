@@ -1,23 +1,48 @@
 name: Pre-release
 
+# A testable build of a pull request, made on request only:
+#   Actions -> Pre-release -> Run workflow, with the pull request's number
+#   or: gh workflow run prerelease.yml -f pr=<number>
+# Running it again for the same pull request replaces the earlier build.
+# release.yml removes these builds when the next release is published.
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-    paths:
-      - "custom_components/lynkco/**"
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "Pull request number"
+        required: true
+        type: string
 
 jobs:
   prerelease:
     runs-on: ubuntu-latest
-    # Dependency bumps are merged automatically; they don't need a testable build.
-    if: github.actor != 'dependabot[bot]'
     permissions:
       contents: write
+      pull-requests: read
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR: ${{ inputs.pr }}
 
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
+
+      - name: Look up the pull request
+        id: pr
+        run: |
+          # Stops here, before anything is deleted or created, when the input
+          # is not the number of an open pull request.
+          if ! [[ "$PR" =~ ^[0-9]+$ ]]; then
+            echo "::error::'$PR' is not a pull request number"
+            exit 1
+          fi
+          info=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json state,headRefOid -q '"\(.state) \(.headRefOid)"')
+          state="${info%% *}"
+          sha="${info##* }"
+          if [ "$state" != "OPEN" ]; then
+            echo "::error::Pull request #$PR is $state; only open pull requests get a pre-release"
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
 
       - name: Compute pre-release version
         id: prerelease
@@ -33,16 +58,14 @@ jobs:
           else
             next="${today}.0"
           fi
-          version="${next}-pr${{ github.event.pull_request.number }}"
+          version="${next}-pr${PR}"
           echo "Pre-release ${version} (manifest is ${current})"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Delete existing pre-release for this PR
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release list --json tagName,isPrerelease \
-            -q '.[] | select(.isPrerelease) | .tagName | select(endswith("-pr${{ github.event.pull_request.number }}"))' | \
+            -q ".[] | select(.isPrerelease) | .tagName | select(endswith(\"-pr${PR}\"))" | \
             while read -r tag; do
               echo "Deleting pre-release $tag"
               gh release delete "$tag" --yes --cleanup-tag || true
@@ -50,11 +73,12 @@ jobs:
 
       - name: Create pre-release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.prerelease.outputs.version }}
+          SHA: ${{ steps.pr.outputs.sha }}
         run: |
-          tag="v${{ steps.prerelease.outputs.version }}"
+          tag="v${VERSION}"
           gh release create "$tag" \
             --title "$tag" \
-            --notes "Pre-release from PR #${{ github.event.pull_request.number }}" \
+            --notes "Pre-release from PR #${PR}" \
             --prerelease \
-            --target "${{ github.event.pull_request.head.sha }}"
+            --target "$SHA"
