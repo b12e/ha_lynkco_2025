@@ -133,7 +133,11 @@ class LynkCoCoordinator(DataUpdateCoordinator):
         flag = LIVE_PERMISSION_FLAGS.get(action)
         if flag and dig(self.data, "vehicle_data", flag) is False:
             blocked = True
-        if action in ("start_ventilate", "stop_ventilate") and (
+        # windowVentilateState.enabled says whether ventilation can be started;
+        # the car turns it off while it is ventilating. stop_ventilate (the app's
+        # "close all windows") is never held back: refusing to close windows on
+        # possibly stale data is worse than sending a command the car ignores.
+        if action == "start_ventilate" and (
             dig(self.data, "doors", "windowVentilateState", "enabled") is False
         ):
             blocked = True
