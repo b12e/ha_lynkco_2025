@@ -1,10 +1,12 @@
-"""Tests for the software version sensor."""
+"""Tests for the software version: the sensor and the device page's firmware field."""
 
 from collections.abc import Callable
 from unittest.mock import AsyncMock, patch
 
+import aiohttp
 import pytest
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -72,3 +74,38 @@ async def test_no_software_version_sensor_for_a_car_that_does_not_report_one(
         assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
     assert er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{VIN}_software_version") is None
+
+
+def firmware(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
+    """What the car's device page shows as firmware."""
+    (device,) = dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id)
+    return device.sw_version
+
+
+async def test_device_page_shows_the_software_version_and_follows_an_update(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    with car({"propulsionType": "PHEV", "softwareVersion": "1.4.4"}):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+        coordinator = hass.data[DOMAIN][entry.entry_id]["coordinators"][VIN]
+        assert firmware(hass, entry) == "1.4.4"
+
+        # The car was updated over the air: the next poll shows it, no restart needed
+        LynkCoAPI.get_vehicle_metadata.return_value = {"vehicle": {"propulsionType": "PHEV", "softwareVersion": "1.5.0"}}
+        await coordinator.async_refresh()
+        assert firmware(hass, entry) == "1.5.0"
+
+        # A poll in which the endpoint fails keeps the last known version
+        LynkCoAPI.get_vehicle_metadata.side_effect = aiohttp.ClientConnectionError("network is down")
+        await coordinator.async_refresh()
+        assert firmware(hass, entry) == "1.5.0"
+
+
+async def test_device_page_has_no_firmware_for_a_car_that_does_not_report_one(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    with car({"propulsionType": "PHEV"}):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+    assert firmware(hass, entry) is None

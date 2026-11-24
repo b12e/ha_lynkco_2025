@@ -106,6 +106,7 @@ class LynkCoCoordinator(DataUpdateCoordinator):
             model=self.model_name,
             model_id=self.model,
             hw_version=" ".join(hw_parts) or None,
+            sw_version=vehicle.get("softwareVersion"),
             serial_number=self.vin,
         )
 
