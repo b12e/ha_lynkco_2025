@@ -1,6 +1,7 @@
 """Lynk & Co integration for Home Assistant."""
 
 import logging
+import re
 from collections.abc import Callable
 from datetime import timedelta
 
@@ -198,19 +199,37 @@ def _update_unknown_model_issue(hass: HomeAssistant, coordinator: LynkCoCoordina
     )
 
 
+# LynkOS version from which the car only reports its position with location sharing on
+LOCATION_SHARING_SINCE = (1, 4)
+
+
+def _predates_location_sharing(software_version: object) -> bool:
+    """Whether a reported LynkOS version is older than the one that added location sharing.
+
+    Only a version the car actually reports can rule the notice out: no
+    version, or one that does not start with numbers, counts as not older.
+    """
+    match = re.match(r"\s*v?(\d+(?:\.\d+)*)", str(software_version or ""))
+    if match is None:
+        return False
+    return tuple(int(part) for part in match.group(1).split(".")) < LOCATION_SHARING_SINCE
+
+
 def _update_location_sharing_issue(
-    hass: HomeAssistant, coordinator: LynkCoCoordinator, enabled: bool | None
+    hass: HomeAssistant, coordinator: LynkCoCoordinator, enabled: bool | None, applies: bool = True
 ) -> None:
     """Raise (or clear) the Repairs notice for a car that does not share its location by itself.
 
     Since LynkOS 1.4 the car only reports where it is parked when location
-    sharing is allowed in its privacy settings. The notice is cleared when the
-    car reports the setting as on and deliberately not on unload: deleting it
-    would also forget that the user chose to ignore it. A missing value (the
-    endpoint failed) leaves the notice as it is.
+    sharing is allowed in its privacy settings; ``applies`` is false for a
+    car that reports an older version, which the setting does not affect.
+    The notice is cleared when the car reports the setting as on and
+    deliberately not on unload: deleting it would also forget that the user
+    chose to ignore it. A missing value (the endpoint failed) leaves the
+    notice as it is.
     """
     issue_id = f"location_sharing_off_{coordinator.vin}"
-    if enabled is True:
+    if enabled is True or not applies:
         ir.async_delete_issue(hass, DOMAIN, issue_id)
     elif enabled is False:
         # Asking for a position on demand only helps where that action is confirmed
@@ -234,15 +253,18 @@ def _update_location_sharing_issue(
 
 def _watch_location_sharing(hass: HomeAssistant, coordinator: LynkCoCoordinator) -> Callable[[], None]:
     """Keep the location sharing notice in step with the car; returns an unsub callable."""
-    seen: list[bool | None] = []  # the last reported value, empty before the first check
+    seen: list[tuple[bool | None, bool]] = []  # the last reported state, empty before the first check
 
     @callback
     def _check() -> None:
         enabled = dig(coordinator.data, "vehicle_data", "vehicleAutoShareLocationDataEnabled")
-        if seen and seen[0] is enabled:
-            return  # polls rarely change it; only touch the registry when it does
-        seen[:] = [enabled]
-        _update_location_sharing_issue(hass, coordinator, enabled)
+        applies = not _predates_location_sharing(
+            dig(coordinator.data, "metadata", "vehicle", "softwareVersion")
+        )
+        if seen and seen[0] == (enabled, applies):
+            return  # polls rarely change it; only touch the registry when they do
+        seen[:] = [(enabled, applies)]
+        _update_location_sharing_issue(hass, coordinator, enabled, applies)
 
     _check()
     return coordinator.async_add_listener(_check)

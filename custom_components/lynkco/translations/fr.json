@@ -170,6 +170,7 @@
       "last_updated_climate": { "name": "Dernière mise à jour (climatisation)" },
       "last_updated_doors": { "name": "Dernière mise à jour (portes)" },
       "last_updated_charging": { "name": "Dernière mise à jour (recharge)" },
+      "software_version": { "name": "Version du logiciel" },
       "climate_engine_status": {
         "name": "État du moteur (climatisation)",
         "state": {

@@ -324,3 +324,52 @@ async def test_removing_the_entry_clears_its_location_sharing_notice(
         assert await hass.config_entries.async_remove(entry.entry_id)
         await hass.async_block_till_done()
         assert registry.async_get_issue(DOMAIN, SHARING_ISSUE) is None
+
+
+def metadata(software_version: str | None) -> AsyncMock:
+    """The metadata getter of a car that reports the given LynkOS version (or none)."""
+    vehicle = {} if software_version is None else {"softwareVersion": software_version}
+    return AsyncMock(return_value={"vehicle": vehicle})
+
+
+@pytest.mark.parametrize(
+    ("software_version", "notice"),
+    [
+        ("1.3.9", False), ("1.2", False), ("0.9.1", False),
+        ("1.4", True), ("1.4.0", True), ("1.4.4", True), ("1.10.0", True), ("2.0", True),
+        (None, True), ("", True), ("unknown", True),  # no usable version: nothing rules the notice out
+    ],
+)
+async def test_location_sharing_notice_only_applies_from_lynkos_1_4(
+    hass: HomeAssistant, entry: MockConfigEntry, software_version: str | None, notice: bool
+) -> None:
+    with (
+        healthy_api(VEHICLES),
+        patch.object(LynkCoAPI, "get_vehicle_data", vehicle_data(False)),
+        patch.object(LynkCoAPI, "get_vehicle_metadata", metadata(software_version)),
+    ):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    assert (ir.async_get(hass).async_get_issue(DOMAIN, SHARING_ISSUE) is not None) is notice
+
+
+async def test_location_sharing_notice_appears_after_an_update_to_lynkos_1_4(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    software = metadata("1.3.2")
+    with (
+        healthy_api(VEHICLES),
+        patch.object(LynkCoAPI, "get_vehicle_data", vehicle_data(False)),
+        patch.object(LynkCoAPI, "get_vehicle_metadata", software),
+    ):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+        coordinator = hass.data[DOMAIN][entry.entry_id]["coordinators"][VIN]
+        registry = ir.async_get(hass)
+        assert registry.async_get_issue(DOMAIN, SHARING_ISSUE) is None
+
+        # The car installs an over-the-air update; sharing was off all along
+        software.return_value = {"vehicle": {"softwareVersion": "1.4.0"}}
+        await coordinator.async_refresh()
+        assert registry.async_get_issue(DOMAIN, SHARING_ISSUE) is not None
