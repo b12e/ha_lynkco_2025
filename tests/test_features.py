@@ -68,7 +68,8 @@ def test_pre_2025_01_only_gets_basics():
     assert resolved.file == "CX11_A1"
     assert enabled_actions(resolved) == BASICS
     assert resolved.entity_enabled("sunroof") is False
-    assert "pre-2025" in resolved.source
+    # The wiki page "Lynk & Co 01 (2021‐2024)"; its title holds U+2010, not an ASCII hyphen
+    assert resolved.source.endswith("/wiki/Lynk-%26-Co-01-(2021%E2%80%902024)")
 
 
 @pytest.mark.parametrize("model", ["CX11_A3", "DX11"])
