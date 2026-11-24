@@ -25,6 +25,10 @@ async def async_setup_entry(
         # Not inferable from the API: only on models where it is confirmed to work
         if coordinator.action_enabled("request_location"):
             entities.append(LynkCoRequestLocationButton(coordinator))
+        if coordinator.action_enabled("start_ventilate"):
+            entities.append(LynkCoVentilateButton(coordinator))
+        if coordinator.action_enabled("close_windows"):
+            entities.append(LynkCoCloseWindowsButton(coordinator))
     async_add_entities(entities)
 
 
@@ -77,3 +81,42 @@ class LynkCoRequestLocationButton(LynkCoButton):
                 "location", lambda: self.coordinator.api.get_location(self.coordinator.vin)
             )
         )
+
+
+class LynkCoWindowsButton(LynkCoButton):
+    """Base for the buttons that move the windows.
+
+    They send the same command as the action of the same name, behind the same
+    checks, so the car reacts alike whichever way it is asked.
+    """
+
+    _attr_entity_category = None  # a control, shown with the car's other controls
+    _action: str
+
+    async def async_press(self) -> None:
+        coordinator = self.coordinator
+        coordinator.require_action(self._action)
+        _LOGGER.info("%s requested for %s", self._action, coordinator.log_vin)
+        await getattr(coordinator.api, self._action)(coordinator.vin)
+        # The windows take a while to move; follow up in the background
+        self.hass.async_create_task(
+            coordinator.async_targeted_refresh(
+                "doors", lambda: coordinator.api.get_doors_windows(coordinator.vin)
+            )
+        )
+
+
+class LynkCoVentilateButton(LynkCoWindowsButton):
+    """Button that opens all windows slightly to ventilate the car."""
+
+    _attr_icon = "mdi:window-open-variant"
+    _key = "ventilate"
+    _action = "start_ventilate"
+
+
+class LynkCoCloseWindowsButton(LynkCoWindowsButton):
+    """Button that closes all windows, which also ends ventilation."""
+
+    _attr_icon = "mdi:window-closed-variant"
+    _key = "close_windows"
+    _action = "close_windows"
