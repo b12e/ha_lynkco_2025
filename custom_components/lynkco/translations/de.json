@@ -206,7 +206,9 @@
     },
     "button": {
       "refresh": { "name": "Daten aktualisieren" },
-      "request_location": { "name": "Standort aktualisieren" }
+      "request_location": { "name": "Standort aktualisieren" },
+      "ventilate": { "name": "Belüften" },
+      "close_windows": { "name": "Fenster schließen" }
     },
     "device_tracker": {
       "location": { "name": "Standort" }

@@ -206,7 +206,9 @@
     },
     "button": {
       "refresh": { "name": "Gegevens vernieuwen" },
-      "request_location": { "name": "Locatie bijwerken" }
+      "request_location": { "name": "Locatie bijwerken" },
+      "ventilate": { "name": "Ventileren" },
+      "close_windows": { "name": "Ramen sluiten" }
     },
     "device_tracker": {
       "location": { "name": "Locatie" }

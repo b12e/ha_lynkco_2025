@@ -206,7 +206,9 @@
     },
     "button": {
       "refresh": { "name": "Refresh data" },
-      "request_location": { "name": "Update location" }
+      "request_location": { "name": "Update location" },
+      "ventilate": { "name": "Ventilate" },
+      "close_windows": { "name": "Close windows" }
     },
     "device_tracker": {
       "location": { "name": "Location" }

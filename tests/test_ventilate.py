@@ -1,11 +1,13 @@
-"""Tests for the ventilation and close windows actions and their live permission check."""
+"""Tests for the ventilation and close windows actions, their buttons and the live permission check."""
 
 from collections.abc import Callable
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from homeassistant.core import HomeAssistant
+from homeassistant.const import EntityCategory
 from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.lynkco.api import LynkCoAPI
@@ -47,13 +49,13 @@ def commands() -> dict[str, AsyncMock]:
     return {"start_ventilate": AsyncMock(return_value={}), "close_windows": AsyncMock(return_value={})}
 
 
-def car(doors: dict, commands: dict[str, AsyncMock]):
-    """A reachable account with one 02 whose doors endpoint reports ``doors``."""
+def car(doors: dict, commands: dict[str, AsyncMock], model: str = "E335", guide: str | None = "E335_MORE"):
+    """A reachable account with one car (an 02 by default) whose doors endpoint reports ``doors``."""
     return patch.multiple(
         LynkCoAPI,
         validate_session=AsyncMock(return_value=True),
-        get_vehicles=AsyncMock(return_value=[{"vehicle": {"vin": VIN, "model": "E335"}}]),
-        get_vehicle_guide=AsyncMock(return_value="E335_MORE"),
+        get_vehicles=AsyncMock(return_value=[{"vehicle": {"vin": VIN, "model": model}}]),
+        get_vehicle_guide=AsyncMock(return_value=guide),
         get_doors_windows=AsyncMock(return_value=doors),
         **commands,
         **{getter: AsyncMock(return_value={}) for getter in OTHER_GETTERS},
@@ -109,3 +111,65 @@ async def test_start_ventilate_is_refused_while_the_car_is_already_ventilating(
             await call(hass, entry, "start_ventilate")
     assert raised.value.translation_key == "action_not_permitted"
     commands["start_ventilate"].assert_not_awaited()
+
+
+def button(hass: HomeAssistant, key: str) -> er.RegistryEntry | None:
+    """The registry entry of one of the car's buttons, if it was created."""
+    registry = er.async_get(hass)
+    entity_id = registry.async_get_entity_id("button", DOMAIN, f"{VIN}_{key}")
+    return registry.async_get(entity_id) if entity_id else None
+
+
+async def press(hass: HomeAssistant, entry: MockConfigEntry, key: str) -> None:
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    with patch.object(LynkCoCoordinator, "async_targeted_refresh", AsyncMock()) as refresh:
+        await hass.services.async_call("button", "press", {"entity_id": button(hass, key).entity_id}, blocking=True)
+        await hass.async_block_till_done()
+    # The windows are read again afterwards, so the Windows sensor follows
+    assert refresh.await_args.args[0] == "doors"
+
+
+@pytest.mark.parametrize(("key", "command"), [("ventilate", "start_ventilate"), ("close_windows", "close_windows")])
+async def test_button_sends_its_command(
+    hass: HomeAssistant, entry: MockConfigEntry, commands: dict[str, AsyncMock], key: str, command: str
+) -> None:
+    with car(CLOSED, commands):
+        await press(hass, entry, key)
+    commands[command].assert_awaited_once_with(VIN)
+    # A control, unlike the diagnostic refresh button next to it
+    assert button(hass, key).entity_category is None
+    assert button(hass, "refresh").entity_category is EntityCategory.DIAGNOSTIC
+
+
+async def test_ventilate_button_is_refused_while_the_car_is_already_ventilating(
+    hass: HomeAssistant, entry: MockConfigEntry, commands: dict[str, AsyncMock]
+) -> None:
+    with car(VENTILATING, commands):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+        with pytest.raises(ServiceValidationError) as raised:
+            await hass.services.async_call(
+                "button", "press", {"entity_id": button(hass, "ventilate").entity_id}, blocking=True
+            )
+    assert raised.value.translation_key == "action_not_permitted"
+    commands["start_ventilate"].assert_not_awaited()
+
+
+async def test_close_windows_button_works_while_the_car_is_ventilating(
+    hass: HomeAssistant, entry: MockConfigEntry, commands: dict[str, AsyncMock]
+) -> None:
+    with car(VENTILATING, commands):
+        await press(hass, entry, "close_windows")
+    commands["close_windows"].assert_awaited_once_with(VIN)
+
+
+async def test_no_window_buttons_on_a_model_where_the_actions_are_not_confirmed(
+    hass: HomeAssistant, entry: MockConfigEntry, commands: dict[str, AsyncMock]
+) -> None:
+    with car(CLOSED, commands, model="XX99", guide=None):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+    assert button(hass, "refresh") is not None
+    assert button(hass, "ventilate") is None
+    assert button(hass, "close_windows") is None
