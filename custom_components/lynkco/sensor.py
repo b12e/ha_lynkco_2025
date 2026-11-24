@@ -375,6 +375,20 @@ SENSOR_TYPES: list[dict] = [
         "requires": ("climate", "engineStatus"),
     },
     {
+        "key": "software_version",
+        "data_key": "metadata",
+        "name": "Software version",
+        "icon": "mdi:car-info",
+        "device_class": None,
+        "unit": None,
+        "state_class": None,
+        "value_fn": lambda d: _dig(d, "metadata", "vehicle", "softwareVersion"),
+        "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
+        # A newer field of the API; not every car reports it
+        "requires": ("metadata", "vehicle", "softwareVersion"),
+    },
+    {
         "key": "last_updated",
         "name": "Last updated",
         "icon": "mdi:clock-outline",

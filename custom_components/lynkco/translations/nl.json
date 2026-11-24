@@ -170,6 +170,7 @@
       "last_updated_climate": { "name": "Laatst bijgewerkt (klimaat)" },
       "last_updated_doors": { "name": "Laatst bijgewerkt (deuren)" },
       "last_updated_charging": { "name": "Laatst bijgewerkt (laden)" },
+      "software_version": { "name": "Softwareversie" },
       "climate_engine_status": {
         "name": "Motorstatus (klimaat)",
         "state": {
