@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit review settings. Anything not set here keeps CodeRabbit's default.
+# AGENTS.md is read as review guidelines automatically; it needs no entry here.
+
+reviews:
+  # Put the "Summary by CodeRabbit" in its review comment instead of in the
+  # pull request description. The release workflow reads descriptions to find
+  # breaking changes (.github/scripts/release-notes.sh), so generated text
+  # there could end up in a release's caution block.
+  high_level_summary_in_walkthrough: true
+
+  auto_review:
+    # Dependency bumps are approved and merged by a workflow; no review needed.
+    ignore_usernames:
+      - "dependabot[bot]"
