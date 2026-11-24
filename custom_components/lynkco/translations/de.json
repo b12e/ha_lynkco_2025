@@ -317,9 +317,9 @@
         }
       }
     },
-    "stop_ventilate": {
-      "name": "Belüftung stoppen",
-      "description": "Die zur Belüftung geöffneten Fenster schließen.",
+    "close_windows": {
+      "name": "Fenster schließen",
+      "description": "Alle Fenster schließen. So wird auch die Belüftung beendet.",
       "fields": {
         "vin": {
           "name": "FIN",

@@ -1,4 +1,4 @@
-"""Tests for the ventilation actions and their live permission check."""
+"""Tests for the ventilation and close windows actions and their live permission check."""
 
 from collections.abc import Callable
 from unittest.mock import AsyncMock, patch
@@ -44,7 +44,7 @@ def entry(hass: HomeAssistant, make_token: Callable) -> MockConfigEntry:
 @pytest.fixture
 def commands() -> dict[str, AsyncMock]:
     """The two remote commands, so tests can see what reached the API."""
-    return {"start_ventilate": AsyncMock(return_value={}), "stop_ventilate": AsyncMock(return_value={})}
+    return {"start_ventilate": AsyncMock(return_value={}), "close_windows": AsyncMock(return_value={})}
 
 
 def car(doors: dict, commands: dict[str, AsyncMock]):
@@ -70,14 +70,26 @@ async def call(hass: HomeAssistant, entry: MockConfigEntry, action: str) -> None
 
 
 @pytest.mark.parametrize("doors", [VENTILATING, ONE_WINDOW_OPEN, CLOSED], ids=["ventilating", "one window open", "closed"])
-async def test_stop_ventilate_always_reaches_the_car(
+async def test_close_windows_always_reaches_the_car(
     hass: HomeAssistant, entry: MockConfigEntry, commands: dict[str, AsyncMock], doors: dict
 ) -> None:
     # While ventilating the car reports that ventilation cannot be started;
     # that must not stop the windows from being closed again (issue 69)
     with car(doors, commands):
-        await call(hass, entry, "stop_ventilate")
-    commands["stop_ventilate"].assert_awaited_once_with(VIN)
+        await call(hass, entry, "close_windows")
+    commands["close_windows"].assert_awaited_once_with(VIN)
+
+
+async def test_the_stop_ventilate_action_is_gone(
+    hass: HomeAssistant, entry: MockConfigEntry, commands: dict[str, AsyncMock]
+) -> None:
+    # The app dropped the car's ventilate_stop command for window_close, so
+    # the action that sent it was replaced by close_windows
+    with car(VENTILATING, commands):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+    assert hass.services.has_service(DOMAIN, "close_windows")
+    assert not hass.services.has_service(DOMAIN, "stop_ventilate")
 
 
 @pytest.mark.parametrize("doors", [CLOSED, ONE_WINDOW_OPEN, {}], ids=["closed", "one window open", "nothing reported"])

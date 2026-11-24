@@ -9,7 +9,7 @@
     "start_charging": true,
     "stop_charging": true,
     "start_ventilate": true,
-    "stop_ventilate": true,
+    "close_windows": true,
     "start_heaters": true,
     "stop_heaters": true,
     "lock_glovebox": true,

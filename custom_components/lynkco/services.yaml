@@ -66,7 +66,7 @@ start_ventilate:
       selector:
         text:
 
-stop_ventilate:
+close_windows:
   fields:
     vin:
       selector:

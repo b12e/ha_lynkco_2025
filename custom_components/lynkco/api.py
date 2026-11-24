@@ -511,9 +511,10 @@ class LynkCoAPI:
             "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/ventilate_start"
         )
 
-    async def stop_ventilate(self, vin: str) -> dict:
+    async def close_windows(self, vin: str) -> dict:
+        """Close every window; this is also how ventilation is ended."""
         return await self._request(
-            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/ventilate_stop"
+            "POST", f"{COMMAND_BASE}/vehicle/{vin}/command/window_close"
         )
 
     async def start_heaters(self, vin: str, heaters: list[str]) -> dict:

@@ -15,7 +15,7 @@
     "start_charging": false,
     "stop_charging": false,
     "start_ventilate": false,
-    "stop_ventilate": false,
+    "close_windows": false,
     "start_heaters": false,
     "stop_heaters": false,
     "lock_glovebox": false,

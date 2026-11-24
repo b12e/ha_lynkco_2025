@@ -317,9 +317,9 @@
         }
       }
     },
-    "stop_ventilate": {
-      "name": "Stop ventilation",
-      "description": "Close the windows opened by ventilation.",
+    "close_windows": {
+      "name": "Close windows",
+      "description": "Close all windows. This is also how ventilation is ended.",
       "fields": {
         "vin": {
           "name": "VIN",

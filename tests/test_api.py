@@ -26,7 +26,7 @@ from custom_components.lynkco.api import (
     LynkCoAuthError,
     LynkCoTransientError,
 )
-from custom_components.lynkco.const import IAM_BASE, LOGIN_B2C_URL, LOVE_BASE
+from custom_components.lynkco.const import COMMAND_BASE, IAM_BASE, LOGIN_B2C_URL, LOVE_BASE
 
 VIN = "TESTVIN0000000001"
 EMAIL = "user@example.com"
@@ -472,3 +472,14 @@ async def test_validate_session_reads_the_valid_flag(
     aioclient_mock.post(VALIDATE_SESSION_URL, **answer)
 
     assert await api.validate_session() is valid
+
+
+async def test_close_windows_sends_the_window_close_command(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, make_token: Callable
+) -> None:
+    """The app replaced ventilate_stop by window_close; that is the command to send."""
+    accepted = {"acknowledged": True, "status": "COMMAND_RECEIVED"}
+    aioclient_mock.post(f"{COMMAND_BASE}/vehicle/{VIN}/command/window_close", json=accepted)
+
+    assert await build_api(hass, make_token).close_windows(VIN) == accepted
+    assert methods(aioclient_mock) == ["POST"]
