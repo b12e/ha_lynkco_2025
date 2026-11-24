@@ -13,3 +13,11 @@ reviews:
     # Dependency bumps are approved and merged by a workflow; no review needed.
     ignore_usernames:
       - "dependabot[bot]"
+
+  pre_merge_checks:
+    # The pull request template only asks for a "Breaking:" line when a change
+    # is breaking. This check advises adding one to every pull request, and a
+    # free-form "not breaking" line would be listed as a breaking change in
+    # the release notes. Quoted: a bare off is a boolean in YAML.
+    description:
+      mode: "off"
