@@ -22,7 +22,9 @@
 </p>
 
 <p align="center">
+  <!-- ha-marketplace:exclude-start -->
   <a href="#installation">Installation</a> ·
+  <!-- ha-marketplace:exclude-end -->
   <a href="#setup">Setup</a> ·
   <a href="#what-you-get">What you get</a> ·
   <a href="#polling">Polling</a> ·
@@ -84,7 +86,7 @@
 > Pre-2025 01s run on a different vehicle platform, but [owners report](https://github.com/b12e/ha_lynkco_2025/issues/33) that the same API serves them. On these cars the integration exposes every sensor the API returns data for, plus the actions owners have confirmed; everything else stays disabled until confirmed. [Hass-Lynk-Co](https://github.com/Donkie/Hass-Lynk-Co) remains an alternative for these cars.
 
 Remote actions are only enabled on models where they are confirmed to work. A car with a model code the integration has never seen gets the same careful treatment, plus a notice under Settings → Repairs that links straight to the [model report form](https://github.com/b12e/ha_lynkco_2025/issues/new?template=model_report.yml). Other models are not on the EU market yet; they most likely share the platform and will be added as soon as an owner reports one.
-
+<!-- ha-marketplace:exclude-start -->
 ## Installation
 
 <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=b12e&repository=ha_lynkco_2025&category=integration"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open this repository in the Marketplace or HACS."></a>
@@ -115,6 +117,7 @@ Starting with Home Assistant 2026.11, HACS ships as part of Home Assistant itsel
 Copy `custom_components/lynkco/` into the `custom_components` directory of your Home Assistant configuration and restart.
 
 </details>
+<!-- ha-marketplace:exclude-end -->
 
 ## Setup
 
@@ -183,10 +186,13 @@ The full vehicle data is polled every 15 minutes. On top of that, only the endpo
 After an action such as locking the doors or starting the heaters, only the data that action affects is refreshed: after 3 seconds, and if the car has not processed the command yet, again after 5 and 10 seconds. Fire-and-forget actions such as flashing the lights or honking the horn trigger no refresh at all.
 
 The intervals can be made longer with the gear icon on the integration, never shorter: the defaults are the minimum, to keep this integration as quiet as the official app on Lynk & Co's backend.
+<!-- ha-marketplace:exclude-start -->
 
 ## Contributing
 
 Feature requests and bug reports are welcome as issues, using the templates; pull requests are welcome too. [CONTRIBUTING.md](CONTRIBUTING.md) has the details, and [AGENTS.md](AGENTS.md) is for anyone pointing an AI coding agent at this repository.
+
+<!-- ha-marketplace:exclude-end -->
 
 ## Credits
 
